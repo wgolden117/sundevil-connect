@@ -1,4 +1,4 @@
-package ser460.sundevilconnect.server.notifications;
+package ser460.sundevilconnect.shared.notifications;
 
 import java.time.LocalDateTime;
 
