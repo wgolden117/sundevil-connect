@@ -1,0 +1,5 @@
+syntax = "proto3";
+option java_package = "ser460.sundevilconnect.shared.proto";
+option java_outer_classname = "NotificationsProto";
+
+// TODO: define messages as implementation progresses
