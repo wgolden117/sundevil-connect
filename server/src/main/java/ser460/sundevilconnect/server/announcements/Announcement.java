@@ -1,8 +1,9 @@
 package ser460.sundevilconnect.server.announcements;
 
+import ser460.sundevilconnect.server.admin.Content;
 import ser460.sundevilconnect.server.clubs.Club;
 
-public class Announcement {
+public class Announcement extends Content {
     private String announcementId;
     private String title;
     private String body;

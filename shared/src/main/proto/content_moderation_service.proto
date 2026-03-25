@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+import "entities.proto";
+
+option java_package = "ser460.sundevilconnect.shared.proto";
+option java_outer_classname = "ContentModerationServiceProto";
+option java_multiple_files = false;
+
+service ContentModerationService {
+  rpc FlagContent(FlagContentRequest) returns (ContentActionResponse);
+  rpc ApproveFlaggedContent(ApproveFlaggedContentRequest) returns (ContentActionResponse);
+  rpc RemoveFlaggedContent(RemoveFlaggedContentRequest) returns (ContentActionResponse);
+  rpc GetFlaggedContent(GetFlaggedContentRequest) returns (GetFlaggedContentResponse);
+}
+
+message FlagContentRequest {
+  string contentId = 1;
+  string reason = 2;
+  string userId = 3;
+}
+
+message ApproveFlaggedContentRequest {
+  string contentId = 1;
+}
+
+message RemoveFlaggedContentRequest {
+  string contentId = 1;
+}
+
+message GetFlaggedContentRequest {}
+
+message ContentActionResponse {
+  bool success = 1;
+}
+
+message GetFlaggedContentResponse {
+  repeated Content flaggedContent = 1;
+}

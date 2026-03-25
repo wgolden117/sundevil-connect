@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+import "entities.proto";
+
+option java_package = "ser460.sundevilconnect.shared.proto";
+option java_outer_classname = "ClubApprovalServiceProto";
+option java_multiple_files = false;
+
+service ClubApprovalService {
+  rpc SubmitClubForApproval(SubmitClubForApprovalRequest) returns (ClubApprovalActionResponse);
+  rpc ApproveClub(EvaluateClubRequest) returns (ClubApprovalActionResponse);
+  rpc RejectClub(EvaluateClubRequest) returns (ClubApprovalActionResponse);
+  rpc GetPendingClubs(GetPendingClubsRequest) returns (GetPendingClubsResponse);
+}
+
+message SubmitClubForApprovalRequest {
+  Club newClub = 1;
+  UserSummary submitter = 2;
+}
+
+message EvaluateClubRequest {
+  string clubId = 1;
+  string adminId = 2;
+  bool isApproved = 3;
+}
+
+message GetPendingClubsRequest {}
+
+message ClubApprovalActionResponse {
+  bool success = 1;
+}
+
+message GetPendingClubsResponse {
+  repeated Club pendingClubs = 1;
+}

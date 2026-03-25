@@ -1,11 +1,12 @@
 package ser460.sundevilconnect.server.events;
 
+import ser460.sundevilconnect.server.admin.Content;
 import ser460.sundevilconnect.server.clubs.Club;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-public class Event {
+public class Event extends Content {
     private String eventId;
     private String title;
     private String description;

@@ -1,0 +1,45 @@
+syntax = "proto3";
+
+import "entities.proto";
+
+option java_package = "ser460.sundevilconnect.shared.proto";
+option java_outer_classname = "ClubBrowsingServiceProto";
+option java_multiple_files = false;
+
+service ClubBrowsingService {
+  rpc GetAllClubs(GetAllClubsRequest) returns (ClubListResponse);
+  rpc GetClubsByCategory(GetClubsByCategoryRequest) returns (ClubListResponse);
+  rpc SearchClubs(SearchClubsRequest) returns (ClubListResponse);
+  rpc GetClubDetails(GetClubDetailsRequest) returns (ClubDetailsResponse);
+  rpc GetClubMembers(GetClubMembersRequest) returns (ClubMembersResponse);
+}
+
+message GetAllClubsRequest {}
+
+message GetClubsByCategoryRequest {
+  string category = 1;
+}
+
+message SearchClubsRequest {
+  string keyword = 1;
+}
+
+message GetClubDetailsRequest {
+  string clubId = 1;
+}
+
+message GetClubMembersRequest {
+  string clubId = 1;
+}
+
+message ClubListResponse {
+  repeated Club clubs = 1;
+}
+
+message ClubDetailsResponse {
+  Club club = 1;
+}
+
+message ClubMembersResponse {
+  repeated ClubMembership members = 1;
+}

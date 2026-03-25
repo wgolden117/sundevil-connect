@@ -1,0 +1,45 @@
+syntax = "proto3";
+
+import "entities.proto";
+
+option java_package = "ser460.sundevilconnect.shared.proto";
+option java_outer_classname = "AnnouncementServiceProto";
+option java_multiple_files = false;
+
+service AnnouncementService {
+  rpc CreateAnnouncement(CreateAnnouncementRequest) returns (AnnouncementActionResponse);
+  rpc EditAnnouncement(EditAnnouncementRequest) returns (AnnouncementActionResponse);
+  rpc DeleteAnnouncement(DeleteAnnouncementRequest) returns (AnnouncementActionResponse);
+  rpc PublishAnnouncement(PublishAnnouncementRequest) returns (AnnouncementActionResponse);
+  rpc GetAnnouncementsForClub(GetAnnouncementsForClubRequest) returns (GetAnnouncementsResponse);
+}
+
+message CreateAnnouncementRequest {
+  Announcement announcement = 1;
+  string clubLeaderId = 2;
+}
+
+message EditAnnouncementRequest {
+  Announcement editedAnnouncement = 1;
+}
+
+message DeleteAnnouncementRequest {
+  string announcementId = 1;
+}
+
+message PublishAnnouncementRequest {
+  string announcementId = 1;
+  bool isPublished = 2;
+}
+
+message GetAnnouncementsForClubRequest {
+  string clubId = 1;
+}
+
+message AnnouncementActionResponse {
+  bool success = 1;
+}
+
+message GetAnnouncementsResponse {
+  repeated Announcement announcements = 1;
+}

@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+option java_package = "ser460.sundevilconnect.shared.proto";
+option java_outer_classname = "NotificationServiceProto";
+option java_multiple_files = false;
+
+enum NotificationType {
+  MEMBERSHIP_APPROVED = 0;
+  MEMBERSHIP_REJECTED = 1;
+  ANNOUNCEMENT_POSTED = 2;
+  EVENT_REGISTRATION_CONFIRMED = 3;
+  EVENT_UPDATED = 4;
+  CLUB_APPROVED = 5;
+}
+
+service NotificationService {
+  rpc Subscribe(SubscribeRequest) returns (stream NotificationMessage);
+  rpc Unsubscribe(UnsubscribeRequest) returns (UnsubscribeResponse);
+}
+
+message SubscribeRequest {
+  string userId = 1;
+  string token = 2;
+}
+
+message NotificationMessage {
+  string notificationId = 1;
+  string userId = 2;
+  string message = 3;
+  NotificationType type = 4;
+  string timestamp = 5;
+  bool isRead = 6;
+}
+
+message UnsubscribeRequest {
+  string userId = 1;
+  string token = 2;
+}
+
+message UnsubscribeResponse {
+  bool success = 1;
+}

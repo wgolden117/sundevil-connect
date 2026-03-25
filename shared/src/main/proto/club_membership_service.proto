@@ -1,0 +1,72 @@
+syntax = "proto3";
+
+import "entities.proto";
+
+option java_package = "ser460.sundevilconnect.shared.proto";
+option java_outer_classname = "ClubMembershipServiceProto";
+option java_multiple_files = false;
+
+service ClubMembershipService {
+  // add rpc calls for other server-side methods that are called by client
+  rpc RequestMembership(RequestMembershipRequest) returns (RequestMembershipResponse);
+  rpc ApproveMembership(ApproveMembershipRequest) returns (MembershipActionResponse);
+  rpc RejectMembership(RejectMembershipRequest) returns (MembershipActionResponse);
+  rpc GetPendingRequests(GetPendingRequestsRequest) returns (GetPendingRequestsResponse);
+  rpc RemoveMember(RemoveMemberRequest) returns (MembershipActionResponse);
+  rpc GetMembershipsForStudent(GetMembershipsForStudentRequest) returns (GetMembershipsForStudentResponse);
+}
+
+// example data payloads
+message RequestMembershipRequest {
+  string studentId = 1;
+  string clubId = 2;
+}
+
+message GetPendingRequestsRequest {
+  string clubId = 1;
+}
+
+message ApproveMembershipRequest {
+  string requestId = 1;
+  string approverId = 2;
+}
+
+message RejectMembershipRequest {
+  string requestId = 1;
+  string approverId = 2;
+}
+
+message RemoveMemberRequest {
+  string memberId = 1;
+}
+
+message GetMembershipsForStudentRequest {
+  string userId = 1;
+}
+
+message RequestMembershipResponse {
+  bool success = 1;
+  string requestId = 2;
+}
+
+message MembershipActionResponse {
+  bool success = 1;
+}
+
+message GetPendingRequestsResponse {
+  repeated MembershipRequest requests = 1;
+}
+
+message GetMembershipsForStudentResponse {
+  repeated ClubMembership memberships = 1;
+}
+
+message MembershipRequest {
+  string requestId = 1;
+  UserSummary student = 2;
+  Club club = 3;
+  string requestDate = 4;
+  string status = 5;
+  UserSummary reviewedBy = 6;
+  string reviewDate = 7;
+}

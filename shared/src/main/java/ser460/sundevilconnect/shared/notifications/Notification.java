@@ -1,5 +1,7 @@
 package ser460.sundevilconnect.shared.notifications;
 
+import ser460.sundevilconnect.shared.proto.NotificationServiceProto.NotificationType;
+
 import java.time.LocalDateTime;
 
 public class Notification {

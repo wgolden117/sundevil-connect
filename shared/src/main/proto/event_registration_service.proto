@@ -1,0 +1,60 @@
+syntax = "proto3";
+
+import "entities.proto";
+
+option java_package = "ser460.sundevilconnect.shared.proto";
+option java_outer_classname = "EventRegistrationServiceProto";
+option java_multiple_files = false;
+
+service EventRegistrationService {
+  rpc RegisterStudentForEvent(RegisterStudentForEventRequest) returns (RegisterStudentForEventResponse);
+  rpc CancelRegistration(CancelRegistrationRequest) returns (CancelRegistrationResponse);
+  rpc GetRegistrationsForStudent(GetRegistrationsForStudentRequest) returns (GetRegistrationsResponse);
+  rpc GetRegistrationsForEvent(GetRegistrationsForEventRequest) returns (GetRegistrationsResponse);
+  rpc CheckEventCapacity(CheckEventCapacityRequest) returns (CheckEventCapacityResponse);
+}
+
+message RegisterStudentForEventRequest {
+  string studentId = 1;
+  string eventId = 2;
+}
+
+message CancelRegistrationRequest {
+  string registrationId = 1;
+}
+
+message GetRegistrationsForStudentRequest {
+  string studentId = 1;
+}
+
+message GetRegistrationsForEventRequest {
+  string eventId = 1;
+}
+
+message CheckEventCapacityRequest {
+  string eventId = 1;
+}
+
+message RegisterStudentForEventResponse {
+  EventRegistration eventRegistration = 1;
+}
+
+message CancelRegistrationResponse {
+  bool success = 1;
+}
+
+message GetRegistrationsResponse {
+  repeated EventRegistration registrations = 1;
+}
+
+message CheckEventCapacityResponse {
+  bool atCapacity = 1;
+}
+
+message EventRegistration {
+  string registrationId = 1;
+  UserSummary student = 2;
+  Event event = 3;
+  string registrationDate = 4;
+  string status = 5;
+}

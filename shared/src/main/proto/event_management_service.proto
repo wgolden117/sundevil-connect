@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+import "entities.proto";
+
+option java_package = "ser460.sundevilconnect.shared.proto";
+option java_outer_classname = "EventManagementServiceProto";
+option java_multiple_files = false;
+
+service EventManagementService {
+  rpc CreateEvent(CreateEventRequest) returns (EventManagementActionResponse);
+  rpc UpdateEvent(UpdateEventRequest) returns (EventManagementActionResponse);
+  rpc CancelEvent(CancelEventRequest) returns (EventManagementActionResponse);
+  rpc GetEventsForClub(GetEventsForClubRequest) returns (GetEventsForClubResponse);
+}
+
+message CreateEventRequest {
+  string userId = 1;
+  Event event = 2;
+}
+
+message UpdateEventRequest {
+  Event updatedEvent = 1;
+}
+
+message CancelEventRequest {
+  string eventId = 1;
+}
+
+message GetEventsForClubRequest {
+  string clubId = 1;
+}
+
+message EventManagementActionResponse {
+  bool success = 1;
+}
+
+message GetEventsForClubResponse {
+  repeated Event events = 1;
+}
