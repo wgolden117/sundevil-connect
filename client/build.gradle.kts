@@ -1,5 +1,6 @@
 plugins {
     id("org.openjfx.javafxplugin") version "0.1.0"
+    application
 }
 
 dependencies {
@@ -12,4 +13,8 @@ dependencies {
 javafx {
     version = "21"
     modules = listOf("javafx.controls", "javafx.fxml")
+}
+
+application {
+    mainClass.set("ser460.sundevilconnect.client.Main")
 }
