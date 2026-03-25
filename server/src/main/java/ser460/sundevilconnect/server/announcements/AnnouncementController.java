@@ -1,14 +1,49 @@
 package ser460.sundevilconnect.server.announcements;
 
-import ser460.sundevilconnect.server.auth.User;
-import ser460.sundevilconnect.server.clubs.Club;
+import io.grpc.stub.StreamObserver;
+import ser460.sundevilconnect.shared.proto.AnnouncementServiceGrpc.*;
+import ser460.sundevilconnect.shared.proto.AnnouncementServiceProto.*;
 
-import java.util.List;
+public class AnnouncementController extends AnnouncementServiceImplBase {
 
-public class AnnouncementController {
-    public void createAnnouncement(Announcement announcement, User clubLeader) {}
-    public void editAnnouncement(Announcement announcement, Announcement updatedAnnouncement) {}
-    public void deleteAnnouncement(Announcement announcement) {}
-    public List<Announcement> getAnnouncementsForClub(Club club) { return null; }
-    public void publishAnnouncement(Announcement announcement) {}
+    @Override
+    public void createAnnouncement(CreateAnnouncementRequest request,
+                                   StreamObserver<AnnouncementActionResponse> responseObserver) {
+        // TODO: implement
+        responseObserver.onNext(AnnouncementActionResponse.newBuilder().build());
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void editAnnouncement(EditAnnouncementRequest request,
+                                 StreamObserver<AnnouncementActionResponse> responseObserver) {
+        // TODO: implement
+        responseObserver.onNext(AnnouncementActionResponse.newBuilder().build());
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void deleteAnnouncement(DeleteAnnouncementRequest request,
+                                   StreamObserver<AnnouncementActionResponse> responseObserver) {
+        // TODO: implement
+        responseObserver.onNext(AnnouncementActionResponse.newBuilder().build());
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void publishAnnouncement(PublishAnnouncementRequest request,
+                                    StreamObserver<AnnouncementActionResponse> responseObserver) {
+        // TODO: implement
+        // TODO: notify students attached to clubs that an announcement has been posted
+        responseObserver.onNext(AnnouncementActionResponse.newBuilder().build());
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void getAnnouncementsForClub(GetAnnouncementsForClubRequest request,
+                                        StreamObserver<GetAnnouncementsResponse> responseObserver) {
+        // TODO: implement
+        responseObserver.onNext(GetAnnouncementsResponse.newBuilder().build());
+        responseObserver.onCompleted();
+    }
 }

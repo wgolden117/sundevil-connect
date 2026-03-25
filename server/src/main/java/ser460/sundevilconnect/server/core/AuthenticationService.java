@@ -3,7 +3,7 @@ package ser460.sundevilconnect.server.core;
 import ser460.sundevilconnect.server.auth.User;
 
 public class AuthenticationService {
-    private static AuthenticationService instance;
+    private static AuthenticationService instance = new AuthenticationService();
 
     private AuthenticationService() {}
 

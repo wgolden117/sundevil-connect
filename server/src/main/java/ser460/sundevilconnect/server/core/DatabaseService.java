@@ -3,7 +3,7 @@ package ser460.sundevilconnect.server.core;
 import java.util.List;
 
 public class DatabaseService {
-    private static DatabaseService instance;
+    private static DatabaseService instance = new DatabaseService();
 
     private DatabaseService() {}
 
@@ -13,6 +13,8 @@ public class DatabaseService {
         }
         return instance;
     }
+
+    // TODO make sure we're accounting for multi-threaded access!!
 
     public void save(Object entity) {}
     public Object findBy(String id, Class type) { return null; }

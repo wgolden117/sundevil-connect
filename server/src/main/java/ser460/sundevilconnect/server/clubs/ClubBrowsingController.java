@@ -1,11 +1,48 @@
 package ser460.sundevilconnect.server.clubs;
 
-import java.util.List;
+import io.grpc.stub.StreamObserver;
+import ser460.sundevilconnect.shared.proto.ClubBrowsingServiceGrpc.*;
+import ser460.sundevilconnect.shared.proto.ClubBrowsingServiceProto.*;
 
-public class ClubBrowsingController {
-    public List<Club> getAllClubs() { return null; }
-    public List<Club> getClubsbyCategory(String category) { return null; }
-    public List<Club> searchClubs(String keyword) { return null; }
-    public Club getClubDetails() { return null; }
-    public List<ClubMembership> getClubMemberships() { return null; }
+public class ClubBrowsingController extends ClubBrowsingServiceImplBase {
+
+    @Override
+    public void getAllClubs(GetAllClubsRequest request,
+                            StreamObserver<ClubListResponse> responseObserver) {
+        // TODO: implement
+        responseObserver.onNext(ClubListResponse.newBuilder().build());
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void getClubsByCategory(GetClubsByCategoryRequest request,
+                                   StreamObserver<ClubListResponse> responseObserver) {
+        // TODO: implement
+        responseObserver.onNext(ClubListResponse.newBuilder().build());
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void searchClubs(SearchClubsRequest request,
+                            StreamObserver<ClubListResponse> responseObserver) {
+        // TODO: implement
+        responseObserver.onNext(ClubListResponse.newBuilder().build());
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void getClubDetails(GetClubDetailsRequest request,
+                               StreamObserver<ClubDetailsResponse> responseObserver) {
+        // TODO: implement
+        responseObserver.onNext(ClubDetailsResponse.newBuilder().build());
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void getClubMembers(GetClubMembersRequest request,
+                               StreamObserver<ClubMembersResponse> responseObserver) {
+        // TODO: implement
+        responseObserver.onNext(ClubMembersResponse.newBuilder().build());
+        responseObserver.onCompleted();
+    }
 }

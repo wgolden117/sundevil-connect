@@ -1,20 +1,37 @@
 package ser460.sundevilconnect.server;
 
-import ser460.sundevilconnect.server.core.AuthenticationService;
-import ser460.sundevilconnect.server.core.DatabaseService;
-import ser460.sundevilconnect.server.core.NotificationService;
+import ser460.sundevilconnect.server.admin.*;
+import ser460.sundevilconnect.server.announcements.AnnouncementController;
+import ser460.sundevilconnect.server.auth.AuthenticationController;
+import ser460.sundevilconnect.server.clubs.*;
+import ser460.sundevilconnect.server.core.*;
+import ser460.sundevilconnect.server.events.*;
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         // create and init singleton services
         DatabaseService.getInstance();
         AuthenticationService.getInstance();
         NotificationService.getInstance();
 
-        // will need port information from args, probably
+        // get port/host information from args
 
-        // hand off to server
-        Server server = new Server();
-        server.start();
+        // build and start gRPC server
+        io.grpc.Server server = io.grpc.ServerBuilder
+                .forPort(8080)
+                .addService(NotificationService.getInstance()) // add for each service implementation
+                .addService(new ClubApprovalController())
+                .addService(new ContentModerationController())
+                .addService(new AnnouncementController())
+                .addService(new AuthenticationController())
+                .addService(new ClubBrowsingController())
+                .addService(new ClubMembershipController())
+                .addService(new EventBrowsingController())
+                .addService(new EventManagementController())
+                .addService(new EventRegistrationController())
+                .build()
+                .start();
+
+        server.awaitTermination();
     }
 }
