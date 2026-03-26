@@ -3,6 +3,7 @@ package ser460.sundevilconnect.server.auth;
 import io.grpc.stub.StreamObserver;
 import ser460.sundevilconnect.shared.proto.AuthServiceGrpc.*;
 import ser460.sundevilconnect.shared.proto.AuthServiceProto.*;
+import ser460.sundevilconnect.shared.proto.EntitiesProto.*;
 
 public class AuthenticationController extends AuthServiceImplBase {
 
@@ -11,7 +12,17 @@ public class AuthenticationController extends AuthServiceImplBase {
                       StreamObserver<LoginResponse> responseObserver) {
         // TODO: validate credentials via AuthenticationService
         // TODO: create session, return token and role
-        responseObserver.onNext(LoginResponse.newBuilder().build());
+
+        // this is to test server/client connection locally
+        responseObserver.onNext(LoginResponse.newBuilder()
+                .setSuccess(true)
+                .setUser(UserSummary.newBuilder()
+                    .setDisplayName("Test User 123")
+                    .setUserId("1234")
+                    .build())
+                .setToken("test_token")
+                .setRole("Test User Role")
+                .build());
         responseObserver.onCompleted();
     }
 

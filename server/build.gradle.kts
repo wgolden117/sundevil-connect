@@ -5,3 +5,11 @@ dependencies {
     implementation("io.grpc:grpc-protobuf:1.63.0")
     implementation("io.grpc:grpc-stub:1.63.0")
 }
+
+plugins {
+    application
+}
+
+application {
+    mainClass.set("ser460.sundevilconnect.server.Main")
+}
