@@ -19,6 +19,7 @@ cd sundevil-connect
 ```
 
 ### 2. Build the project
+This generates the required Protobuf/gRPC stubs. **Required before anything else will compile!**
 ```bash
 ./gradlew build
 ```
