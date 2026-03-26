@@ -31,6 +31,7 @@ public class Main {
                 .addService(new EventRegistrationController())
                 .build()
                 .start();
+        System.out.println("SERVER_READY");
 
         server.awaitTermination();
     }

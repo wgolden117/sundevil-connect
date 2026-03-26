@@ -23,13 +23,15 @@ cd sundevil-connect
 ./gradlew build
 ```
 
-### 3. Running the project
-Start both server and client with the combined Gradle task:
+## Running the project
+### Quick start (both together)
 ```bash
 ./gradlew runAll
 ```
+Note: `runAll` is for quick testing only, two consoles is preferred. Most IDEs can run two processes at the same time. 
 
-Or run them separately in two terminals:
+### Development (recommended)
+Run in two separate terminals:
 ```bash
 # Terminal 1 - Server
 ./gradlew :server:run
@@ -37,6 +39,7 @@ Or run them separately in two terminals:
 # Terminal 2 - Client  
 ./gradlew :client:run
 ```
+Always start the server before the client.
 
 ## Project Structure
 - `shared/` - Protobuf definitions and generated stubs
