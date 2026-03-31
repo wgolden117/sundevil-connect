@@ -22,7 +22,7 @@ message LoginResponse {
   bool success = 1;
   UserSummary user = 2;
   string token = 3;
-  string role = 4;
+  Role role = 4;
 }
 
 message LogoutRequest {

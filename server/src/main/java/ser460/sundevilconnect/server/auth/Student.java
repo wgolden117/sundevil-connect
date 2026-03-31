@@ -4,6 +4,7 @@ import ser460.sundevilconnect.server.clubs.Club;
 import ser460.sundevilconnect.server.clubs.ClubMembership;
 import ser460.sundevilconnect.server.events.Event;
 import ser460.sundevilconnect.server.events.EventRegistration;
+import ser460.sundevilconnect.shared.proto.EntitiesProto.Role;
 
 import java.util.List;
 
@@ -13,6 +14,11 @@ public class Student extends User {
     private int graduationYear;
     private List<ClubMembership> clubMemberships;
     private List<EventRegistration> registeredEvents;
+
+
+    public Student(String userId, String email) {
+        super(userId, email, Role.STUDENT);
+    }
 
     public List<Event> browseEvents() { return null; }
     public boolean registerForEvent(Event event) { return true; }

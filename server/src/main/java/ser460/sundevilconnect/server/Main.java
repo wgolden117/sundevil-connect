@@ -10,7 +10,9 @@ import ser460.sundevilconnect.server.events.*;
 public class Main {
     public static void main(String[] args) throws Exception {
         // create and init singleton services
-        DatabaseService.getInstance();
+        DatabaseService db = DatabaseService.getInstance();
+        db.initializeDatabase();
+        db.insertTestUser();
         AuthenticationService.getInstance();
         NotificationService.getInstance();
 

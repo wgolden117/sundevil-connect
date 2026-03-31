@@ -4,6 +4,12 @@ option java_package = "ser460.sundevilconnect.shared.proto";
 option java_outer_classname = "EntitiesProto";
 option java_multiple_files = false;
 
+enum Role {
+  STUDENT = 0;
+  CLUB_LEADER = 1;
+  ADMIN = 2;
+}
+
 message UserSummary {
   string userId = 1;
   string displayName = 2;

@@ -14,8 +14,15 @@ public class AuthenticationService {
         return instance;
     }
 
-    public User authenticateUser(String email, String password) { return null; }
+    public User authenticateUser(String email, String password) {
+        return DatabaseService.getInstance()
+                .findUserByEmailAndPassword(email, password);
+    }
+
+    public String createSession(User user) {
+        return "token_" + user.getUserId(); // simple placeholder
+    }
+
     public boolean validateSession(String userId) { return false; }
-    public String createSession(User user) { return null; }
     public void logout(String userId) {}
 }

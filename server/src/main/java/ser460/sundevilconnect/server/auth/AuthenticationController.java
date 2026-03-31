@@ -1,6 +1,7 @@
 package ser460.sundevilconnect.server.auth;
 
 import io.grpc.stub.StreamObserver;
+import ser460.sundevilconnect.server.core.AuthenticationService;
 import ser460.sundevilconnect.shared.proto.AuthServiceGrpc.*;
 import ser460.sundevilconnect.shared.proto.AuthServiceProto.*;
 import ser460.sundevilconnect.shared.proto.EntitiesProto.*;
@@ -10,19 +11,33 @@ public class AuthenticationController extends AuthServiceImplBase {
     @Override
     public void login(LoginRequest request,
                       StreamObserver<LoginResponse> responseObserver) {
-        // TODO: validate credentials via AuthenticationService
-        // TODO: create session, return token and role
 
-        // this is to test server/client connection locally
-        responseObserver.onNext(LoginResponse.newBuilder()
-                .setSuccess(true)
-                .setUser(UserSummary.newBuilder()
-                    .setDisplayName("Test User 123")
-                    .setUserId("1234")
-                    .build())
-                .setToken("test_token")
-                .setRole("Test User Role")
-                .build());
+        AuthenticationService authService = AuthenticationService.getInstance();
+
+        User user = authService.authenticateUser(
+                request.getEmail(),
+                request.getPassword()
+        );
+
+        if (user != null) {
+            String token = authService.createSession(user);
+
+            responseObserver.onNext(LoginResponse.newBuilder()
+                    .setSuccess(true)
+                    .setUser(UserSummary.newBuilder()
+                            .setDisplayName(user.getEmail())
+                            .setUserId(user.getUserId())
+                            .build())
+                    .setToken(token)
+                    .setRole(user.getRole())
+                    .build());
+
+        } else {
+            responseObserver.onNext(LoginResponse.newBuilder()
+                    .setSuccess(false)
+                    .build());
+        }
+
         responseObserver.onCompleted();
     }
 

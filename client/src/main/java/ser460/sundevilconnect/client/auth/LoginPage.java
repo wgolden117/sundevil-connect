@@ -43,10 +43,13 @@ public class LoginPage {
         loginTask.setOnSucceeded(event -> {
             LoginResponse response = loginTask.getValue();
             // back on UI thread here - safe to update UI
-            // TODO: on success, load main view
-            // TODO: on failure, display error in errorLabel
-            errorLabel.setText(response.getRole());
-            errorLabel.setVisible(true);
+            if (response.getSuccess()) {
+                // TODO: load main view
+                errorLabel.setVisible(false);
+            } else {
+                errorLabel.setText("Invalid login");
+                errorLabel.setVisible(true);
+            }
         });
 
         loginTask.setOnFailed(event -> {
