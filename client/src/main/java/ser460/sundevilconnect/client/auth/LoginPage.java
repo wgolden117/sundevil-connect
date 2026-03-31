@@ -12,6 +12,7 @@ public class LoginPage {
     @FXML private TextField emailField;
     @FXML private PasswordField passwordField;
     @FXML private Label errorLabel;
+    @FXML private javafx.scene.control.ListView<String> eventListView;
 
     @FXML
     private void initialize() {
@@ -44,8 +45,38 @@ public class LoginPage {
             LoginResponse response = loginTask.getValue();
             // back on UI thread here - safe to update UI
             if (response.getSuccess()) {
-                // TODO: load main view
-                errorLabel.setVisible(false);
+
+                System.out.println("LOGIN SUCCESS");
+                errorLabel.setText("Logged in as: " + response.getRole().name());
+                errorLabel.setVisible(true);
+
+                Task<Void> eventTask = new Task<>() {
+                    @Override
+                    protected Void call() {
+
+                        var eventStub = ConnectionManager.getInstance().getEventBrowsingStub();
+
+                        var eventResponse = eventStub.getAllEvents(
+                                ser460.sundevilconnect.shared.proto.EventBrowsingServiceProto
+                                        .GetAllEventsRequest.newBuilder()
+                                        .build()
+                        );
+
+                        javafx.application.Platform.runLater(() -> {
+                            eventListView.getItems().clear();
+
+                            for (var e : eventResponse.getEventsList()) {
+                                eventListView.getItems().add(
+                                        e.getTitle() + " | " + e.getCategory()
+                                );
+                            }
+                        });
+
+                        return null;
+                    }
+                };
+
+                new Thread(eventTask).start();
             } else {
                 errorLabel.setText("Invalid login");
                 errorLabel.setVisible(true);
