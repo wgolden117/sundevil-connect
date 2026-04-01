@@ -105,12 +105,26 @@ public class DatabaseService {
         try (Connection conn = getConnection();
              java.sql.PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setString(1, "test@sundevil.com");
+            // STUDENT
+            pstmt.setString(1, "student@sundevil.com");
             pstmt.setString(2, "password123");
             pstmt.setString(3, "STUDENT");
-
             pstmt.executeUpdate();
-            System.out.println("Test user inserted");
+
+            // CLUB LEADER
+            pstmt.setString(1, "leader@sundevil.com");
+            pstmt.setString(2, "password123");
+            pstmt.setString(3, "CLUB_LEADER");
+            pstmt.executeUpdate();
+
+            // ADMIN
+            pstmt.setString(1, "admin@sundevil.com");
+            pstmt.setString(2, "password123");
+            pstmt.setString(3, "ADMIN");
+            pstmt.executeUpdate();
+
+            System.out.println("Test users inserted");
+
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -7,12 +7,12 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import ser460.sundevilconnect.client.ConnectionManager;
 import ser460.sundevilconnect.shared.proto.AuthServiceProto.*;
+import ser460.sundevilconnect.client.main.MainController;
 
 public class LoginPage {
     @FXML private TextField emailField;
     @FXML private PasswordField passwordField;
     @FXML private Label errorLabel;
-    @FXML private javafx.scene.control.ListView<String> eventListView;
 
     @FXML
     private void initialize() {
@@ -28,7 +28,7 @@ public class LoginPage {
                 .setPassword(passwordField.getText())
                 .build();
 
-        // We run this as a Task since the stubs are blocking- which should not
+        // We run this as a Task since the stubs are blocking-which should not
         // run on the JavaFX UI thread. By running it as a task, it is delegated to a
         // new thread, and when it completes, it runs either setOnSucceeded if the task
         // completes normally, or setOnFailed if the task throws an exception.
@@ -43,40 +43,52 @@ public class LoginPage {
 
         loginTask.setOnSucceeded(event -> {
             LoginResponse response = loginTask.getValue();
-            // back on UI thread here - safe to update UI
+
             if (response.getSuccess()) {
-
                 System.out.println("LOGIN SUCCESS");
-                errorLabel.setText("Logged in as: " + response.getRole().name());
-                errorLabel.setVisible(true);
 
-                Task<Void> eventTask = new Task<>() {
-                    @Override
-                    protected Void call() {
+                try {
+                    var loader = new javafx.fxml.FXMLLoader(
+                            getClass().getResource("/fxml/main/main_view.fxml")
+                    );
 
-                        var eventStub = ConnectionManager.getInstance().getEventBrowsingStub();
+                    javafx.scene.Scene scene = new javafx.scene.Scene(loader.load());
 
-                        var eventResponse = eventStub.getAllEvents(
-                                ser460.sundevilconnect.shared.proto.EventBrowsingServiceProto
-                                        .GetAllEventsRequest.newBuilder()
-                                        .build()
-                        );
+                    // Get controller
+                    MainController controller = loader.getController();
 
-                        javafx.application.Platform.runLater(() -> {
-                            eventListView.getItems().clear();
+                    // Set role
+                    controller.setupForRole(response.getRole());
 
-                            for (var e : eventResponse.getEventsList()) {
-                                eventListView.getItems().add(
-                                        e.getTitle() + " | " + e.getCategory()
-                                );
-                            }
-                        });
+                    // Fetch events (background thread)
+                    Task<Void> eventTask = new Task<>() {
+                        @Override
+                        protected Void call() {
 
-                        return null;
-                    }
-                };
+                            var eventStub = ConnectionManager.getInstance().getEventBrowsingStub();
 
-                new Thread(eventTask).start();
+                            var eventResponse = eventStub.getAllEvents(
+                                    ser460.sundevilconnect.shared.proto.EventBrowsingServiceProto
+                                            .GetAllEventsRequest.newBuilder()
+                                            .build()
+                            );
+
+                            javafx.application.Platform.runLater(() -> controller.loadEvents(eventResponse.getEventsList()));
+
+                            return null;
+                        }
+                    };
+
+                    new Thread(eventTask).start();
+
+                    // Switch screen
+                    javafx.stage.Stage stage = (javafx.stage.Stage) emailField.getScene().getWindow();
+                    stage.setScene(scene);
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
             } else {
                 errorLabel.setText("Invalid login");
                 errorLabel.setVisible(true);
