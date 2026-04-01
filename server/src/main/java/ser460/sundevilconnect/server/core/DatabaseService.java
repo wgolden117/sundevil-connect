@@ -32,7 +32,7 @@ public class DatabaseService {
     }
 
     public void initializeDatabase() {
-        String sql = """
+        String usersTable = """
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             email TEXT NOT NULL UNIQUE,
@@ -41,27 +41,133 @@ public class DatabaseService {
         );
     """;
 
+        String eventsTable = """
+        CREATE TABLE IF NOT EXISTS events (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            description TEXT,
+            category TEXT,
+            location TEXT,
+            event_date TEXT,
+            capacity INTEGER,
+            is_paid INTEGER
+        );
+    """;
+
         try (Connection conn = getConnection();
              java.sql.Statement stmt = conn.createStatement()) {
-            stmt.execute(sql);
-            System.out.println("Users table ready");
+
+            stmt.execute(usersTable);
+            stmt.execute(eventsTable);
+
+            System.out.println("Users + Events tables ready");
+
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
+    public List<ser460.sundevilconnect.shared.proto.EntitiesProto.Event> getAllEvents() {
+        List<ser460.sundevilconnect.shared.proto.EntitiesProto.Event> events = new java.util.ArrayList<>();
+
+        String sql = "SELECT * FROM events";
+
+        try (Connection conn = getConnection();
+             java.sql.Statement stmt = conn.createStatement();
+             java.sql.ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                events.add(
+                        ser460.sundevilconnect.shared.proto.EntitiesProto.Event.newBuilder()
+                                .setEventId(String.valueOf(rs.getInt("id")))
+                                .setTitle(rs.getString("title"))
+                                .setDescription(rs.getString("description"))
+                                .setCategory(rs.getString("category"))
+                                .setLocation(rs.getString("location"))
+                                .setEventDate(rs.getString("event_date"))
+                                .setCapacity(rs.getInt("capacity"))
+                                .setIsPaid(rs.getInt("is_paid") == 1)
+                                .build()
+                );
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return events;
+    }
+
+    // TEST METHODS
     public void insertTestUser() {
         String sql = "INSERT OR IGNORE INTO users (email, password, role) VALUES (?, ?, ?)";
 
         try (Connection conn = getConnection();
              java.sql.PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setString(1, "test@sundevil.com");
+            // STUDENT
+            pstmt.setString(1, "student@sundevil.com");
             pstmt.setString(2, "password123");
             pstmt.setString(3, "STUDENT");
-
             pstmt.executeUpdate();
-            System.out.println("Test user inserted");
+
+            // CLUB LEADER
+            pstmt.setString(1, "leader@sundevil.com");
+            pstmt.setString(2, "password123");
+            pstmt.setString(3, "CLUB_LEADER");
+            pstmt.executeUpdate();
+
+            // ADMIN
+            pstmt.setString(1, "admin@sundevil.com");
+            pstmt.setString(2, "password123");
+            pstmt.setString(3, "ADMIN");
+            pstmt.executeUpdate();
+
+            System.out.println("Test users inserted");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void insertTestEvents() {
+
+        String deleteSql = "DELETE FROM events";
+
+        String insertSql = """
+    INSERT INTO events (title, description, category, location, event_date, capacity, is_paid)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+    """;
+
+        try (Connection conn = getConnection();
+             java.sql.Statement stmt = conn.createStatement();
+             java.sql.PreparedStatement pstmt = conn.prepareStatement(insertSql)) {
+
+            // clear old data
+            stmt.executeUpdate(deleteSql);
+
+            // Event 1
+            pstmt.setString(1, "Tech Talk");
+            pstmt.setString(2, "Learn about new tech trends");
+            pstmt.setString(3, "Technology");
+            pstmt.setString(4, "Room 101");
+            pstmt.setString(5, "2026-04-10");
+            pstmt.setInt(6, 100);
+            pstmt.setInt(7, 0);
+            pstmt.executeUpdate();
+
+            // Event 2
+            pstmt.setString(1, "Music Night");
+            pstmt.setString(2, "Live performances");
+            pstmt.setString(3, "Music");
+            pstmt.setString(4, "Auditorium");
+            pstmt.setString(5, "2026-04-12");
+            pstmt.setInt(6, 200);
+            pstmt.setInt(7, 1);
+            pstmt.executeUpdate();
+
+            System.out.println("Test events inserted");
+
         } catch (Exception e) {
             e.printStackTrace();
         }

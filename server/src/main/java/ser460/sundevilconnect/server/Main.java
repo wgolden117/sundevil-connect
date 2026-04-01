@@ -13,6 +13,13 @@ public class Main {
         DatabaseService db = DatabaseService.getInstance();
         db.initializeDatabase();
         db.insertTestUser();
+        db.insertTestEvents();
+        var events = db.getAllEvents();
+
+        System.out.println("---- EVENTS FROM DB ----");
+        for (var e : events) {
+            System.out.println(e.getTitle() + " | " + e.getCategory());
+        }
         AuthenticationService.getInstance();
         NotificationService.getInstance();
 

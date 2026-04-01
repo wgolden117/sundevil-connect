@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="ser460.sundevilconnect.client.main.MainController">
+
+    <!-- Top header -->
+    <top>
+        <HBox spacing="10" style="-fx-padding: 10;">
+            <Label text="SunDevil Connect" style="-fx-font-size: 18px; -fx-font-weight: bold;" />
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label fx:id="roleLabel" text="Role: UNKNOWN" />
+        </HBox>
+    </top>
+
+    <!-- Main content -->
+    <center>
+        <TabPane fx:id="mainTabPane">
+
+            <tabs>
+
+                <!-- STUDENT: EVENTS TAB -->
+                <Tab fx:id="eventsTab" text="Events" closable="false">
+                    <AnchorPane>
+                        <ListView fx:id="eventListView"
+                                  prefHeight="400"
+                                  maxHeight="500"
+                                  AnchorPane.topAnchor="10.0"
+                                  AnchorPane.bottomAnchor="10.0"
+                                  AnchorPane.leftAnchor="10.0"
+                                  AnchorPane.rightAnchor="10.0"/>
+                    </AnchorPane>
+                </Tab>
+
+                <!-- STUDENT: CLUBS TAB -->
+                <Tab fx:id="clubsTab" text="Clubs" closable="false">
+                    <AnchorPane>
+                        <Label text="Clubs coming soon..."
+                               AnchorPane.topAnchor="20.0"
+                               AnchorPane.leftAnchor="20.0"/>
+                    </AnchorPane>
+                </Tab>
+
+                <!-- CLUB LEADER: CREATE EVENTS -->
+                <Tab fx:id="createEventTab" text="Create/Manage Events" closable="false">
+                    <AnchorPane>
+                        <Label text="Create/Manage Events coming soon..."
+                               AnchorPane.topAnchor="20.0"
+                               AnchorPane.leftAnchor="20.0"/>
+                    </AnchorPane>
+                </Tab>
+
+                <!-- CLUB LEADER: APPROVE MEMBERS -->
+                <Tab fx:id="approveMembersTab" text="Approve Members" closable="false">
+                    <AnchorPane>
+                        <Label text="Approve Members coming soon..."
+                               AnchorPane.topAnchor="20.0"
+                               AnchorPane.leftAnchor="20.0"/>
+                    </AnchorPane>
+                </Tab>
+
+                <!-- CLUB LEADER: POST UPDATES -->
+                <Tab fx:id="postUpdatesTab" text="Post Updates" closable="false">
+                    <AnchorPane>
+                        <Label text="Post Updates coming soon..."
+                               AnchorPane.topAnchor="20.0"
+                               AnchorPane.leftAnchor="20.0"/>
+                    </AnchorPane>
+                </Tab>
+
+                <!-- ADMIN: MANAGE CLUBS -->
+                <Tab fx:id="manageClubsTab" text="Manage Clubs" closable="false">
+                    <AnchorPane>
+                        <Label text="Manage Clubs coming soon..."
+                               AnchorPane.topAnchor="20.0"
+                               AnchorPane.leftAnchor="20.0"/>
+                    </AnchorPane>
+                </Tab>
+
+                <!-- ADMIN: APPROVE CLUBS -->
+                <Tab fx:id="approveClubsTab" text="Approve Clubs" closable="false">
+                    <AnchorPane>
+                        <Label text="Approve Clubs coming soon..."
+                               AnchorPane.topAnchor="20.0"
+                               AnchorPane.leftAnchor="20.0"/>
+                    </AnchorPane>
+                </Tab>
+
+                <!-- ADMIN: FLAGGED CONTENT -->
+                <Tab fx:id="flaggedContentTab" text="Flagged Content" closable="false">
+                    <AnchorPane>
+                        <Label text="Flagged content management coming soon..."
+                               AnchorPane.topAnchor="20.0"
+                               AnchorPane.leftAnchor="20.0"/>
+                    </AnchorPane>
+                </Tab>
+
+            </tabs>
+
+        </TabPane>
+    </center>
+
+</BorderPane>

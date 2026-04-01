@@ -13,8 +13,17 @@ public class EventBrowsingController extends EventBrowsingServiceImplBase {
     @Override
     public void getAllEvents(GetAllEventsRequest request,
                              StreamObserver<EventListResponse> responseObserver) {
-        // TODO: implement
-        responseObserver.onNext(EventListResponse.newBuilder().build());
+
+        var events = ser460.sundevilconnect.server.core.DatabaseService
+                .getInstance()
+                .getAllEvents();
+
+        responseObserver.onNext(
+                EventListResponse.newBuilder()
+                        .addAllEvents(events)
+                        .build()
+        );
+
         responseObserver.onCompleted();
     }
 
