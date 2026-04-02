@@ -11,4 +11,18 @@
             fx:controller="ser460.sundevilconnect.client.events.EventsListView"
             prefHeight="400.0" prefWidth="600.0">
 
+    <!-- Left: list -->
+    <ListView fx:id="eventListView"
+              layoutX="10.0"
+              layoutY="10.0"
+              prefHeight="380.0"
+              prefWidth="260.0" />
+
+    <!-- Right: details -->
+    <AnchorPane fx:id="detailsPane"
+                layoutX="280.0"
+                layoutY="10.0"
+                prefHeight="380.0"
+                prefWidth="310.0" />
+
 </AnchorPane>

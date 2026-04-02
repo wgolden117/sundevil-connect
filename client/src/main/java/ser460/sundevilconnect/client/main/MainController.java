@@ -2,8 +2,13 @@ package ser460.sundevilconnect.client.main;
 
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
+import javafx.scene.Parent;
 import javafx.scene.control.*;
 
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.VBox;
 import ser460.sundevilconnect.client.ConnectionManager;
 import ser460.sundevilconnect.client.CurrentUser;
 import ser460.sundevilconnect.client.SceneController;
@@ -22,7 +27,6 @@ public class MainController {
 
     // UI elements
     @FXML private Label roleLabel;
-    @FXML private ListView<Event> eventListView;
     @FXML private Tab createEventTab;
     @FXML private Tab approveMembersTab;
     @FXML private Tab postUpdatesTab;
@@ -30,6 +34,8 @@ public class MainController {
     @FXML private Tab manageClubsTab;
     @FXML private Tab approveClubsTab;
     @FXML private Tab flaggedContentTab;
+    @FXML private AnchorPane eventsPane;
+    private boolean eventsLoaded = false;
 
     @FXML
     private void initialize() {
@@ -43,6 +49,12 @@ public class MainController {
             // Optional: prevent super tall resizing
             stage.setMinWidth(700);
             stage.setMinHeight(650);
+        });
+
+        mainTabPane.getSelectionModel().selectedItemProperty().addListener((obs, oldTab, newTab) -> {
+            if (newTab == eventsTab) {
+                loadEventsView();
+            }
         });
     }
 
@@ -85,27 +97,50 @@ public class MainController {
         }
     }
 
-    /**
-     * Load events into the ListView
-     */
-    public void loadEvents(List<Event> events) {
+    private void loadEventsView() {
+        if (eventsLoaded) return;
 
-        eventListView.getItems().clear();
-        eventListView.getItems().addAll(events);
+        // Step 1: Show loading spinner + text
+        ProgressIndicator spinner = new ProgressIndicator();
+        spinner.setMaxSize(50, 50);
 
-        // Customize how events display
-        eventListView.setCellFactory(list -> new ListCell<>() {
+        Label loadingText = new Label("Loading events...");
+
+        VBox box = new VBox(10, spinner, loadingText);
+        box.setAlignment(Pos.CENTER);
+
+        eventsPane.getChildren().setAll(box);
+
+        // Anchor the box
+        AnchorPane.setTopAnchor(box, 0.0);
+        AnchorPane.setBottomAnchor(box, 0.0);
+        AnchorPane.setLeftAnchor(box, 0.0);
+        AnchorPane.setRightAnchor(box, 0.0);
+
+        // Step 2: Load view in background
+        Task<Parent> loadTask = new Task<>() {
             @Override
-            protected void updateItem(Event event, boolean empty) {
-                super.updateItem(event, empty);
-
-                if (empty || event == null) {
-                    setText(null);
-                } else {
-                    setText(event.getTitle() + " | " + event.getCategory());
-                }
+            protected Parent call() throws Exception {
+                FXMLLoader loader = new FXMLLoader(
+                        getClass().getResource("/fxml/events/event_list.fxml")
+                );
+                return loader.load();
             }
+        };
+
+        // Step 3: Replace spinner with actual view
+        loadTask.setOnSucceeded(event -> {
+            Parent view = loadTask.getValue();
+            eventsPane.getChildren().setAll(view);
+            eventsLoaded = true;
         });
+
+        loadTask.setOnFailed(event -> {
+            System.err.println("Failed to load events view");
+            loadTask.getException().printStackTrace();
+        });
+
+        new Thread(loadTask).start();
     }
 
     @FXML

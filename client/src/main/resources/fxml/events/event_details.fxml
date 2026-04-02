@@ -11,4 +11,25 @@
             fx:controller="ser460.sundevilconnect.client.events.EventDetailsView"
             prefHeight="400.0" prefWidth="600.0">
 
+    <VBox spacing="10"
+          layoutX="10"
+          layoutY="10"
+          prefWidth="280">
+
+        <Label text="Event Details"
+               style="-fx-font-size: 16px; -fx-font-weight: bold;" />
+
+        <Label text="Title:" />
+        <Label fx:id="titleLabel" />
+
+        <Label text="Category:" />
+        <Label fx:id="categoryLabel" />
+
+        <!-- Future step: register button -->
+        <Button fx:id="registerButton"
+                text="Register"
+                onAction="#handleRegister" />
+
+    </VBox>
+
 </AnchorPane>
