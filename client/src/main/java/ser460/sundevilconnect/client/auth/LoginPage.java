@@ -81,8 +81,6 @@ public class LoginPage {
                                             .build()
                             );
 
-                            javafx.application.Platform.runLater(() -> controller.loadEvents(eventResponse.getEventsList()));
-
                             return null;
                         }
                     };
