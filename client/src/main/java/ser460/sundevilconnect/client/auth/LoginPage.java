@@ -6,6 +6,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import ser460.sundevilconnect.client.ConnectionManager;
+import ser460.sundevilconnect.client.CurrentUser;
 import ser460.sundevilconnect.shared.proto.AuthServiceProto.*;
 import ser460.sundevilconnect.client.main.MainController;
 
@@ -46,6 +47,13 @@ public class LoginPage {
 
             if (response.getSuccess()) {
                 System.out.println("LOGIN SUCCESS");
+
+                // store current user data
+                CurrentUser.getInstance().login(
+                        response.getUser().getUserId(),
+                        response.getUser().getDisplayName(),
+                        response.getRole(),
+                        response.getToken());
 
                 try {
                     var loader = new javafx.fxml.FXMLLoader(
@@ -90,12 +98,14 @@ public class LoginPage {
                 }
 
             } else {
+                System.out.println("LOGIN REJECTED");
                 errorLabel.setText("Invalid login");
                 errorLabel.setVisible(true);
             }
         });
 
         loginTask.setOnFailed(event -> {
+            System.out.println("CONNECTION FAILED");
             // gRPC call failed entirely - network error etc.
             errorLabel.setText("Connection error");
             errorLabel.setVisible(true);

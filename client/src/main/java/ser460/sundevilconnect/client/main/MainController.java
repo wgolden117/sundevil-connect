@@ -1,8 +1,13 @@
 package ser460.sundevilconnect.client.main;
 
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 
+import ser460.sundevilconnect.client.ConnectionManager;
+import ser460.sundevilconnect.client.CurrentUser;
+import ser460.sundevilconnect.client.SceneController;
+import ser460.sundevilconnect.shared.proto.AuthServiceProto;
 import ser460.sundevilconnect.shared.proto.EntitiesProto.Event;
 import ser460.sundevilconnect.shared.proto.EntitiesProto.Role;
 
@@ -101,5 +106,41 @@ public class MainController {
                 }
             }
         });
+    }
+
+    @FXML
+    private void handleLogout() {
+        CurrentUser user = CurrentUser.getInstance();
+
+        AuthServiceProto.LogoutRequest request = AuthServiceProto.LogoutRequest
+                .newBuilder()
+                .setUserId(user.getUserId())
+                .setToken(user.getSessionToken())
+                .build();
+
+        Task<AuthServiceProto.LogoutResponse> logoutTask = new Task<>() {
+            @Override
+            protected AuthServiceProto.LogoutResponse call() {
+                return ConnectionManager.getInstance().getAuthStub().logout(request);
+            }
+        };
+
+        logoutTask.setOnSucceeded(event -> {
+            AuthServiceProto.LogoutResponse response = logoutTask.getValue();
+
+            if (response.getSuccess()) {
+                System.out.println("Logged out successfully");
+                CurrentUser.getInstance().logout();
+                SceneController.getInstance().changeSceneToLogin();
+            } else {
+                System.out.println("Logged out failed");
+            }
+        });
+
+        logoutTask.setOnFailed(event -> {
+            System.out.println("Communication Error on Logout");
+        });
+
+        new Thread(logoutTask).start();
     }
 }
