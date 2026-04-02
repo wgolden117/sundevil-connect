@@ -38,96 +38,16 @@ public class DatabaseService {
 
     public void initializeDatabase() {
         try (Connection conn = getConnection()) {
-            runScript("schema.sql", conn);
+            runScript("/schema.sql", conn);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return;
+        System.out.println("Database initialization completed");
+    }
 
-        String usersTable = """
-            CREATE TABLE IF NOT EXISTS users (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                email TEXT NOT NULL UNIQUE,
-                password TEXT NOT NULL,
-                role TEXT NOT NULL,
-                firstName TEXT,
-                lastName TEXT
-            );
-        """;
-
-        String studentsTable = """
-            CREATE TABLE IF NOT EXISTS students (
-                userId INTEGER PRIMARY KEY,
-                major TEXT,
-                graduationYear INTEGER,
-                FOREIGN KEY (userId) REFERENCES users(id)
-            );
-        """;
-
-        String eventsTable = """
-            CREATE TABLE IF NOT EXISTS events (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                title TEXT NOT NULL,
-                description TEXT,
-                category TEXT,
-                location TEXT,
-                event_date TEXT,
-                capacity INTEGER,
-                is_paid INTEGER
-            );
-        """;
-
-        String clubsTable = """
-            CREATE TABLE IF NOT EXISTS clubs (
-                clubId INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL,
-                description TEXT,
-                category TEXT,
-                foundedDate TEXT,
-                status TEXT
-            );
-        """;
-
-        String clubMembershipsTable = """
-            CREATE TABLE IF NOT EXISTS clubMemberships (
-                membershipId INTEGER PRIMARY KEY AUTOINCREMENT,
-                studentId TEXT NOT NULL,
-                clubId TEXT NOT NULL,
-                role TEXT,
-                joinDate TEXT,
-                status TEXT,
-                FOREIGN KEY (studentId) REFERENCES users(userId),
-                FOREIGN KEY (clubId) REFERENCES clubs(clubId)
-            );
-        """;
-
-        String clubMembershipRequestsTable = """
-            CREATE TABLE IF NOT EXISTS membershipRequests (
-                requestId TEXT PRIMARY KEY,
-                studentId TEXT NOT NULL,
-                clubId TEXT NOT NULL,
-                status TEXT,
-                requestDate TEXT,
-                reviewedBy INTEGER,
-                reviewDate TEXT,
-                FOREIGN KEY (studentId) REFERENCES users(userId),
-                FOREIGN KEY (clubId) REFERENCES clubs(clubId),
-                FOREIGN KEY (reviewedBy) REFERENCES users(id)
-            );
-        """;
-
-        try (Connection conn = getConnection();
-             Statement stmt = conn.createStatement()) {
-
-            stmt.execute(usersTable);
-            stmt.execute(studentsTable);
-            stmt.execute(eventsTable);
-            stmt.execute(clubsTable);
-            stmt.execute(clubMembershipsTable);
-            stmt.execute(clubMembershipRequestsTable);
-
-            System.out.println("Users + Events + Clubs tables ready");
-
+    public void insertTestData() {
+        try (Connection conn = getConnection())  {
+            runScript("/seed.sql", conn);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -144,16 +64,16 @@ public class DatabaseService {
 
             while (rs.next()) {
                 events.add(
-                        Event.newBuilder()
-                                .setEventId(String.valueOf(rs.getInt("id")))
-                                .setTitle(rs.getString("title"))
-                                .setDescription(rs.getString("description"))
-                                .setCategory(rs.getString("category"))
-                                .setLocation(rs.getString("location"))
-                                .setEventDate(rs.getString("event_date"))
-                                .setCapacity(rs.getInt("capacity"))
-                                .setIsPaid(rs.getInt("is_paid") == 1)
-                                .build()
+                    Event.newBuilder()
+                        .setEventId(String.valueOf(rs.getInt("id")))
+                        .setTitle(rs.getString("title"))
+                        .setDescription(rs.getString("description"))
+                        .setCategory(rs.getString("category"))
+                        .setLocation(rs.getString("location"))
+                        .setEventDate(rs.getString("event_date"))
+                        .setCapacity(rs.getInt("capacity"))
+                        .setIsPaid(rs.getInt("is_paid") == 1)
+                        .build()
                 );
             }
 
@@ -162,87 +82,6 @@ public class DatabaseService {
         }
 
         return events;
-    }
-
-    // TEST METHODS
-    public void insertTestUser() {
-        String sql = "INSERT OR IGNORE INTO users (email, password, role, firstName, lastName) VALUES (?, ?, ?, ?, ?)";
-
-        try (Connection conn = getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            // STUDENT
-            pstmt.setString(1, "student@sundevil.com");
-            pstmt.setString(2, "password123");
-            pstmt.setString(3, "STUDENT");
-            pstmt.setString(4, "Frank");
-            pstmt.setString(5, "Castle");
-            pstmt.executeUpdate();
-
-            // CLUB LEADER
-            pstmt.setString(1, "leader@sundevil.com");
-            pstmt.setString(2, "password123");
-            pstmt.setString(3, "CLUB_LEADER");
-            pstmt.setString(4, "Peter");
-            pstmt.setString(5, "Parker");
-            pstmt.executeUpdate();
-
-            // ADMIN
-            pstmt.setString(1, "admin@sundevil.com");
-            pstmt.setString(2, "password123");
-            pstmt.setString(3, "ADMIN");
-            pstmt.setString(4, "Matt");
-            pstmt.setString(5, "Murdock");
-            pstmt.executeUpdate();
-
-            System.out.println("Test users inserted");
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void insertTestEvents() {
-
-        String deleteSql = "DELETE FROM events";
-
-        String insertSql = """
-            INSERT INTO events (title, description, category, location, event_date, capacity, is_paid)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-            """;
-
-        try (Connection conn = getConnection();
-             Statement stmt = conn.createStatement();
-             PreparedStatement pstmt = conn.prepareStatement(insertSql)) {
-
-            // clear old data
-            stmt.executeUpdate(deleteSql);
-
-            // Event 1
-            pstmt.setString(1, "Tech Talk");
-            pstmt.setString(2, "Learn about new tech trends");
-            pstmt.setString(3, "Technology");
-            pstmt.setString(4, "Room 101");
-            pstmt.setString(5, "2026-04-10");
-            pstmt.setInt(6, 100);
-            pstmt.setInt(7, 0);
-            pstmt.executeUpdate();
-
-            // Event 2
-            pstmt.setString(1, "Music Night");
-            pstmt.setString(2, "Live performances");
-            pstmt.setString(3, "Music");
-            pstmt.setString(4, "Auditorium");
-            pstmt.setString(5, "2026-04-12");
-            pstmt.setInt(6, 200);
-            pstmt.setInt(7, 1);
-            pstmt.executeUpdate();
-
-            System.out.println("Test events inserted");
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     public User findUserByEmailAndPassword(String email, String password) {
@@ -255,7 +94,6 @@ public class DatabaseService {
             pstmt.setString(2, password);
 
             ResultSet rs = pstmt.executeQuery();
-
 
             if (rs.next()) {
                 return new User(

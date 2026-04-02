@@ -36,8 +36,8 @@ CREATE TABLE IF NOT EXISTS clubs (
 
 CREATE TABLE IF NOT EXISTS clubMemberships (
     membershipId INTEGER PRIMARY KEY AUTOINCREMENT,
-    studentId TEXT NOT NULL,
-    clubId TEXT NOT NULL,
+    studentId INTEGER NOT NULL,
+    clubId INTEGER NOT NULL,
     role TEXT,
     joinDate TEXT,
     status TEXT,
@@ -46,9 +46,9 @@ CREATE TABLE IF NOT EXISTS clubMemberships (
 );
 
 CREATE TABLE IF NOT EXISTS membershipRequests (
-    requestId TEXT PRIMARY KEY,
-    studentId TEXT NOT NULL,
-    clubId TEXT NOT NULL,
+    requestId INTEGER PRIMARY KEY AUTOINCREMENT ,
+    studentId INTEGER NOT NULL,
+    clubId INTEGER NOT NULL,
     status TEXT,
     requestDate TEXT,
     reviewedBy INTEGER,

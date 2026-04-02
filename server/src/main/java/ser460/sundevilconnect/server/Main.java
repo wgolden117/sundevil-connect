@@ -15,8 +15,7 @@ public class Main {
         // create and init singleton services
         DatabaseService db = DatabaseService.getInstance();
         db.initializeDatabase();
-        db.insertTestUser();
-        db.insertTestEvents();
+        db.insertTestData();
         var events = db.getAllEvents();
 
         System.out.println("---- EVENTS FROM DB ----");
