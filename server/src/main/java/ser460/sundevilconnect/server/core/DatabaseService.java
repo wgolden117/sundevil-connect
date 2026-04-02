@@ -1,5 +1,8 @@
 package ser460.sundevilconnect.server.core;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.*;
@@ -34,12 +37,30 @@ public class DatabaseService {
     }
 
     public void initializeDatabase() {
+        try (Connection conn = getConnection()) {
+            runScript("schema.sql", conn);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return;
+
         String usersTable = """
             CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 email TEXT NOT NULL UNIQUE,
                 password TEXT NOT NULL,
-                role TEXT NOT NULL
+                role TEXT NOT NULL,
+                firstName TEXT,
+                lastName TEXT
+            );
+        """;
+
+        String studentsTable = """
+            CREATE TABLE IF NOT EXISTS students (
+                userId INTEGER PRIMARY KEY,
+                major TEXT,
+                graduationYear INTEGER,
+                FOREIGN KEY (userId) REFERENCES users(id)
             );
         """;
 
@@ -56,13 +77,56 @@ public class DatabaseService {
             );
         """;
 
+        String clubsTable = """
+            CREATE TABLE IF NOT EXISTS clubs (
+                clubId INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                description TEXT,
+                category TEXT,
+                foundedDate TEXT,
+                status TEXT
+            );
+        """;
+
+        String clubMembershipsTable = """
+            CREATE TABLE IF NOT EXISTS clubMemberships (
+                membershipId INTEGER PRIMARY KEY AUTOINCREMENT,
+                studentId TEXT NOT NULL,
+                clubId TEXT NOT NULL,
+                role TEXT,
+                joinDate TEXT,
+                status TEXT,
+                FOREIGN KEY (studentId) REFERENCES users(userId),
+                FOREIGN KEY (clubId) REFERENCES clubs(clubId)
+            );
+        """;
+
+        String clubMembershipRequestsTable = """
+            CREATE TABLE IF NOT EXISTS membershipRequests (
+                requestId TEXT PRIMARY KEY,
+                studentId TEXT NOT NULL,
+                clubId TEXT NOT NULL,
+                status TEXT,
+                requestDate TEXT,
+                reviewedBy INTEGER,
+                reviewDate TEXT,
+                FOREIGN KEY (studentId) REFERENCES users(userId),
+                FOREIGN KEY (clubId) REFERENCES clubs(clubId),
+                FOREIGN KEY (reviewedBy) REFERENCES users(id)
+            );
+        """;
+
         try (Connection conn = getConnection();
              Statement stmt = conn.createStatement()) {
 
             stmt.execute(usersTable);
+            stmt.execute(studentsTable);
             stmt.execute(eventsTable);
+            stmt.execute(clubsTable);
+            stmt.execute(clubMembershipsTable);
+            stmt.execute(clubMembershipRequestsTable);
 
-            System.out.println("Users + Events tables ready");
+            System.out.println("Users + Events + Clubs tables ready");
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -102,7 +166,7 @@ public class DatabaseService {
 
     // TEST METHODS
     public void insertTestUser() {
-        String sql = "INSERT OR IGNORE INTO users (email, password, role) VALUES (?, ?, ?)";
+        String sql = "INSERT OR IGNORE INTO users (email, password, role, firstName, lastName) VALUES (?, ?, ?, ?, ?)";
 
         try (Connection conn = getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -111,18 +175,24 @@ public class DatabaseService {
             pstmt.setString(1, "student@sundevil.com");
             pstmt.setString(2, "password123");
             pstmt.setString(3, "STUDENT");
+            pstmt.setString(4, "Frank");
+            pstmt.setString(5, "Castle");
             pstmt.executeUpdate();
 
             // CLUB LEADER
             pstmt.setString(1, "leader@sundevil.com");
             pstmt.setString(2, "password123");
             pstmt.setString(3, "CLUB_LEADER");
+            pstmt.setString(4, "Peter");
+            pstmt.setString(5, "Parker");
             pstmt.executeUpdate();
 
             // ADMIN
             pstmt.setString(1, "admin@sundevil.com");
             pstmt.setString(2, "password123");
             pstmt.setString(3, "ADMIN");
+            pstmt.setString(4, "Matt");
+            pstmt.setString(5, "Murdock");
             pstmt.executeUpdate();
 
             System.out.println("Test users inserted");
@@ -213,4 +283,18 @@ public class DatabaseService {
     private String buildQuery(Class type) { return "";}
     private void executeUpdate(String query) {}
     private void executeQuery(String query) {}
+
+    private void runScript(String resourcePath, Connection conn) throws SQLException {
+        try (InputStream is = getClass().getResourceAsStream(resourcePath)) {
+            String sql = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+            for (String statement : sql.split(";")) {
+                String trimmed = statement.trim();
+                if (!trimmed.isEmpty()) {
+                    conn.createStatement().execute(trimmed);
+                }
+            }
+        } catch (IOException e) {
+            throw new SQLException("Failed to load script: " + resourcePath, e);
+        }
+    }
 }
