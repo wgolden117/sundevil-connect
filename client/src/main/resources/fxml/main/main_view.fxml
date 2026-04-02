@@ -23,9 +23,7 @@
 
                 <!-- STUDENT: EVENTS TAB -->
                 <Tab fx:id="eventsTab" closable="false" text="Events">
-                    <AnchorPane>
-                        <ListView fx:id="eventListView" maxHeight="500" prefHeight="400" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0" />
-                    </AnchorPane>
+                    <AnchorPane fx:id="eventsPane" />
                 </Tab>
 
                 <!-- STUDENT: CLUBS TAB -->
