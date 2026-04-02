@@ -8,10 +8,12 @@ import javafx.stage.Stage;
 public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/auth/login.fxml"));
-        Scene scene = new Scene(loader.load());
+        SceneController sceneController = SceneController.getInstance();
         primaryStage.setTitle("Sundevil Connect");
-        primaryStage.setScene(scene);
+
+        sceneController.setStage(primaryStage);
+        sceneController.changeSceneToLogin();
+
         primaryStage.show();
     }
 

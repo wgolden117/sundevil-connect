@@ -2,8 +2,12 @@ package ser460.sundevilconnect.server.core;
 
 import ser460.sundevilconnect.server.auth.User;
 
+import java.util.HashMap;
+
 public class AuthenticationService {
     private static AuthenticationService instance = new AuthenticationService();
+
+    private HashMap<String, User> loggedInUsers = new HashMap<String, User>();
 
     private AuthenticationService() {}
 
@@ -14,15 +18,37 @@ public class AuthenticationService {
         return instance;
     }
 
-    public User authenticateUser(String email, String password) {
-        return DatabaseService.getInstance()
+    public String authenticateUser(String email, String password) {
+        User user = DatabaseService.getInstance()
                 .findUserByEmailAndPassword(email, password);
+        if (user != null) {
+            String sessionToken = createSession(user);
+            if (!loggedInUsers.containsKey(sessionToken)) {
+                loggedInUsers.put(sessionToken, user);
+                return sessionToken;
+            }
+        }
+        return null;
     }
 
-    public String createSession(User user) {
+    private String createSession(User user) {
         return "token_" + user.getUserId(); // simple placeholder
     }
 
-    public boolean validateSession(String userId) { return false; }
-    public void logout(String userId) {}
+    private boolean endSession(String sessionToken) {
+        User user = loggedInUsers.remove(sessionToken);
+        return user != null;
+    }
+
+    public User getSessionUser(String sessionToken) {
+        return loggedInUsers.get(sessionToken);
+    }
+
+    public boolean validateSession(String sessionToken) {
+        return loggedInUsers.containsKey(sessionToken);
+    }
+
+    public boolean logout(String sessionToken) {
+        return endSession(sessionToken);
+    }
 }

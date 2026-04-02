@@ -1,5 +1,8 @@
 package ser460.sundevilconnect.server;
 
+import io.grpc.Server;
+import io.grpc.ServerBuilder;
+
 import ser460.sundevilconnect.server.admin.*;
 import ser460.sundevilconnect.server.announcements.AnnouncementController;
 import ser460.sundevilconnect.server.auth.AuthenticationController;
@@ -26,7 +29,7 @@ public class Main {
         // get port/host information from args
 
         // build and start gRPC server
-        io.grpc.Server server = io.grpc.ServerBuilder
+        Server server = ServerBuilder
                 .forPort(8080)
                 .addService(NotificationService.getInstance()) // add for each service implementation
                 .addService(new ClubApprovalController())
