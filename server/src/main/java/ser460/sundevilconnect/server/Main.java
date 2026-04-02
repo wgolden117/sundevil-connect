@@ -27,6 +27,9 @@ public class Main {
 
         // get port/host information from args
 
+        // build entity Data Access Objects
+        ClubDAO clubDAO = new ClubDAO(db);
+
         // build and start gRPC server
         Server server = ServerBuilder
                 .forPort(8080)
@@ -35,7 +38,7 @@ public class Main {
                 .addService(new ContentModerationController())
                 .addService(new AnnouncementController())
                 .addService(new AuthenticationController())
-                .addService(new ClubBrowsingController())
+                .addService(new ClubBrowsingController(clubDAO))
                 .addService(new ClubMembershipController())
                 .addService(new EventBrowsingController())
                 .addService(new EventManagementController())

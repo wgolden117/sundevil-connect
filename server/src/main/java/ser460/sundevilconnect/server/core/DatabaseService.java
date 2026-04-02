@@ -32,7 +32,7 @@ public class DatabaseService {
         return instance;
     }
 
-    public Connection getConnection() throws Exception {
+    public Connection getConnection() throws SQLException {
         return DriverManager.getConnection("jdbc:sqlite:sundevil.db");
     }
 
