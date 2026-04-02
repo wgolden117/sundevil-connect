@@ -14,13 +14,13 @@ public class AuthenticationController extends AuthServiceImplBase {
 
         AuthenticationService authService = AuthenticationService.getInstance();
 
-        User user = authService.authenticateUser(
+        String sessionToken = authService.authenticateUser(
                 request.getEmail(),
                 request.getPassword()
         );
 
-        if (user != null) {
-            String token = authService.createSession(user);
+        if (sessionToken != null) {
+            User user = authService.getSessionUser(sessionToken);
 
             responseObserver.onNext(LoginResponse.newBuilder()
                     .setSuccess(true)
@@ -28,7 +28,7 @@ public class AuthenticationController extends AuthServiceImplBase {
                             .setDisplayName(user.getEmail())
                             .setUserId(user.getUserId())
                             .build())
-                    .setToken(token)
+                    .setToken(sessionToken)
                     .setRole(user.getRole())
                     .build());
 
@@ -44,9 +44,15 @@ public class AuthenticationController extends AuthServiceImplBase {
     @Override
     public void logout(LogoutRequest request,
                        StreamObserver<LogoutResponse> responseObserver) {
-        // TODO: invalidate session via AuthenticationService
+        // invalidate session
+        boolean success = AuthenticationService.getInstance().logout(request.getToken());
+
         // TODO: call NotificationService.getInstance().detachAll(userId)
-        responseObserver.onNext(LogoutResponse.newBuilder().build());
+
+        responseObserver.onNext(LogoutResponse.newBuilder()
+                .setSuccess(success)
+                .build());
+
         responseObserver.onCompleted();
     }
 

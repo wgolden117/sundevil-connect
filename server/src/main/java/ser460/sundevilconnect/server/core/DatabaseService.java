@@ -2,9 +2,11 @@ package ser460.sundevilconnect.server.core;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.*;
 import java.util.List;
+import java.util.ArrayList;
 import ser460.sundevilconnect.server.auth.User;
-import ser460.sundevilconnect.shared.proto.EntitiesProto.Role;
+import ser460.sundevilconnect.shared.proto.EntitiesProto.*;
 
 public class DatabaseService {
     private static DatabaseService instance = new DatabaseService();
@@ -33,29 +35,29 @@ public class DatabaseService {
 
     public void initializeDatabase() {
         String usersTable = """
-        CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            email TEXT NOT NULL UNIQUE,
-            password TEXT NOT NULL,
-            role TEXT NOT NULL
-        );
-    """;
+            CREATE TABLE IF NOT EXISTS users (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                email TEXT NOT NULL UNIQUE,
+                password TEXT NOT NULL,
+                role TEXT NOT NULL
+            );
+        """;
 
         String eventsTable = """
-        CREATE TABLE IF NOT EXISTS events (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            title TEXT NOT NULL,
-            description TEXT,
-            category TEXT,
-            location TEXT,
-            event_date TEXT,
-            capacity INTEGER,
-            is_paid INTEGER
-        );
-    """;
+            CREATE TABLE IF NOT EXISTS events (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                title TEXT NOT NULL,
+                description TEXT,
+                category TEXT,
+                location TEXT,
+                event_date TEXT,
+                capacity INTEGER,
+                is_paid INTEGER
+            );
+        """;
 
         try (Connection conn = getConnection();
-             java.sql.Statement stmt = conn.createStatement()) {
+             Statement stmt = conn.createStatement()) {
 
             stmt.execute(usersTable);
             stmt.execute(eventsTable);
@@ -67,18 +69,18 @@ public class DatabaseService {
         }
     }
 
-    public List<ser460.sundevilconnect.shared.proto.EntitiesProto.Event> getAllEvents() {
-        List<ser460.sundevilconnect.shared.proto.EntitiesProto.Event> events = new java.util.ArrayList<>();
+    public List<Event> getAllEvents() {
+        List<Event> events = new ArrayList<>();
 
         String sql = "SELECT * FROM events";
 
         try (Connection conn = getConnection();
-             java.sql.Statement stmt = conn.createStatement();
-             java.sql.ResultSet rs = stmt.executeQuery(sql)) {
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
                 events.add(
-                        ser460.sundevilconnect.shared.proto.EntitiesProto.Event.newBuilder()
+                        Event.newBuilder()
                                 .setEventId(String.valueOf(rs.getInt("id")))
                                 .setTitle(rs.getString("title"))
                                 .setDescription(rs.getString("description"))
@@ -103,7 +105,7 @@ public class DatabaseService {
         String sql = "INSERT OR IGNORE INTO users (email, password, role) VALUES (?, ?, ?)";
 
         try (Connection conn = getConnection();
-             java.sql.PreparedStatement pstmt = conn.prepareStatement(sql)) {
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             // STUDENT
             pstmt.setString(1, "student@sundevil.com");
@@ -135,13 +137,13 @@ public class DatabaseService {
         String deleteSql = "DELETE FROM events";
 
         String insertSql = """
-    INSERT INTO events (title, description, category, location, event_date, capacity, is_paid)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
-    """;
+            INSERT INTO events (title, description, category, location, event_date, capacity, is_paid)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            """;
 
         try (Connection conn = getConnection();
-             java.sql.Statement stmt = conn.createStatement();
-             java.sql.PreparedStatement pstmt = conn.prepareStatement(insertSql)) {
+             Statement stmt = conn.createStatement();
+             PreparedStatement pstmt = conn.prepareStatement(insertSql)) {
 
             // clear old data
             stmt.executeUpdate(deleteSql);
@@ -177,12 +179,12 @@ public class DatabaseService {
         String sql = "SELECT * FROM users WHERE email = ? AND password = ?";
 
         try (Connection conn = getConnection();
-             java.sql.PreparedStatement pstmt = conn.prepareStatement(sql)) {
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, email);
             pstmt.setString(2, password);
 
-            java.sql.ResultSet rs = pstmt.executeQuery();
+            ResultSet rs = pstmt.executeQuery();
 
 
             if (rs.next()) {
