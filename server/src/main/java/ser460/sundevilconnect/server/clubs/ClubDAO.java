@@ -1,6 +1,7 @@
 package ser460.sundevilconnect.server.clubs;
 
 import ser460.sundevilconnect.server.core.DatabaseService;
+import ser460.sundevilconnect.shared.proto.EntitiesProto;
 
 import java.sql.*;
 import java.time.LocalDate;
@@ -82,5 +83,18 @@ public class ClubDAO {
         club.setStatus(rs.getString("status"));
         club.setFoundedDate(LocalDate.parse(rs.getString("foundedDate")));
         return club;
+    }
+
+    public static EntitiesProto.Club toProto(Club club) {
+        EntitiesProto.Club.Builder builder = EntitiesProto.Club.newBuilder()
+                .setClubId(club.getClubId())
+                .setName(club.getName());
+
+        if (club.getDescription() != null) builder.setDescription(club.getDescription());
+        if (club.getCategory() != null) builder.setCategory(club.getCategory());
+        if (club.getStatus() != null) builder.setStatus(club.getStatus());
+        if (club.getFoundedDate() != null) builder.setFoundedDate(club.getFoundedDate().toString());
+
+        return builder.build();
     }
 }

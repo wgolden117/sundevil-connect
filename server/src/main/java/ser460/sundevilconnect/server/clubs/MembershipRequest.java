@@ -3,16 +3,16 @@ package ser460.sundevilconnect.server.clubs;
 import ser460.sundevilconnect.server.auth.Student;
 import ser460.sundevilconnect.server.auth.User;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 public class MembershipRequest {
     private String requestId;
     private Student student;
     private Club club;
-    private LocalDateTime requestDate;
+    private LocalDate requestDate;
     private String status;
     private User reviewedBy;
-    private LocalDateTime reviewDate;
+    private LocalDate reviewDate;
 
     public void approve() {}
     public void reject() {}
@@ -44,11 +44,11 @@ public class MembershipRequest {
         this.club = club;
     }
 
-    public LocalDateTime getRequestDate() {
+    public LocalDate getRequestDate() {
         return requestDate;
     }
 
-    public void setRequestDate(LocalDateTime requestDate) {
+    public void setRequestDate(LocalDate requestDate) {
         this.requestDate = requestDate;
     }
 
@@ -68,11 +68,11 @@ public class MembershipRequest {
         this.reviewedBy = reviewedBy;
     }
 
-    public LocalDateTime getReviewDate() {
+    public LocalDate getReviewDate() {
         return reviewDate;
     }
 
-    public void setReviewDate(LocalDateTime reviewDate) {
+    public void setReviewDate(LocalDate reviewDate) {
         this.reviewDate = reviewDate;
     }
 }

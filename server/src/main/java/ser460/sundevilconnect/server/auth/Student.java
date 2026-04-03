@@ -9,7 +9,6 @@ import ser460.sundevilconnect.shared.proto.EntitiesProto.Role;
 import java.util.List;
 
 public class Student extends User {
-    private String studentId;
     private String major;
     private int graduationYear;
     private List<ClubMembership> clubMemberships;
@@ -19,6 +18,10 @@ public class Student extends User {
     public Student(String userId, String email) {
         super(userId, email, Role.STUDENT);
     }
+    // UserSummary.proto constructor, for ease of use
+    public Student(String userId, String firstName, String lastName) {
+        super(userId, firstName, lastName);
+    }
 
     public List<Event> browseEvents() { return null; }
     public boolean registerForEvent(Event event) { return true; }
@@ -27,14 +30,6 @@ public class Student extends User {
     public void viewClubPage(Club club) {}
 
     // Getters and Setters
-
-    public String getStudentId() {
-        return studentId;
-    }
-
-    public void setStudentId(String studentId) {
-        this.studentId = studentId;
-    }
 
     public String getMajor() {
         return major;

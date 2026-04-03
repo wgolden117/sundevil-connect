@@ -15,6 +15,13 @@ public class User {
         this.email = email;
         this.role = role;
     }
+    // UserSummary.proto constructor, for ease of use
+    public User(String userId, String firstName, String lastName) {
+        this.userId = userId;
+        this.firstName = firstName;
+        this.lastName = lastName;
+    }
+
     public boolean login() { return true;}
     public void logout() {}
     public void updateProfile() {}

@@ -11,9 +11,11 @@ import java.util.List;
 
 public class ClubBrowsingController extends ClubBrowsingServiceImplBase {
     private final ClubDAO clubDAO;
+    private final ClubMembershipDAO clubMembershipDAO;
 
-    public ClubBrowsingController(ClubDAO clubDAO) {
+    public ClubBrowsingController(ClubDAO clubDAO, ClubMembershipDAO clubMembershipDAO) {
         this.clubDAO = clubDAO;
+        this.clubMembershipDAO = clubMembershipDAO;
     }
 
     @Override
@@ -25,7 +27,7 @@ public class ClubBrowsingController extends ClubBrowsingServiceImplBase {
             ClubListResponse response = ClubListResponse.newBuilder()
                     .addAllClubs(clubs
                             .stream()
-                            .map(this::toProto)
+                            .map(ClubDAO::toProto)
                             .toList())
                     .build();
 
@@ -45,7 +47,7 @@ public class ClubBrowsingController extends ClubBrowsingServiceImplBase {
             ClubListResponse response = ClubListResponse.newBuilder()
                     .addAllClubs(clubDAO.getClubsByCategory(request.getCategory())
                             .stream()
-                            .map(this::toProto)
+                            .map(ClubDAO::toProto)
                             .toList())
                     .build();
             responseObserver.onNext(response);
@@ -64,7 +66,7 @@ public class ClubBrowsingController extends ClubBrowsingServiceImplBase {
             ClubListResponse response = ClubListResponse.newBuilder()
                     .addAllClubs(clubDAO.searchClubs(request.getKeyword())
                             .stream()
-                            .map(this::toProto)
+                            .map(ClubDAO::toProto)
                             .toList())
                     .build();
             responseObserver.onNext(response);
@@ -83,7 +85,7 @@ public class ClubBrowsingController extends ClubBrowsingServiceImplBase {
             clubDAO.getClubById(Integer.parseInt(request.getClubId())).ifPresentOrElse(
                     club -> {
                         responseObserver.onNext(ClubDetailsResponse.newBuilder()
-                                .setClub(toProto(club))
+                                .setClub(ClubDAO.toProto(club))
                                 .build());
                         responseObserver.onCompleted();
                     },
@@ -101,20 +103,39 @@ public class ClubBrowsingController extends ClubBrowsingServiceImplBase {
     @Override
     public void getClubMembers(GetClubMembersRequest request,
                                StreamObserver<ClubMembersResponse> responseObserver) {
-        // TODO: implement
-        responseObserver.onError(Status.UNIMPLEMENTED
-                .withDescription("getClubMembers not yet implemented")
-                .asException());
+        try {
+            List<ClubMembership> members = clubMembershipDAO.getMembersForClub(
+                    Integer.parseInt(request.getClubId()));
+            ClubMembersResponse response = ClubMembersResponse.newBuilder()
+                    .addAllMembers(members.stream().map(this::toProto).toList())
+                    .build();
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
+        } catch (SQLException e) {
+            responseObserver.onError(Status.INTERNAL
+                    .withDescription(e.getMessage()).asException()
+            );
+        }
     }
 
-    private EntitiesProto.Club toProto(Club club) {
-        return EntitiesProto.Club.newBuilder()
-                .setClubId(club.getClubId())
-                .setName(club.getName())
-                .setDescription(club.getDescription())
-                .setCategory(club.getCategory())
-                .setStatus(club.getStatus())
-                .setFoundedDate(club.getFoundedDate().toString())
+    private EntitiesProto.ClubMembership toProto(ClubMembership membership) {
+        EntitiesProto.UserSummary studentSummary = EntitiesProto.UserSummary.newBuilder()
+                .setUserId(membership.getStudent().getUserId())
+                .setDisplayName(membership.getStudent().getFirstName()
+                        + " "
+                        + membership.getStudent().getLastName())
+                .build();
+        EntitiesProto.Club club = EntitiesProto.Club.newBuilder()
+                .setClubId(membership.getClub().getClubId())
+                .setName(membership.getClub().getName())
+                .build();
+        return EntitiesProto.ClubMembership.newBuilder()
+                .setMembershipId(membership.getMembershipId())
+                .setStudent(studentSummary)
+                .setClub(club)
+                .setRole(membership.getRole())
+                .setJoinDate(membership.getJoinDate().toString())
+                .setStatus(membership.getStatus())
                 .build();
     }
 }

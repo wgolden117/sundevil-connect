@@ -2,14 +2,14 @@ package ser460.sundevilconnect.server.clubs;
 
 import ser460.sundevilconnect.server.auth.Student;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 public class ClubMembership {
     private String membershipId;
     private Student student;
     private Club club;
     private String role;
-    private LocalDateTime joinDate;
+    private LocalDate joinDate;
     private String status;
 
     public void revoke() {}
@@ -49,11 +49,11 @@ public class ClubMembership {
         this.role = role;
     }
 
-    public LocalDateTime getJoinDate() {
+    public LocalDate getJoinDate() {
         return joinDate;
     }
 
-    public void setJoinDate(LocalDateTime joinDate) {
+    public void setJoinDate(LocalDate joinDate) {
         this.joinDate = joinDate;
     }
 
