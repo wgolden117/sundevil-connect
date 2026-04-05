@@ -1,7 +1,9 @@
 package ser460.sundevilconnect.server.clubs;
 
 import ser460.sundevilconnect.server.auth.Student;
+import ser460.sundevilconnect.server.auth.UserDAO;
 import ser460.sundevilconnect.server.core.DatabaseService;
+import ser460.sundevilconnect.shared.proto.EntitiesProto;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -57,5 +59,18 @@ public class ClubMembershipDAO {
         membership.setJoinDate(LocalDate.parse(rs.getString("joinDate")));
         membership.setStatus(rs.getString("status"));
         return membership;
+    }
+
+    public static EntitiesProto.ClubMembership toProto(ClubMembership membership) {
+        EntitiesProto.ClubMembership.Builder builder = EntitiesProto.ClubMembership.newBuilder()
+                .setMembershipId(membership.getMembershipId())
+                .setStudent(UserDAO.toProto(membership.getStudent()))
+                .setClub(ClubDAO.toProto(membership.getClub()));
+
+        if (membership.getRole() != null) builder.setRole(membership.getRole());
+        if (membership.getJoinDate() != null) builder.setJoinDate(membership.getJoinDate().toString());
+        if (membership.getStatus() != null) builder.setStatus(membership.getStatus());
+
+        return builder.build();
     }
 }

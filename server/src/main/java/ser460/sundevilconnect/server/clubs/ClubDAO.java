@@ -76,7 +76,7 @@ public class ClubDAO {
 
     private Club mapRow(ResultSet rs) throws SQLException {
         Club club = new Club();
-        club.setClubId(String.valueOf(rs.getInt("club_id")));
+        club.setClubId(String.valueOf(rs.getInt("clubId")));
         club.setName(rs.getString("name"));
         club.setDescription(rs.getString("description"));
         club.setCategory(rs.getString("category"));

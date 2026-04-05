@@ -4,7 +4,6 @@ import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import ser460.sundevilconnect.shared.proto.ClubBrowsingServiceGrpc.*;
 import ser460.sundevilconnect.shared.proto.ClubBrowsingServiceProto.*;
-import ser460.sundevilconnect.shared.proto.EntitiesProto;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -107,7 +106,7 @@ public class ClubBrowsingController extends ClubBrowsingServiceImplBase {
             List<ClubMembership> members = clubMembershipDAO.getMembersForClub(
                     Integer.parseInt(request.getClubId()));
             ClubMembersResponse response = ClubMembersResponse.newBuilder()
-                    .addAllMembers(members.stream().map(this::toProto).toList())
+                    .addAllMembers(members.stream().map(ClubMembershipDAO::toProto).toList())
                     .build();
             responseObserver.onNext(response);
             responseObserver.onCompleted();
@@ -116,26 +115,5 @@ public class ClubBrowsingController extends ClubBrowsingServiceImplBase {
                     .withDescription(e.getMessage()).asException()
             );
         }
-    }
-
-    private EntitiesProto.ClubMembership toProto(ClubMembership membership) {
-        EntitiesProto.UserSummary studentSummary = EntitiesProto.UserSummary.newBuilder()
-                .setUserId(membership.getStudent().getUserId())
-                .setDisplayName(membership.getStudent().getFirstName()
-                        + " "
-                        + membership.getStudent().getLastName())
-                .build();
-        EntitiesProto.Club club = EntitiesProto.Club.newBuilder()
-                .setClubId(membership.getClub().getClubId())
-                .setName(membership.getClub().getName())
-                .build();
-        return EntitiesProto.ClubMembership.newBuilder()
-                .setMembershipId(membership.getMembershipId())
-                .setStudent(studentSummary)
-                .setClub(club)
-                .setRole(membership.getRole())
-                .setJoinDate(membership.getJoinDate().toString())
-                .setStatus(membership.getStatus())
-                .build();
     }
 }

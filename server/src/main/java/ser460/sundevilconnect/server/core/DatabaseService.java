@@ -123,8 +123,9 @@ public class DatabaseService {
     private void executeQuery(String query) {}
 
     private void runScript(String resourcePath, Connection conn) throws SQLException {
-        try (InputStream is = getClass().getResourceAsStream(resourcePath)) {
-            String sql = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+        try (InputStream inputStream = getClass().getResourceAsStream(resourcePath)) {
+            assert inputStream != null;
+            String sql = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
             for (String statement : sql.split(";")) {
                 String trimmed = statement.trim();
                 if (!trimmed.isEmpty()) {
