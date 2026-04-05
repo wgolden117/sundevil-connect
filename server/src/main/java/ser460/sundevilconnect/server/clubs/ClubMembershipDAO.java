@@ -5,10 +5,7 @@ import ser460.sundevilconnect.server.auth.UserDAO;
 import ser460.sundevilconnect.server.core.DatabaseService;
 import ser460.sundevilconnect.shared.proto.EntitiesProto;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,8 +26,9 @@ public class ClubMembershipDAO {
                 FROM clubMemberships cm
                 JOIN users u ON cm.studentId = u.id
                 JOIN clubs c ON cm.clubId = c.clubId
-                WHERE cm.clubId = ?
+                WHERE cm.clubId = ? AND cm.status = 'ACTIVE'
                 """;
+
         try (Connection conn = db.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, clubId);
@@ -40,6 +38,55 @@ public class ClubMembershipDAO {
             }
         }
         return members;
+    }
+
+    public List<ClubMembership> getMembershipForStudent(int userId) throws SQLException {
+        List<ClubMembership> memberships = new ArrayList<>();
+        String sql = """
+                SELECT cm.*,
+                    u.id as userId, u.firstName, u.lastName,
+                    c.clubId, c.name
+                FROM clubMemberships cm
+                JOIN users u ON cm.studentId = u.id
+                JOIN clubs c ON cm.clubId = c.clubId
+                WHERE cm.studentId = ? AND cm.status = 'ACTIVE'
+                """;
+
+        try (Connection conn = db.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                memberships.add(mapRow(rs));
+            }
+        }
+        return memberships;
+    }
+
+    public String createMembership(int userId, int clubId) throws SQLException {
+        String sql = "INSERT INTO clubMemberships (studentId, clubId, role, joinDate, status) " +
+                "VALUES (?, ?, 'MEMBER', ?, 'ACTIVE')";
+        try (Connection conn = db.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            ps.setInt(1, userId);
+            ps.setInt(2, clubId);
+            ps.setString(3, LocalDate.now().toString());
+            ps.executeUpdate();
+            ResultSet rs = ps.getGeneratedKeys();
+            if (rs.next()) {
+                return String.valueOf(rs.getInt(1));
+            }
+        }
+        throw new SQLException("Failed to create club membership");
+    }
+
+    public boolean removeMember(int membershipId) throws SQLException {
+        String sql = "UPDATE clubMemberships SET status = 'REMOVED' WHERE membershipId = ?";
+        try (Connection conn = db.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, membershipId);
+            return ps.executeUpdate() > 0;
+        }
     }
 
     private ClubMembership mapRow(ResultSet rs) throws SQLException {

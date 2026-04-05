@@ -30,6 +30,7 @@ public class Main {
         // build entity Data Access Objects
         ClubDAO clubDAO = new ClubDAO(db);
         ClubMembershipDAO clubMembershipDAO = new ClubMembershipDAO(db);
+        MembershipRequestDAO membershipRequestDAO = new MembershipRequestDAO(db);
 
         // build and start gRPC server
         Server server = ServerBuilder
@@ -40,7 +41,7 @@ public class Main {
                 .addService(new AnnouncementController())
                 .addService(new AuthenticationController())
                 .addService(new ClubBrowsingController(clubDAO, clubMembershipDAO))
-                .addService(new ClubMembershipController())
+                .addService(new ClubMembershipController(clubMembershipDAO, membershipRequestDAO))
                 .addService(new EventBrowsingController())
                 .addService(new EventManagementController())
                 .addService(new EventRegistrationController())
