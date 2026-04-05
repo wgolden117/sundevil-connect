@@ -1,5 +1,8 @@
 package ser460.sundevilconnect.server.core;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.*;
@@ -29,41 +32,22 @@ public class DatabaseService {
         return instance;
     }
 
-    public Connection getConnection() throws Exception {
+    public Connection getConnection() throws SQLException {
         return DriverManager.getConnection("jdbc:sqlite:sundevil.db");
     }
 
     public void initializeDatabase() {
-        String usersTable = """
-            CREATE TABLE IF NOT EXISTS users (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                email TEXT NOT NULL UNIQUE,
-                password TEXT NOT NULL,
-                role TEXT NOT NULL
-            );
-        """;
+        try (Connection conn = getConnection()) {
+            runScript("/schema.sql", conn);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        System.out.println("Database initialization completed");
+    }
 
-        String eventsTable = """
-            CREATE TABLE IF NOT EXISTS events (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                title TEXT NOT NULL,
-                description TEXT,
-                category TEXT,
-                location TEXT,
-                event_date TEXT,
-                capacity INTEGER,
-                is_paid INTEGER
-            );
-        """;
-
-        try (Connection conn = getConnection();
-             Statement stmt = conn.createStatement()) {
-
-            stmt.execute(usersTable);
-            stmt.execute(eventsTable);
-
-            System.out.println("Users + Events tables ready");
-
+    public void insertTestData() {
+        try (Connection conn = getConnection())  {
+            runScript("/seed.sql", conn);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -80,16 +64,16 @@ public class DatabaseService {
 
             while (rs.next()) {
                 events.add(
-                        Event.newBuilder()
-                                .setEventId(String.valueOf(rs.getInt("id")))
-                                .setTitle(rs.getString("title"))
-                                .setDescription(rs.getString("description"))
-                                .setCategory(rs.getString("category"))
-                                .setLocation(rs.getString("location"))
-                                .setEventDate(rs.getString("event_date"))
-                                .setCapacity(rs.getInt("capacity"))
-                                .setIsPaid(rs.getInt("is_paid") == 1)
-                                .build()
+                    Event.newBuilder()
+                        .setEventId(String.valueOf(rs.getInt("id")))
+                        .setTitle(rs.getString("title"))
+                        .setDescription(rs.getString("description"))
+                        .setCategory(rs.getString("category"))
+                        .setLocation(rs.getString("location"))
+                        .setEventDate(rs.getString("event_date"))
+                        .setCapacity(rs.getInt("capacity"))
+                        .setIsPaid(rs.getInt("is_paid") == 1)
+                        .build()
                 );
             }
 
@@ -98,81 +82,6 @@ public class DatabaseService {
         }
 
         return events;
-    }
-
-    // TEST METHODS
-    public void insertTestUser() {
-        String sql = "INSERT OR IGNORE INTO users (email, password, role) VALUES (?, ?, ?)";
-
-        try (Connection conn = getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            // STUDENT
-            pstmt.setString(1, "student@sundevil.com");
-            pstmt.setString(2, "password123");
-            pstmt.setString(3, "STUDENT");
-            pstmt.executeUpdate();
-
-            // CLUB LEADER
-            pstmt.setString(1, "leader@sundevil.com");
-            pstmt.setString(2, "password123");
-            pstmt.setString(3, "CLUB_LEADER");
-            pstmt.executeUpdate();
-
-            // ADMIN
-            pstmt.setString(1, "admin@sundevil.com");
-            pstmt.setString(2, "password123");
-            pstmt.setString(3, "ADMIN");
-            pstmt.executeUpdate();
-
-            System.out.println("Test users inserted");
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void insertTestEvents() {
-
-        String deleteSql = "DELETE FROM events";
-
-        String insertSql = """
-            INSERT INTO events (title, description, category, location, event_date, capacity, is_paid)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-            """;
-
-        try (Connection conn = getConnection();
-             Statement stmt = conn.createStatement();
-             PreparedStatement pstmt = conn.prepareStatement(insertSql)) {
-
-            // clear old data
-            stmt.executeUpdate(deleteSql);
-
-            // Event 1
-            pstmt.setString(1, "Tech Talk");
-            pstmt.setString(2, "Learn about new tech trends");
-            pstmt.setString(3, "Technology");
-            pstmt.setString(4, "Room 101");
-            pstmt.setString(5, "2026-04-10");
-            pstmt.setInt(6, 100);
-            pstmt.setInt(7, 0);
-            pstmt.executeUpdate();
-
-            // Event 2
-            pstmt.setString(1, "Music Night");
-            pstmt.setString(2, "Live performances");
-            pstmt.setString(3, "Music");
-            pstmt.setString(4, "Auditorium");
-            pstmt.setString(5, "2026-04-12");
-            pstmt.setInt(6, 200);
-            pstmt.setInt(7, 1);
-            pstmt.executeUpdate();
-
-            System.out.println("Test events inserted");
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     public User findUserByEmailAndPassword(String email, String password) {
@@ -185,7 +94,6 @@ public class DatabaseService {
             pstmt.setString(2, password);
 
             ResultSet rs = pstmt.executeQuery();
-
 
             if (rs.next()) {
                 return new User(
@@ -213,4 +121,19 @@ public class DatabaseService {
     private String buildQuery(Class type) { return "";}
     private void executeUpdate(String query) {}
     private void executeQuery(String query) {}
+
+    private void runScript(String resourcePath, Connection conn) throws SQLException {
+        try (InputStream inputStream = getClass().getResourceAsStream(resourcePath)) {
+            assert inputStream != null;
+            String sql = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+            for (String statement : sql.split(";")) {
+                String trimmed = statement.trim();
+                if (!trimmed.isEmpty()) {
+                    conn.createStatement().execute(trimmed);
+                }
+            }
+        } catch (IOException e) {
+            throw new SQLException("Failed to load script: " + resourcePath, e);
+        }
+    }
 }

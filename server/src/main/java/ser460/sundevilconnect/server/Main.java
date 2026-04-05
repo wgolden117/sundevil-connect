@@ -15,8 +15,7 @@ public class Main {
         // create and init singleton services
         DatabaseService db = DatabaseService.getInstance();
         db.initializeDatabase();
-        db.insertTestUser();
-        db.insertTestEvents();
+        db.insertTestData();
         var events = db.getAllEvents();
 
         System.out.println("---- EVENTS FROM DB ----");
@@ -28,6 +27,11 @@ public class Main {
 
         // get port/host information from args
 
+        // build entity Data Access Objects
+        ClubDAO clubDAO = new ClubDAO(db);
+        ClubMembershipDAO clubMembershipDAO = new ClubMembershipDAO(db);
+        MembershipRequestDAO membershipRequestDAO = new MembershipRequestDAO(db);
+
         // build and start gRPC server
         Server server = ServerBuilder
                 .forPort(8080)
@@ -36,8 +40,8 @@ public class Main {
                 .addService(new ContentModerationController())
                 .addService(new AnnouncementController())
                 .addService(new AuthenticationController())
-                .addService(new ClubBrowsingController())
-                .addService(new ClubMembershipController())
+                .addService(new ClubBrowsingController(clubDAO, clubMembershipDAO))
+                .addService(new ClubMembershipController(clubMembershipDAO, membershipRequestDAO))
                 .addService(new EventBrowsingController())
                 .addService(new EventManagementController())
                 .addService(new EventRegistrationController())
