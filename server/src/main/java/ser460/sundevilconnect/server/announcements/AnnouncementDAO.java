@@ -65,7 +65,7 @@ public class AnnouncementDAO {
         throw new SQLException("Failed to create announcement");
     }
 
-    public boolean updateAnnouncement(int announcementId, String title, String body, String status) throws SQLException {
+    public boolean editAnnouncement(int announcementId, String title, String body, String status) throws SQLException {
         String sql = "UPDATE announcements SET title = ?, body = ?, status = ?, postedDate = ? WHERE id = ?";
         try (Connection conn = db.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);) {
@@ -89,7 +89,7 @@ public class AnnouncementDAO {
         }
     }
 
-    public boolean publish(int announcementId, boolean isPublished) throws SQLException {
+    public boolean publishAnnouncement(int announcementId, boolean isPublished) throws SQLException {
         String sql = isPublished
                 ? "UPDATE announcements SET status = 'PUBLISHED', postedDate = ? WHERE id = ?"
                 : "UPDATE announcements SET status = 'DRAFT', postedDate = NULL WHERE id = ?";

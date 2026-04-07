@@ -5,6 +5,7 @@ import io.grpc.ServerBuilder;
 
 import ser460.sundevilconnect.server.admin.*;
 import ser460.sundevilconnect.server.announcements.AnnouncementController;
+import ser460.sundevilconnect.server.announcements.AnnouncementDAO;
 import ser460.sundevilconnect.server.auth.AuthenticationController;
 import ser460.sundevilconnect.server.clubs.*;
 import ser460.sundevilconnect.server.core.*;
@@ -31,6 +32,7 @@ public class Main {
         ClubDAO clubDAO = new ClubDAO(db);
         ClubMembershipDAO clubMembershipDAO = new ClubMembershipDAO(db);
         MembershipRequestDAO membershipRequestDAO = new MembershipRequestDAO(db);
+        AnnouncementDAO announcementDAO = new AnnouncementDAO(db);
 
         // build and start gRPC server
         Server server = ServerBuilder
@@ -38,7 +40,7 @@ public class Main {
                 .addService(NotificationService.getInstance()) // add for each service implementation
                 .addService(new ClubApprovalController())
                 .addService(new ContentModerationController())
-                .addService(new AnnouncementController())
+                .addService(new AnnouncementController(announcementDAO, clubMembershipDAO))
                 .addService(new AuthenticationController())
                 .addService(new ClubBrowsingController(clubDAO, clubMembershipDAO))
                 .addService(new ClubMembershipController(clubMembershipDAO, membershipRequestDAO))
