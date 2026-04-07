@@ -1,17 +1,19 @@
 package ser460.sundevilconnect.server.announcements;
 
 import ser460.sundevilconnect.server.admin.Content;
+import ser460.sundevilconnect.server.auth.Student;
 import ser460.sundevilconnect.server.clubs.Club;
+
+import java.time.LocalDate;
 
 public class Announcement extends Content {
     private String announcementId;
     private String title;
     private String body;
+    private LocalDate postedDate;
     private Club postedToClub;
+    private Student createdBy;
     private String status;
-
-    public void publish() {}
-    public void edit() {}
 
     // Getters and Setters
 
@@ -39,12 +41,28 @@ public class Announcement extends Content {
         this.body = body;
     }
 
+    public LocalDate getPostedDate() {
+        return postedDate;
+    }
+
+    public void setPostedDate(LocalDate postedDate) {
+        this.postedDate = postedDate;
+    }
+
     public Club getPostedToClub() {
         return postedToClub;
     }
 
     public void setPostedToClub(Club postedToClub) {
         this.postedToClub = postedToClub;
+    }
+
+    public Student getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(Student createdBy) {
+        this.createdBy = createdBy;
     }
 
     public String getStatus() {

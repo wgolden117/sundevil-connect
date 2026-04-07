@@ -52,8 +52,10 @@ message Announcement {
   string announcementId = 1;
   string title = 2;
   string body = 3;
-  Club postedTo = 4;
-  string status = 5;
+  string postedDate = 4;
+  Club postedTo = 5;
+  UserSummary createdBy = 6;
+  string status = 7;
 }
 
 message ClubMembership {

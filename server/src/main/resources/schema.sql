@@ -25,6 +25,18 @@ CREATE TABLE IF NOT EXISTS events (
     is_paid INTEGER
 );
 
+CREATE TABLE IF NOT EXISTS announcements (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    body TEXT,
+    postedDate TEXT,
+    postedToClub INTEGER NOT NULL,
+    createdBy INTEGER NOT NULL,
+    status TEXT NOT NULL,
+    FOREIGN KEY (createdBy) REFERENCES  users(id),
+    FOREIGN KEY (postedToClub) REFERENCES clubs(clubId)
+);
+
 CREATE TABLE IF NOT EXISTS clubs (
     clubId INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
