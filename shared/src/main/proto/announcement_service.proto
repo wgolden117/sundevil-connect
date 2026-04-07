@@ -34,6 +34,7 @@ message PublishAnnouncementRequest {
 
 message GetAnnouncementsForClubRequest {
   string clubId = 1;
+  string requestingUserId = 2;
 }
 
 message AnnouncementActionResponse {
