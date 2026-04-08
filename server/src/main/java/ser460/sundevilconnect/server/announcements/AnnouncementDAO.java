@@ -119,7 +119,8 @@ public class AnnouncementDAO {
         announcement.setAnnouncementId(String.valueOf(rs.getInt("id")));
         announcement.setTitle(rs.getString("title"));
         announcement.setBody(rs.getString("body"));
-        announcement.setPostedDate(LocalDate.parse(rs.getString("postedDate")));
+        String postedDateStr = rs.getString("postedDate");
+        announcement.setPostedDate(postedDateStr != null ? LocalDate.parse(postedDateStr) : null);
         announcement.setPostedToClub(club);
         announcement.setCreatedBy(createdBy);
         announcement.setStatus(rs.getString("status"));
