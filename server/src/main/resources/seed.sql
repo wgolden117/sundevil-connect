@@ -1,4 +1,5 @@
 -- Clear existing data
+DELETE FROM announcements;
 DELETE FROM membershipRequests;
 DELETE FROM clubMemberships;
 DELETE FROM events;
@@ -37,3 +38,10 @@ INSERT OR IGNORE INTO membershipRequests (studentId, clubId, status, requestDate
 INSERT OR IGNORE INTO events (title, description, category, location, event_date, capacity, is_paid) VALUES
     ('Tech Talk', 'Learn about new tech trends', 'Technology', 'Room 101', '2026-04-10', 100, 0),
     ('Music Night', 'Live performances', 'Music', 'Auditorium', '2026-04-12', 200, 1);
+
+-- Announcements (Peter Parker posts to ASU Coding Club)
+INSERT OR IGNORE INTO announcements (title, body, postedDate, postedToClub, createdBy, status) VALUES
+    ('Welcome to the Coding Club!', 'Welcome to the ASU Coding Club! We are excited to have you here. Stay tuned for upcoming events and workshops.', '2026-01-15', (SELECT clubId FROM clubs WHERE name = 'ASU Coding Club'), (SELECT id FROM users WHERE email = 'leader@sundevil.com'), 'PUBLISHED'),
+    ('Spring Hackathon Announced', 'We will be hosting a 24-hour hackathon this spring. Registration opens next week. Prizes for top three teams!', '2026-02-10', (SELECT clubId FROM clubs WHERE name = 'ASU Coding Club'), (SELECT id FROM users WHERE email = 'leader@sundevil.com'), 'PUBLISHED'),
+    ('New Meeting Schedule', 'We are updating our weekly meeting schedule for the rest of the semester. More details coming soon.', NULL, (SELECT clubId FROM clubs WHERE name = 'ASU Coding Club'), (SELECT id FROM users WHERE email = 'leader@sundevil.com'), 'DRAFT'),
+    ('Battle of the Bands', 'Sun Devil Music Society is proud to announce our annual Battle of the Bands event this April!', '2026-03-01', (SELECT clubId FROM clubs WHERE name = 'Sun Devil Music Society'), (SELECT id FROM users WHERE email = 'leader@sundevil.com'), 'PUBLISHED');
