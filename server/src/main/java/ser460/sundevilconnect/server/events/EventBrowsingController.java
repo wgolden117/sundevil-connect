@@ -5,18 +5,19 @@ import ser460.sundevilconnect.server.events.filter.FilterStrategy;
 import ser460.sundevilconnect.server.events.filter.FilterStrategyFactory;
 import ser460.sundevilconnect.shared.proto.EventBrowsingServiceGrpc.*;
 import ser460.sundevilconnect.shared.proto.EventBrowsingServiceProto.*;
+import ser460.sundevilconnect.shared.proto.EntitiesProto.Event;
 
 import java.util.List;
 
 public class EventBrowsingController extends EventBrowsingServiceImplBase {
 
+    private final EventDAO eventDAO = new EventDAO();
+
     @Override
     public void getAllEvents(GetAllEventsRequest request,
                              StreamObserver<EventListResponse> responseObserver) {
 
-        var events = ser460.sundevilconnect.server.core.DatabaseService
-                .getInstance()
-                .getAllEvents();
+        var events = eventDAO.getAllEvents();
 
         responseObserver.onNext(
                 EventListResponse.newBuilder()
@@ -30,41 +31,81 @@ public class EventBrowsingController extends EventBrowsingServiceImplBase {
     @Override
     public void getEventsByCategory(GetEventsByCategoryRequest request,
                                     StreamObserver<EventListResponse> responseObserver) {
-        // TODO: implement
-        responseObserver.onNext(EventListResponse.newBuilder().build());
+
+        String category = request.getCategory();
+
+        List<Event> events = eventDAO.getEventsByCategory(category);
+
+        responseObserver.onNext(
+                EventListResponse.newBuilder()
+                        .addAllEvents(events)
+                        .build()
+        );
+
         responseObserver.onCompleted();
     }
 
     @Override
     public void searchEvents(SearchEventsRequest request,
                              StreamObserver<EventListResponse> responseObserver) {
-        // TODO: implement
-        responseObserver.onNext(EventListResponse.newBuilder().build());
+
+        String keyword = request.getKeyword();
+        List<Event> events = eventDAO.searchEvents(keyword);
+
+        responseObserver.onNext(
+                EventListResponse.newBuilder()
+                        .addAllEvents(events)
+                        .build()
+        );
+
         responseObserver.onCompleted();
     }
 
     @Override
     public void getEventDetails(GetEventDetailsRequest request,
                                 StreamObserver<EventDetailsResponse> responseObserver) {
-        // TODO: implement
-        responseObserver.onNext(EventDetailsResponse.newBuilder().build());
+
+        int eventId = Integer.parseInt(request.getEventId());
+
+        Event event = eventDAO.getEventById(eventId);
+
+        EventDetailsResponse.Builder responseBuilder = EventDetailsResponse.newBuilder();
+
+        if (event != null) {
+            responseBuilder.setEvent(event);
+        }
+
+        responseObserver.onNext(responseBuilder.build());
         responseObserver.onCompleted();
     }
 
     @Override
     public void getFilteredEvents(GetFilteredEventsRequest request,
                                   StreamObserver<EventListResponse> responseObserver) {
-        // TODO: use FilterStrategyFactory to construct strategies from request.getFiltersList()
-        List<FilterStrategy> filterStrategies = FilterStrategyFactory.createStrategies(request.getFiltersList());
 
-        // TODO: apply strategies sequentially to event list
+        // 1. Get all events
+        List<Event> events = eventDAO.getAllEvents();
 
-        responseObserver.onNext(EventListResponse.newBuilder().build());
+        // 2. Build strategies from request
+        List<FilterStrategy> filterStrategies =
+                FilterStrategyFactory.createStrategies(request.getFiltersList());
+
+        if (filterStrategies == null) {
+            filterStrategies = java.util.Collections.emptyList();
+        }
+
+        // 3. Apply each filter sequentially
+        for (FilterStrategy strategy : filterStrategies) {
+            events = strategy.applyFilter(events);
+        }
+
+        // 4. Return filtered result
+        responseObserver.onNext(
+                EventListResponse.newBuilder()
+                        .addAllEvents(events)
+                        .build()
+        );
+
         responseObserver.onCompleted();
     }
-
-    // these seem sort of out of place here and seem like they should be in the UI representation
-    public Event getEventDetails() { return null; }
-    public List<Event> sortEventsByDate() { return null; }
-    public List<Event> sortEventsByPopularity() { return null; }
 }

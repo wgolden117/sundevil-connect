@@ -1,16 +1,18 @@
 package ser460.sundevilconnect.server.events;
 
 import io.grpc.stub.StreamObserver;
-import ser460.sundevilconnect.server.auth.Student;
 import ser460.sundevilconnect.shared.proto.EventRegistrationServiceGrpc.*;
 import ser460.sundevilconnect.shared.proto.EventRegistrationServiceProto;
 import ser460.sundevilconnect.shared.proto.EventRegistrationServiceProto.*;
-import java.util.HashSet;
-import java.util.Set;
+import ser460.sundevilconnect.shared.proto.EventRegistrationServiceProto.EventRegistration;
+import ser460.sundevilconnect.shared.proto.EventRegistrationServiceProto.GetRegistrationsResponse;
+import ser460.sundevilconnect.shared.proto.EventRegistrationServiceProto.CancelRegistrationResponse;
+import ser460.sundevilconnect.shared.proto.EventRegistrationServiceProto.RegisterStudentForEventResponse;
+import java.util.List;
 
 public class EventRegistrationController extends EventRegistrationServiceImplBase {
 
-    private Set<String> registrations = java.util.Collections.synchronizedSet(new HashSet<>());
+    private final EventRegistrationDAO eventRegistrationDAO = new EventRegistrationDAO();
 
     @Override
     public void registerStudentForEvent(RegisterStudentForEventRequest request,
@@ -21,55 +23,103 @@ public class EventRegistrationController extends EventRegistrationServiceImplBas
 
         System.out.println("[REGISTER] student=" + studentId + " event=" + eventId);
 
-        // 🔥 TEMP: simulate capacity check
-        boolean atCapacity = false;
+        int studentIdInt = Integer.parseInt(studentId);
+        int eventIdInt = Integer.parseInt(eventId);
 
-        if (atCapacity) {
-            RegisterStudentForEventResponse response =
+        // 1. Check capacity
+        if (eventRegistrationDAO.isEventAtCapacity(eventIdInt)) {
+            responseObserver.onNext(
                     RegisterStudentForEventResponse.newBuilder()
                             .setEventRegistration(
                                     EventRegistrationServiceProto.EventRegistration.newBuilder()
                                             .setStatus("FULL")
                                             .build()
                             )
-                            .build();
-
-            responseObserver.onNext(response);
+                            .build()
+            );
             responseObserver.onCompleted();
             return;
         }
 
-        String key = studentId + "_" + eventId;
+        // 2. Check duplicate in DB
+        if (eventRegistrationDAO.isStudentAlreadyRegistered(studentIdInt, eventIdInt)) {
 
-        if (registrations.contains(key)) {
-            System.out.println("Duplicate registration prevented");
-
-            RegisterStudentForEventResponse response =
+            responseObserver.onNext(
                     RegisterStudentForEventResponse.newBuilder()
                             .setEventRegistration(
                                     EventRegistrationServiceProto.EventRegistration.newBuilder()
                                             .setStatus("ALREADY_REGISTERED")
                                             .build()
                             )
-                            .build();
-
-            responseObserver.onNext(response);
+                            .build()
+            );
             responseObserver.onCompleted();
             return;
         }
 
-        registrations.add(key);
+        // 3. Insert into DB
+        long now = System.currentTimeMillis();
 
+        boolean success = eventRegistrationDAO.registerStudent(studentIdInt, eventIdInt, now);
+
+        if (!success) {
+            responseObserver.onNext(
+                    RegisterStudentForEventResponse.newBuilder()
+                            .setEventRegistration(
+                                    EventRegistrationServiceProto.EventRegistration.newBuilder()
+                                            .setStatus("ERROR")
+                                            .build()
+                            )
+                            .build()
+            );
+            responseObserver.onCompleted();
+            return;
+        }
+
+        // 4. Build success response
         EventRegistrationServiceProto.EventRegistration registration =
                 EventRegistrationServiceProto.EventRegistration.newBuilder()
-                        .setRegistrationId("reg_" + System.currentTimeMillis())
-                        .setRegistrationDate(String.valueOf(System.currentTimeMillis()))
+                        .setRegistrationId(String.valueOf(now))
+                        .setRegistrationDate(String.valueOf(now))
                         .setStatus("REGISTERED")
                         .build();
 
-        RegisterStudentForEventResponse response =
+        responseObserver.onNext(
                 RegisterStudentForEventResponse.newBuilder()
                         .setEventRegistration(registration)
+                        .build()
+        );
+        responseObserver.onCompleted();
+    }
+    @Override
+    public void cancelRegistration(CancelRegistrationRequest request,
+                                   StreamObserver<CancelRegistrationResponse> responseObserver) {
+
+        int registrationId = Integer.parseInt(request.getRegistrationId());
+
+        boolean success = eventRegistrationDAO.cancelRegistration(registrationId);
+
+        responseObserver.onNext(
+                CancelRegistrationResponse.newBuilder()
+                        .setSuccess(success)
+                        .build()
+        );
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void getRegistrationsForStudent(
+            GetRegistrationsForStudentRequest request,
+            StreamObserver<GetRegistrationsResponse> responseObserver) {
+
+        int studentId = Integer.parseInt(request.getStudentId());
+
+        List<EventRegistration> registrations =
+                eventRegistrationDAO.getRegistrationsForStudent(studentId);
+
+        GetRegistrationsResponse response =
+                GetRegistrationsResponse.newBuilder()
+                        .addAllRegistrations(registrations)
                         .build();
 
         responseObserver.onNext(response);
@@ -77,34 +127,20 @@ public class EventRegistrationController extends EventRegistrationServiceImplBas
     }
 
     @Override
-    public void cancelRegistration(CancelRegistrationRequest request,
-                                   StreamObserver<CancelRegistrationResponse> responseObserver) {
-        // TODO: implement
-        responseObserver.onNext(CancelRegistrationResponse.newBuilder().build());
-        responseObserver.onCompleted();
-    }
-
-    @Override
-    public void getRegistrationsForStudent(GetRegistrationsForStudentRequest request,
-                                           StreamObserver<GetRegistrationsResponse> responseObserver) {
-        // TODO: implement
-        responseObserver.onNext(GetRegistrationsResponse.newBuilder().build());
-        responseObserver.onCompleted();
-    }
-
-    @Override
     public void getRegistrationsForEvent(GetRegistrationsForEventRequest request,
                                          StreamObserver<GetRegistrationsResponse> responseObserver) {
-        // TODO: implement
-        responseObserver.onNext(GetRegistrationsResponse.newBuilder().build());
-        responseObserver.onCompleted();
-    }
 
-    @Override
-    public void checkEventCapacity(CheckEventCapacityRequest request,
-                                   StreamObserver<CheckEventCapacityResponse> responseObserver) {
-        // TODO: implement
-        responseObserver.onNext(CheckEventCapacityResponse.newBuilder().build());
+        int eventId = Integer.parseInt(request.getEventId());
+
+        List<EventRegistration> registrations =
+                eventRegistrationDAO.getRegistrationsForEvent(eventId);
+
+        GetRegistrationsResponse response =
+                GetRegistrationsResponse.newBuilder()
+                        .addAllRegistrations(registrations)
+                        .build();
+
+        responseObserver.onNext(response);
         responseObserver.onCompleted();
     }
 }

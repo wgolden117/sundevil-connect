@@ -37,6 +37,19 @@ CREATE TABLE IF NOT EXISTS announcements (
     FOREIGN KEY (postedToClub) REFERENCES clubs(clubId)
 );
 
+CREATE TABLE IF NOT EXISTS eventRegistrations (
+    registrationId INTEGER PRIMARY KEY AUTOINCREMENT,
+    studentId INTEGER NOT NULL,
+    eventId INTEGER NOT NULL,
+    registrationDate TEXT,
+
+    FOREIGN KEY (studentId) REFERENCES users(id),
+    FOREIGN KEY (eventId) REFERENCES events(id)
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_unique_event_registration
+    ON eventRegistrations (studentId, eventId);
+
 CREATE TABLE IF NOT EXISTS clubs (
     clubId INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,

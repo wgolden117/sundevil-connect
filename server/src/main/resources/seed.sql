@@ -6,6 +6,7 @@ DELETE FROM events;
 DELETE FROM clubs;
 DELETE FROM students;
 DELETE FROM users;
+DELETE FROM eventRegistrations;
 
 -- Users
 INSERT OR IGNORE INTO users (email, password, role, firstName, lastName) VALUES

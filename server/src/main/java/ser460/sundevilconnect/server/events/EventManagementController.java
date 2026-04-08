@@ -1,43 +1,79 @@
 package ser460.sundevilconnect.server.events;
 
 import io.grpc.stub.StreamObserver;
-import ser460.sundevilconnect.server.auth.Student;
 import ser460.sundevilconnect.shared.proto.EventManagementServiceGrpc.*;
 import ser460.sundevilconnect.shared.proto.EventManagementServiceProto.*;
 
-import java.util.List;
 
 public class EventManagementController extends EventManagementServiceImplBase {
+
+    private final EventManagementDAO eventManagementDAO = new EventManagementDAO();
 
     @Override
     public void createEvent(CreateEventRequest request,
                             StreamObserver<EventManagementActionResponse> responseObserver) {
-        // TODO: implement
-        responseObserver.onNext(EventManagementActionResponse.newBuilder().build());
+
+        var event = request.getEvent();
+
+        boolean success = eventManagementDAO.createEvent(event);
+
+        responseObserver.onNext(
+                EventManagementActionResponse.newBuilder()
+                        .setSuccess(success)
+                        .build()
+        );
+
         responseObserver.onCompleted();
     }
 
     @Override
     public void updateEvent(UpdateEventRequest request,
                             StreamObserver<EventManagementActionResponse> responseObserver) {
-        // TODO: notify registered students via NotificationService - EVENT_UPDATED
-        responseObserver.onNext(EventManagementActionResponse.newBuilder().build());
+
+        var event = request.getUpdatedEvent();
+
+        boolean success = eventManagementDAO.updateEvent(event);
+
+        responseObserver.onNext(
+                EventManagementActionResponse.newBuilder()
+                        .setSuccess(success)
+                        .build()
+        );
+
         responseObserver.onCompleted();
     }
 
     @Override
     public void cancelEvent(CancelEventRequest request,
                             StreamObserver<EventManagementActionResponse> responseObserver) {
-        // TODO: notify registered students via NotificationService - EVENT_UPDATED
-        responseObserver.onNext(EventManagementActionResponse.newBuilder().build());
+
+        int eventId = Integer.parseInt(request.getEventId());
+
+        boolean success = eventManagementDAO.cancelEvent(eventId);
+
+        responseObserver.onNext(
+                EventManagementActionResponse.newBuilder()
+                        .setSuccess(success)
+                        .build()
+        );
+
         responseObserver.onCompleted();
     }
 
     @Override
     public void getEventsForClub(GetEventsForClubRequest request,
                                  StreamObserver<GetEventsForClubResponse> responseObserver) {
-        // TODO: implement
-        responseObserver.onNext(GetEventsForClubResponse.newBuilder().build());
+
+        String clubId = request.getClubId();
+
+        var events = eventManagementDAO.getEventsForClub(clubId);
+
+        responseObserver.onNext(
+                GetEventsForClubResponse.newBuilder()
+                        .addAllEvents(events)
+                        .build()
+        );
+
         responseObserver.onCompleted();
     }
 }

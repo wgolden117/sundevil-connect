@@ -2,7 +2,7 @@ package ser460.sundevilconnect.server.clubs;
 
 import ser460.sundevilconnect.server.announcements.Announcement;
 import ser460.sundevilconnect.server.auth.Student;
-import ser460.sundevilconnect.server.events.Event;
+import ser460.sundevilconnect.shared.proto.EntitiesProto.Event;
 
 import java.time.LocalDate;
 import java.util.List;
