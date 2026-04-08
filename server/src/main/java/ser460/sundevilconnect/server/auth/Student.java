@@ -2,7 +2,7 @@ package ser460.sundevilconnect.server.auth;
 
 import ser460.sundevilconnect.server.clubs.Club;
 import ser460.sundevilconnect.server.clubs.ClubMembership;
-import ser460.sundevilconnect.server.events.Event;
+import ser460.sundevilconnect.shared.proto.EntitiesProto.Event;
 import ser460.sundevilconnect.server.events.EventRegistration;
 import ser460.sundevilconnect.shared.proto.EntitiesProto.Role;
 

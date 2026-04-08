@@ -1,11 +1,9 @@
 package ser460.sundevilconnect.server.events;
 
 import io.grpc.stub.StreamObserver;
-import ser460.sundevilconnect.server.auth.Student;
 import ser460.sundevilconnect.shared.proto.EventManagementServiceGrpc.*;
 import ser460.sundevilconnect.shared.proto.EventManagementServiceProto.*;
 
-import java.util.List;
 
 public class EventManagementController extends EventManagementServiceImplBase {
 

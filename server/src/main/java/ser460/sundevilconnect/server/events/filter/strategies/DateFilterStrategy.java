@@ -1,6 +1,6 @@
 package ser460.sundevilconnect.server.events.filter.strategies;
 
-import ser460.sundevilconnect.server.events.Event;
+import ser460.sundevilconnect.shared.proto.EntitiesProto.Event;
 import ser460.sundevilconnect.server.events.filter.FilterStrategy;
 
 import java.time.LocalDateTime;
