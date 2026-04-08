@@ -1,19 +1,24 @@
 package ser460.sundevilconnect.server.events.filter.strategies;
 
-import ser460.sundevilconnect.server.events.Event;
+import ser460.sundevilconnect.shared.proto.EntitiesProto.Event;
 import ser460.sundevilconnect.server.events.filter.FilterStrategy;
 
 import java.util.List;
 
 public class ClubFilterStrategy implements FilterStrategy {
-    private String club;
+    private final String clubId;
 
-    public ClubFilterStrategy(String club) {
-        this.club = club;
+    public ClubFilterStrategy(String clubId) {
+        this.clubId = clubId;
     }
 
     @Override
     public List<Event> applyFilter(List<Event> events) {
-        return List.of();
+        return events.stream()
+                .filter(event ->
+                        event.hasHostedBy() &&
+                                event.getHostedBy().getClubId().equals(clubId)
+                )
+                .toList();
     }
 }

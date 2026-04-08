@@ -1,12 +1,12 @@
 package ser460.sundevilconnect.server.events.filter.strategies;
 
-import ser460.sundevilconnect.server.events.Event;
+import ser460.sundevilconnect.shared.proto.EntitiesProto.Event;
 import ser460.sundevilconnect.server.events.filter.FilterStrategy;
 
 import java.util.List;
 
 public class PaidFilterStrategy implements FilterStrategy {
-    private boolean isPaid;
+    private final boolean isPaid;
 
     public PaidFilterStrategy(boolean isPaid) {
         this.isPaid = isPaid;
@@ -14,6 +14,8 @@ public class PaidFilterStrategy implements FilterStrategy {
 
     @Override
     public List<Event> applyFilter(List<Event> events) {
-        return List.of();
+        return events.stream()
+                .filter(event -> event.getIsPaid() == isPaid)
+                .toList();
     }
 }
