@@ -6,7 +6,7 @@ import ser460.sundevilconnect.server.events.filter.FilterStrategy;
 import java.util.List;
 
 public class CategoryFilterStrategy implements FilterStrategy {
-    private String category;
+    private final String category;
 
     public CategoryFilterStrategy(String category) {
         this.category = category;
@@ -14,6 +14,8 @@ public class CategoryFilterStrategy implements FilterStrategy {
 
     @Override
     public List<Event> applyFilter(List<Event> events) {
-        return List.of();
+        return events.stream()
+                .filter(event -> event.getCategory().equalsIgnoreCase(category))
+                .toList();
     }
 }
