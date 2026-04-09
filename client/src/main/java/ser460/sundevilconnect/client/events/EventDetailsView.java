@@ -3,6 +3,7 @@ package ser460.sundevilconnect.client.events;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import ser460.sundevilconnect.client.CurrentUser;
 import ser460.sundevilconnect.shared.proto.EntitiesProto.Event;
 import ser460.sundevilconnect.client.ConnectionManager;
 import ser460.sundevilconnect.shared.proto.EventRegistrationServiceProto;
@@ -12,6 +13,8 @@ public class EventDetailsView {
     @FXML private Label titleLabel;
     @FXML private Label categoryLabel;
     @FXML private Button registerButton;
+    @FXML private Label locationLabel;
+    @FXML private Label dateLabel;
 
     private Event currentEvent;
 
@@ -24,7 +27,19 @@ public class EventDetailsView {
         if (currentEvent != null) {
             titleLabel.setText(currentEvent.getTitle());
             categoryLabel.setText(currentEvent.getCategory());
+            locationLabel.setText(currentEvent.getLocation());
+            dateLabel.setText(currentEvent.getEventDate());
         }
+    }
+
+    private void showAlert(String message) {
+        javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
+                javafx.scene.control.Alert.AlertType.INFORMATION
+        );
+        alert.setTitle("Event Registration");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 
     @FXML
@@ -34,8 +49,7 @@ public class EventDetailsView {
         try {
             var stub = ConnectionManager.getInstance().getEventRegistrationStub();
 
-            // TEMP: replace later with CurrentUser.getUserId()
-            String studentId = "student1";
+            String studentId = CurrentUser.getInstance().getUserId();
 
             var request = EventRegistrationServiceProto.RegisterStudentForEventRequest
                     .newBuilder()
@@ -43,12 +57,13 @@ public class EventDetailsView {
                     .setEventId(currentEvent.getEventId())
                     .build();
 
-            registerButton.setDisable(true);
-
             var response = stub.registerStudentForEvent(request);
 
-            if (response != null) {
+            if (response.getSuccess()) {
                 registerButton.setText("Registered");
+            } else {
+                registerButton.setDisable(false);
+                showAlert(response.getMessage());
             }
 
             System.out.println("Registered for event: " + currentEvent.getTitle());

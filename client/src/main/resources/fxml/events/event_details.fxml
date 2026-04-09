@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
@@ -24,6 +21,12 @@
 
         <Label text="Category:" />
         <Label fx:id="categoryLabel" />
+
+        <Label text="Location:" />
+        <Label fx:id="locationLabel" />
+
+        <Label text="Date:" />
+        <Label fx:id="dateLabel" />
 
         <!-- Future step: register button -->
         <Button fx:id="registerButton"

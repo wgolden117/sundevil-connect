@@ -59,6 +59,7 @@ public class MainController {
             if (newTab == eventsTab) {
                 loadEventsView();
             } else if (newTab == myEventsTab) {
+                myEventsLoaded = false; // force reload
                 loadMyEventsView();
             }
         });

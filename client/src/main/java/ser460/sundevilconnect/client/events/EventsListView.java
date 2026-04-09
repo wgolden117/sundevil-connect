@@ -39,16 +39,17 @@ public class EventsListView {
         if (empty || event == null) {
             return null;
         }
-        return event.getTitle() + " | " + event.getCategory();
+        return event.getTitle()
+                + "\n" + event.getLocation()
+                + " | " + event.getCategory();
     }
 
     private void setupClickHandler() {
-        eventListView.setOnMouseClicked(e -> {
-            Event selected = eventListView.getSelectionModel().getSelectedItem();
-
-            if (selected != null) {
-                loadEventDetails(selected);
-            }
+        eventListView.getSelectionModel().selectedItemProperty().addListener(
+                (obs, oldVal, newVal) -> {
+                    if (newVal != null) {
+                        loadEventDetails(newVal);
+                    }
         });
     }
 
@@ -62,7 +63,13 @@ public class EventsListView {
 
             var response = stub.getAllEvents(request);
 
-            eventListView.getItems().setAll(response.getEventsList());
+            var events = response.getEventsList();
+            eventListView.getItems().setAll(events);
+
+            if (!events.isEmpty()) {
+                eventListView.getSelectionModel().select(0);
+                loadEventDetails(events.get(0));
+            }
 
         } catch (Exception e) {
             System.err.println("Error loading events: " + e.getMessage());

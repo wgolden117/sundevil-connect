@@ -36,8 +36,16 @@ INSERT OR IGNORE INTO membershipRequests (studentId, clubId, status, requestDate
 
 -- Events
 INSERT OR IGNORE INTO events (title, description, category, location, event_date, capacity, is_paid) VALUES
-    ('Tech Talk', 'Learn about new tech trends', 'Technology', 'Room 101', '2026-04-10', 100, 0),
-    ('Music Night', 'Live performances', 'Music', 'Auditorium', '2026-04-12', 200, 1);
+    ('Tech Talk: AI Trends', 'Learn about AI in 2026', 'Technology', 'Room 101', '2026-04-10', 100, 0),
+    ('Music Night', 'Live performances', 'Music', 'Auditorium', '2026-04-12', 200, 1),
+    ('Hackathon 2026', '24-hour coding event', 'Technology', 'Engineering Building', '2026-04-20', 150, 0),
+    ('Robotics Workshop', 'Build your first robot', 'Technology', 'Lab 3', '2026-04-18', 40, 0),
+    ('Career Fair Prep', 'Resume + interview tips', 'Career', 'Student Center', '2026-04-22', 80, 0),
+    ('Startup Pitch Night', 'Pitch your ideas', 'Business', 'Room 205', '2026-04-25', 60, 1),
+    ('Gaming Tournament', 'Compete in esports', 'Recreation', 'Gaming Lounge', '2026-04-28', 120, 0),
+    ('Art Showcase', 'Student artwork display', 'Art', 'Gallery Hall', '2026-05-01', 50, 0),
+    ('Fitness Bootcamp', 'Outdoor workout session', 'Health', 'Campus Field', '2026-05-03', 70, 0),
+    ('Movie Night', 'Outdoor movie screening', 'Entertainment', 'Quad Lawn', '2026-05-05', 200, 0);
 
 -- Announcements (Peter Parker posts to ASU Coding Club)
 INSERT OR IGNORE INTO announcements (title, body, postedDate, postedToClub, createdBy, status) VALUES
