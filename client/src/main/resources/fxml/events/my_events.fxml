@@ -11,7 +11,7 @@
     <!-- TOP: Filters + Registered Events -->
     <HBox spacing="10">
 
-        <!-- LEFT: Filters (optional, but included for consistency) -->
+        <!-- LEFT: Filters -->
         <fx:include source="event_filter.fxml"/>
 
         <!-- RIGHT: Registered Events List -->
