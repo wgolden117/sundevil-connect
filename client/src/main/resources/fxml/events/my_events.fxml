@@ -1,14 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<VBox spacing="10" xmlns="http://javafx.com/javafx/17.0.2-ea"
-      xmlns:fx="http://javafx.com/fxml/1">
+<VBox spacing="10"
+      xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="ser460.sundevilconnect.client.events.MyEventsView">
 
-    <Label text="My Registered Events"
-           style="-fx-font-size: 18px; -fx-font-weight: bold;" />
+    <!-- TOP: Filters + Registered Events -->
+    <HBox spacing="10">
 
-    <VBox fx:id="eventsContainer" spacing="8"/>
+        <!-- LEFT: Filters -->
+        <fx:include fx:id="filterPanel" source="event_filter.fxml"/>
+
+        <!-- RIGHT: Registered Events List -->
+        <ListView fx:id="eventListView"
+                  prefWidth="350"
+                  prefHeight="300"/>
+
+    </HBox>
+
+    <!-- BOTTOM: Details -->
+    <AnchorPane fx:id="detailsPane"
+                prefHeight="100"
+                prefWidth="600"/>
 
 </VBox>

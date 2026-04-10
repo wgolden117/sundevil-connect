@@ -36,7 +36,9 @@ message CheckEventCapacityRequest {
 }
 
 message RegisterStudentForEventResponse {
-  EventRegistration eventRegistration = 1;
+  bool success = 1;
+  string message = 2;
+  EventRegistration eventRegistration = 3;
 }
 
 message CancelRegistrationResponse {

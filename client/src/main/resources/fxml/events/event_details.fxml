@@ -1,31 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
 <AnchorPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="ser460.sundevilconnect.client.events.EventDetailsView"
-            prefHeight="400.0" prefWidth="600.0">
+            prefHeight="120.0" prefWidth="600.0">
 
     <VBox spacing="10"
           layoutX="10"
           layoutY="10"
-          prefWidth="280">
+          prefWidth="580">
 
         <Label text="Event Details"
                style="-fx-font-size: 16px; -fx-font-weight: bold;" />
 
-        <Label text="Title:" />
-        <Label fx:id="titleLabel" />
+        <HBox spacing="20">
 
-        <Label text="Category:" />
-        <Label fx:id="categoryLabel" />
+            <Label text="Title:" />
+            <Label fx:id="titleLabel" />
 
-        <!-- Future step: register button -->
+            <Label text="Category:" />
+            <Label fx:id="categoryLabel" />
+
+            <Label text="Location:" />
+            <Label fx:id="locationLabel" />
+
+            <Label text="Date:" />
+            <Label fx:id="dateLabel" />
+
+        </HBox>
+
         <Button fx:id="registerButton"
                 text="Register"
                 onAction="#handleRegister" />

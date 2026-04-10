@@ -1,28 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="ser460.sundevilconnect.client.events.EventsListView"
-            prefHeight="400.0" prefWidth="600.0">
+<VBox spacing="10"
+      xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="ser460.sundevilconnect.client.events.EventsListView">
 
-    <!-- Left: list -->
-    <ListView fx:id="eventListView"
-              layoutX="10.0"
-              layoutY="10.0"
-              prefHeight="380.0"
-              prefWidth="260.0" />
+    <!-- TOP: Filters + List side by side -->
+    <HBox spacing="10">
 
-    <!-- Right: details -->
+        <!-- LEFT: Filters -->
+        <fx:include fx:id="filterPanel" source="event_filter.fxml"/>
+
+        <!-- RIGHT: Event List -->
+        <ListView fx:id="eventListView"
+                  prefWidth="350"
+                  prefHeight="300"/>
+
+    </HBox>
+
+    <!-- BOTTOM: Details -->
     <AnchorPane fx:id="detailsPane"
-                layoutX="280.0"
-                layoutY="10.0"
-                prefHeight="380.0"
-                prefWidth="310.0" />
+                prefHeight="100"
+                prefWidth="600"/>
 
-</AnchorPane>
+</VBox>

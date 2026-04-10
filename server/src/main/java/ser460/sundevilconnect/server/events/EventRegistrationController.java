@@ -30,11 +30,8 @@ public class EventRegistrationController extends EventRegistrationServiceImplBas
         if (eventRegistrationDAO.isEventAtCapacity(eventIdInt)) {
             responseObserver.onNext(
                     RegisterStudentForEventResponse.newBuilder()
-                            .setEventRegistration(
-                                    EventRegistrationServiceProto.EventRegistration.newBuilder()
-                                            .setStatus("FULL")
-                                            .build()
-                            )
+                            .setSuccess(false)
+                            .setMessage("Event is at full capacity")
                             .build()
             );
             responseObserver.onCompleted();
@@ -46,11 +43,8 @@ public class EventRegistrationController extends EventRegistrationServiceImplBas
 
             responseObserver.onNext(
                     RegisterStudentForEventResponse.newBuilder()
-                            .setEventRegistration(
-                                    EventRegistrationServiceProto.EventRegistration.newBuilder()
-                                            .setStatus("ALREADY_REGISTERED")
-                                            .build()
-                            )
+                            .setSuccess(false)
+                            .setMessage("You are already registered for this event")
                             .build()
             );
             responseObserver.onCompleted();
@@ -65,11 +59,8 @@ public class EventRegistrationController extends EventRegistrationServiceImplBas
         if (!success) {
             responseObserver.onNext(
                     RegisterStudentForEventResponse.newBuilder()
-                            .setEventRegistration(
-                                    EventRegistrationServiceProto.EventRegistration.newBuilder()
-                                            .setStatus("ERROR")
-                                            .build()
-                            )
+                            .setSuccess(false)
+                            .setMessage("Registration failed")
                             .build()
             );
             responseObserver.onCompleted();
@@ -86,6 +77,8 @@ public class EventRegistrationController extends EventRegistrationServiceImplBas
 
         responseObserver.onNext(
                 RegisterStudentForEventResponse.newBuilder()
+                        .setSuccess(true)
+                        .setMessage("Registered successfully")
                         .setEventRegistration(registration)
                         .build()
         );
