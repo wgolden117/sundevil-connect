@@ -65,11 +65,7 @@ public class EventsListView {
 
             var events = response.getEventsList();
             eventListView.getItems().setAll(events);
-
-            if (!events.isEmpty()) {
-                eventListView.getSelectionModel().select(0);
-                loadEventDetails(events.get(0));
-            }
+            detailsPane.getChildren().clear();
 
         } catch (Exception e) {
             System.err.println("Error loading events: " + e.getMessage());

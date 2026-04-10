@@ -17,10 +17,23 @@ public class EventDetailsView {
     @FXML private Label dateLabel;
 
     private Event currentEvent;
+    private boolean isMyEvent = false;
+    private String registrationId;
+    private Runnable onCancelSuccess; // callback to refresh My Events
 
     public void setEvent(Event event) {
         this.currentEvent = event;
         populateUI();
+    }
+
+    public void setMyEvent(Event event, String registrationId, Runnable onCancelSuccess) {
+        this.currentEvent = event;
+        this.registrationId = registrationId;
+        this.isMyEvent = true;
+        this.onCancelSuccess = onCancelSuccess;
+
+        populateUI();
+        registerButton.setText("Cancel Registration");
     }
 
     private void populateUI() {
@@ -49,6 +62,31 @@ public class EventDetailsView {
         try {
             var stub = ConnectionManager.getInstance().getEventRegistrationStub();
 
+            // Cancel flow
+            if (isMyEvent) {
+                var cancelRequest = EventRegistrationServiceProto.CancelRegistrationRequest
+                        .newBuilder()
+                        .setRegistrationId(registrationId)
+                        .build();
+
+                var cancelResponse = stub.cancelRegistration(cancelRequest);
+
+                if (cancelResponse.getSuccess()) {
+                    showAlert("Registration cancelled.");
+                    registerButton.setDisable(true);
+
+                    // refresh My Events view
+                    if (onCancelSuccess != null) {
+                        onCancelSuccess.run();
+                    }
+                } else {
+                    showAlert("Failed to cancel registration.");
+                }
+
+                return;
+            }
+
+            // Register flow
             String studentId = CurrentUser.getInstance().getUserId();
 
             var request = EventRegistrationServiceProto.RegisterStudentForEventRequest
