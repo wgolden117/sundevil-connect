@@ -6,8 +6,21 @@ import javafx.scene.control.ComboBox;
 
 public class EventFilterPanel {
 
-    @FXML private ComboBox<String> categoryDropdown;
-    @FXML private CheckBox paidCheckbox;
+    @FXML
+    private ComboBox<String> categoryDropdown;
+    @FXML
+    private CheckBox paidCheckbox;
+    @FXML
+    private ComboBox<String> clubDropdown;
+    @FXML
+    private javafx.scene.control.DatePicker fromDatePicker;
+    @FXML
+    private javafx.scene.control.DatePicker toDatePicker;
+    private FilterListener filterListener;
+
+    public void setFilterListener(FilterListener listener) {
+        this.filterListener = listener;
+    }
 
     @FXML
     private void initialize() {
@@ -20,6 +33,8 @@ public class EventFilterPanel {
                 "Health",
                 "Recreation"
         );
+        categoryDropdown.setPromptText("Select category");
+        clubDropdown.setPromptText("Select club");
     }
 
     @FXML
@@ -27,8 +42,18 @@ public class EventFilterPanel {
         String selectedCategory = categoryDropdown.getValue();
         boolean isPaid = paidCheckbox.isSelected();
 
-        System.out.println("Filters selected:");
-        System.out.println("Category: " + selectedCategory);
-        System.out.println("Paid: " + isPaid);
+        if (filterListener != null) {
+            filterListener.onFiltersApplied(
+                    selectedCategory,
+                    isPaid,
+                    fromDatePicker.getValue(),
+                    toDatePicker.getValue(),
+                    clubDropdown.getValue()
+            );
+
+            System.out.println("Filters selected:");
+            System.out.println("Category: " + selectedCategory);
+            System.out.println("Paid: " + isPaid);
+        }
     }
 }

@@ -10,16 +10,26 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.layout.AnchorPane;
 
-public class EventsListView {
+public class EventsListView implements FilterListener{
 
     @FXML
     private ListView<Event> eventListView;
+
+    @FXML
+    private AnchorPane filterPanel;
+
+    @FXML
+    private EventFilterPanel filterPanelController;
 
     @FXML
     private void initialize() {
         setupListView();
         setupClickHandler();
         loadEvents();
+
+        if (filterPanelController != null) {
+            filterPanelController.setFilterListener(this);
+        }
     }
 
     @FXML
@@ -33,6 +43,24 @@ public class EventsListView {
                 setText(formatEvent(event, empty));
             }
         });
+    }
+
+    @Override
+    public void onFiltersApplied(
+            String category,
+            boolean paid,
+            java.time.LocalDate fromDate,
+            java.time.LocalDate toDate,
+            String club
+    ) {
+        System.out.println("EventsListView received filters!");
+        System.out.println("Category: " + category);
+        System.out.println("Paid: " + paid);
+        System.out.println("From: " + fromDate);
+        System.out.println("To: " + toDate);
+        System.out.println("Club: " + club);
+
+        fetchFilteredEvents(category, paid, fromDate, toDate, club);
     }
 
     private String formatEvent(Event event, boolean empty) {
@@ -88,6 +116,88 @@ public class EventsListView {
 
         } catch (Exception e) {
             System.err.println("Error loading details: " + e.getMessage());
+        }
+    }
+
+    private void fetchFilteredEvents(
+            String category,
+            boolean paid,
+            java.time.LocalDate fromDate,
+            java.time.LocalDate toDate,
+            String club
+    ) {
+        try {
+            var stub = ConnectionManager.getInstance().getEventBrowsingStub();
+
+            var requestBuilder = EventBrowsingServiceProto.GetFilteredEventsRequest.newBuilder();
+
+            // Category filter (always apply if selected)
+            if (category != null && !category.isEmpty()) {
+                var categoryFilter = EventBrowsingServiceProto.CategoryFilter.newBuilder()
+                        .setCategory(category)
+                        .build();
+
+                var filter = EventBrowsingServiceProto.EventFilter.newBuilder()
+                        .setType(EventBrowsingServiceProto.FilterType.CATEGORY)
+                        .setCategory(categoryFilter)
+                        .build();
+
+                requestBuilder.addFilters(filter);
+            }
+
+            // Paid filter (ONLY if checkbox is checked)
+            if (paid) {
+                var paidFilter = EventBrowsingServiceProto.PaidFilter.newBuilder()
+                        .setIsPaid(true)
+                        .build();
+
+                var paidEventFilter = EventBrowsingServiceProto.EventFilter.newBuilder()
+                        .setType(EventBrowsingServiceProto.FilterType.PAID)
+                        .setPaid(paidFilter)
+                        .build();
+
+                requestBuilder.addFilters(paidEventFilter);
+            }
+
+            // DATE RANGE
+            if (fromDate != null && toDate != null) {
+                var dateFilter = EventBrowsingServiceProto.DateFilter.newBuilder()
+                        .setFromDate(fromDate.atStartOfDay().toString())
+                        .setToDate(toDate.atStartOfDay().toString())
+                        .build();
+
+                requestBuilder.addFilters(
+                        EventBrowsingServiceProto.EventFilter.newBuilder()
+                                .setType(EventBrowsingServiceProto.FilterType.DATE)
+                                .setDate(dateFilter)
+                                .build()
+                );
+            }
+
+            // CLUB
+            if (club != null && !club.isEmpty()) {
+                var clubFilter = EventBrowsingServiceProto.ClubFilter.newBuilder()
+                        .setClubId(club)
+                        .build();
+
+                requestBuilder.addFilters(
+                        EventBrowsingServiceProto.EventFilter.newBuilder()
+                                .setType(EventBrowsingServiceProto.FilterType.CLUB)
+                                .setClub(clubFilter)
+                                .build()
+                );
+            }
+
+            // Call backend
+            var response = stub.getFilteredEvents(requestBuilder.build());
+
+            var events = response.getEventsList();
+            eventListView.getItems().setAll(events);
+
+            detailsPane.getChildren().clear();
+
+        } catch (Exception e) {
+            System.err.println("Error fetching filtered events: " + e.getMessage());
         }
     }
 }

@@ -26,8 +26,14 @@ public class FilterStrategyFactory {
                 case DATE:
                     strategies.add(
                             new DateFilterStrategy(
-                                    java.time.LocalDateTime.parse(filter.getDate().getFromDate()),
-                                    java.time.LocalDateTime.parse(filter.getDate().getToDate())
+                                    java.time.LocalDateTime.parse(
+                                            filter.getDate().getFromDate(),
+                                            java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm")
+                                    ),
+                                    java.time.LocalDateTime.parse(
+                                            filter.getDate().getToDate(),
+                                            java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm")
+                                    )
                             )
                     );
                     break;

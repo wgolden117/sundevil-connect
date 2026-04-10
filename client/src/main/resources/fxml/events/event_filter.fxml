@@ -6,9 +6,9 @@
 <AnchorPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="ser460.sundevilconnect.client.events.EventFilterPanel"
-            prefHeight="400.0" prefWidth="250.0">
+            prefHeight="500.0" prefWidth="250.0">
 
-    <VBox spacing="10"
+    <VBox spacing="12"
           layoutX="10"
           layoutY="10"
           prefWidth="230">
@@ -19,6 +19,17 @@
         <!-- Category -->
         <Label text="Category:" />
         <ComboBox fx:id="categoryDropdown" prefWidth="200"/>
+
+        <!-- Club -->
+        <Label text="Club:" />
+        <ComboBox fx:id="clubDropdown" prefWidth="200"/>
+
+        <!-- Date Range -->
+        <Label text="From Date:" />
+        <DatePicker fx:id="fromDatePicker" prefWidth="200"/>
+
+        <Label text="To Date:" />
+        <DatePicker fx:id="toDatePicker" prefWidth="200"/>
 
         <!-- Paid -->
         <CheckBox fx:id="paidCheckbox" text="Paid Events Only" />

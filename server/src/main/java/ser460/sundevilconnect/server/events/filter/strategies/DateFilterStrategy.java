@@ -19,7 +19,9 @@ public class DateFilterStrategy implements FilterStrategy {
     public List<Event> applyFilter(List<Event> events) {
         return events.stream()
                 .filter(event -> {
-                    LocalDateTime eventDate = LocalDateTime.parse(event.getEventDate());
+                    LocalDateTime eventDate = java.time.LocalDate
+                            .parse(event.getEventDate())
+                            .atStartOfDay();
 
                     return (eventDate.isAfter(fromDate) || eventDate.isEqual(fromDate)) &&
                             (eventDate.isBefore(toDate) || eventDate.isEqual(toDate));
