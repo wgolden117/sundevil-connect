@@ -18,6 +18,7 @@ public class EventFilterPanel {
     private javafx.scene.control.DatePicker toDatePicker;
     private FilterListener filterListener;
 
+
     public void setFilterListener(FilterListener listener) {
         this.filterListener = listener;
     }
@@ -54,6 +55,21 @@ public class EventFilterPanel {
             System.out.println("Filters selected:");
             System.out.println("Category: " + selectedCategory);
             System.out.println("Paid: " + isPaid);
+        }
+    }
+
+    @FXML
+    private void handleClearFilters() {
+        // Reset UI inputs
+        categoryDropdown.setValue(null);
+        paidCheckbox.setSelected(false);
+        clubDropdown.setValue(null);
+        fromDatePicker.setValue(null);
+        toDatePicker.setValue(null);
+
+        // Notify listener to reset data
+        if (filterListener != null) {
+            filterListener.onFiltersCleared();
         }
     }
 }

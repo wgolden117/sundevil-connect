@@ -8,4 +8,6 @@ public interface FilterListener {
             java.time.LocalDate toDate,
             String club
     );
+
+    void onFiltersCleared();
 }

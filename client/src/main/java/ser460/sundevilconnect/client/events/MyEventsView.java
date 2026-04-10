@@ -10,16 +10,24 @@ import ser460.sundevilconnect.shared.proto.EventRegistrationServiceProto;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 
-public class MyEventsView {
+public class MyEventsView implements FilterListener{
 
     @FXML private ListView<EventRegistrationServiceProto.EventRegistration> eventListView;
     @FXML private AnchorPane detailsPane;
+    @FXML private EventFilterPanel filterPanelController;
+    private java.util.List<EventRegistrationServiceProto.EventRegistration> allRegistrations;
+    @SuppressWarnings("unused")
+    @FXML private AnchorPane filterPanel;
 
     @FXML
     private void initialize() {
         setupListView();
         setupClickHandler();
         loadMyEvents();
+
+        if (filterPanelController != null) {
+            filterPanelController.setFilterListener(this);
+        }
     }
 
     private void setupListView() {
@@ -88,11 +96,91 @@ public class MyEventsView {
 
             var registrations = response.getRegistrationsList();
 
+            allRegistrations = registrations; // store original list
+
             eventListView.getItems().setAll(registrations);
+            if (registrations.isEmpty()) {
+                eventListView.setPlaceholder(
+                        new javafx.scene.control.Label("You haven't registered for any events yet")
+                );
+            } else {
+                eventListView.setPlaceholder(null);
+            }
             detailsPane.getChildren().clear();
 
         } catch (Exception e) {
             System.err.println("Error loading my events: " + e.getMessage());
         }
+    }
+
+    @Override
+    public void onFiltersApplied(
+            String category,
+            boolean paid,
+            java.time.LocalDate fromDate,
+            java.time.LocalDate toDate,
+            String club
+    ) {
+        var filtered = allRegistrations.stream()
+                .filter(reg -> {
+                    var event = reg.getEvent();
+
+                    // CATEGORY
+                    if (category != null && !category.isEmpty()) {
+                        if (!event.getCategory().equalsIgnoreCase(category)) {
+                            return false;
+                        }
+                    }
+
+                    // PAID
+                    if (paid) {
+                        if (!event.getIsPaid()) {
+                            return false;
+                        }
+                    }
+
+                    // DATE
+                    if (fromDate != null && toDate != null) {
+                        var eventDate = java.time.LocalDate.parse(event.getEventDate());
+
+                        if (eventDate.isBefore(fromDate) || eventDate.isAfter(toDate)) {
+                            return false;
+                        }
+                    }
+
+                    // CLUB
+                    if (club != null && !club.isEmpty()) {
+                        return event.hasHostedBy() &&
+                                event.getHostedBy().getClubId().equals(club);
+                    }
+
+                    return true;
+                })
+                .toList();
+
+        eventListView.getItems().setAll(filtered);
+        if (filtered.isEmpty()) {
+            eventListView.setPlaceholder(new javafx.scene.control.Label("No matching events found"));
+        } else {
+            eventListView.setPlaceholder(null);
+        }
+        detailsPane.getChildren().clear();
+    }
+
+    @Override
+    public void onFiltersCleared() {
+        System.out.println("Filters cleared → showing all my events");
+
+        eventListView.getItems().setAll(allRegistrations);
+
+        if (allRegistrations == null || allRegistrations.isEmpty()) {
+            eventListView.setPlaceholder(
+                    new javafx.scene.control.Label("You haven't registered for any events yet")
+            );
+        } else {
+            eventListView.setPlaceholder(null);
+        }
+
+        detailsPane.getChildren().clear();
     }
 }

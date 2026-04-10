@@ -16,6 +16,7 @@ public class EventsListView implements FilterListener{
     private ListView<Event> eventListView;
 
     @FXML
+    @SuppressWarnings("unused")
     private AnchorPane filterPanel;
 
     @FXML
@@ -61,6 +62,13 @@ public class EventsListView implements FilterListener{
         System.out.println("Club: " + club);
 
         fetchFilteredEvents(category, paid, fromDate, toDate, club);
+    }
+
+    @Override
+    public void onFiltersCleared() {
+        System.out.println("Filters cleared → reloading all events");
+
+        loadEvents(); // reload full event list
     }
 
     private String formatEvent(Event event, boolean empty) {

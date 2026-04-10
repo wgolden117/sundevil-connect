@@ -12,7 +12,7 @@
     <HBox spacing="10">
 
         <!-- LEFT: Filters -->
-        <fx:include source="event_filter.fxml"/>
+        <fx:include fx:id="filterPanel" source="event_filter.fxml"/>
 
         <!-- RIGHT: Registered Events List -->
         <ListView fx:id="eventListView"

@@ -39,6 +39,11 @@
                 onAction="#handleApplyFilters"
                 prefWidth="200"/>
 
+        <!-- Clear button -->
+        <Button text="Clear Filters"
+                onAction="#handleClearFilters"
+                prefWidth="200"/>
+
     </VBox>
 
 </AnchorPane>
