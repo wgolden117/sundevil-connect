@@ -20,24 +20,26 @@ import java.util.List;
 
 public class MainController {
 
-    // Tabs
+    // UI elements
+    @FXML private Label roleLabel;
     @FXML private TabPane mainTabPane;
+
+    // Tabs
     @FXML private Tab eventsTab;
     @FXML private Tab clubsTab;
     @FXML private Tab myEventsTab;
-    @FXML private AnchorPane myEventsPane;
-
-
-    // UI elements
-    @FXML private Label roleLabel;
     @FXML private Tab createEventTab;
     @FXML private Tab approveMembersTab;
     @FXML private Tab postUpdatesTab;
-
     @FXML private Tab manageClubsTab;
     @FXML private Tab approveClubsTab;
     @FXML private Tab flaggedContentTab;
+
+    // AnchorPanes
     @FXML private AnchorPane eventsPane;
+    @FXML private AnchorPane myEventsPane;
+
+    // Load state
     private boolean eventsLoaded = false;
     private boolean myEventsLoaded = false;
 
@@ -59,7 +61,6 @@ public class MainController {
             if (newTab == eventsTab) {
                 loadEventsView();
             } else if (newTab == myEventsTab) {
-                myEventsLoaded = false; // force reload
                 loadMyEventsView();
             }
         });
@@ -104,92 +105,57 @@ public class MainController {
         }
     }
 
-    private void loadEventsView() {
-        if (eventsLoaded) return;
-
-        // Step 1: Show loading spinner + text
+    private void loadViewIntoPane(AnchorPane pane, String fxmlPath, String loadingMessage, Runnable onLoaded) {
+        // show spinner
         ProgressIndicator spinner = new ProgressIndicator();
-        spinner.setMaxSize(50, 50);
-
-        Label loadingText = new Label("Loading events...");
-
+        spinner.setMaxSize(50,50);
+        Label loadingText = new Label(loadingMessage);
         VBox box = new VBox(10, spinner, loadingText);
         box.setAlignment(Pos.CENTER);
-
-        eventsPane.getChildren().setAll(box);
-
-        // Anchor the box
         AnchorPane.setTopAnchor(box, 0.0);
-        AnchorPane.setBottomAnchor(box, 0.0);
         AnchorPane.setLeftAnchor(box, 0.0);
         AnchorPane.setRightAnchor(box, 0.0);
+        AnchorPane.setBottomAnchor(box, 0.0);
+        pane.getChildren().setAll(box);
 
-        // Step 2: Load view in background
+        // load fxml in background
         Task<Parent> loadTask = new Task<>() {
             @Override
             protected Parent call() throws Exception {
                 FXMLLoader loader = new FXMLLoader(
-                        getClass().getResource("/fxml/events/event_list.fxml")
+                        getClass().getResource(fxmlPath)
                 );
                 return loader.load();
             }
         };
 
-        // Step 3: Replace spinner with actual view
         loadTask.setOnSucceeded(event -> {
-            Parent view = loadTask.getValue();
-            eventsPane.getChildren().setAll(view);
-            eventsLoaded = true;
+            pane.getChildren().setAll(loadTask.getValue());
+            onLoaded.run();
         });
 
         loadTask.setOnFailed(event -> {
-            System.err.println("Failed to load events view");
+            System.err.println("Failed to load view: " + fxmlPath);
             loadTask.getException().printStackTrace();
         });
 
         new Thread(loadTask).start();
     }
 
+    private void loadEventsView() {
+        if (eventsLoaded) return;
+        loadViewIntoPane(eventsPane,
+                "/fxml/events/event_list.fxml",
+                "Loading events...",
+                () -> eventsLoaded = true);
+    }
+
     private void loadMyEventsView() {
         if (myEventsLoaded) return;
-
-        ProgressIndicator spinner = new ProgressIndicator();
-        spinner.setMaxSize(50, 50);
-
-        Label loadingText = new Label("Loading your events...");
-
-        VBox box = new VBox(10, spinner, loadingText);
-        box.setAlignment(Pos.CENTER);
-
-        myEventsPane.getChildren().setAll(box);
-
-        AnchorPane.setTopAnchor(box, 0.0);
-        AnchorPane.setBottomAnchor(box, 0.0);
-        AnchorPane.setLeftAnchor(box, 0.0);
-        AnchorPane.setRightAnchor(box, 0.0);
-
-        Task<Parent> loadTask = new Task<>() {
-            @Override
-            protected Parent call() throws Exception {
-                FXMLLoader loader = new FXMLLoader(
-                        getClass().getResource("/fxml/events/my_events.fxml")
-                );
-                return loader.load();
-            }
-        };
-
-        loadTask.setOnSucceeded(event -> {
-            Parent view = loadTask.getValue();
-            myEventsPane.getChildren().setAll(view);
-            myEventsLoaded = true;
-        });
-
-        loadTask.setOnFailed(event -> {
-            System.err.println("Failed to load My Events view");
-            loadTask.getException().printStackTrace();
-        });
-
-        new Thread(loadTask).start();
+        loadViewIntoPane(myEventsPane,
+                "/fxml/events/my_events.fxml",
+                "Loading your events...",
+                () -> myEventsLoaded = true);
     }
 
     @FXML
