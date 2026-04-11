@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane prefHeight="120.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ser460.sundevilconnect.client.clubs.ClubDetailsView">
+
+  <VBox layoutX="10" layoutY="10" prefWidth="580" spacing="10">
+    <padding>
+      <Insets bottom="10.0" />
+    </padding>
+
+    <Label style="-fx-font-size: 16px; -fx-font-weight: bold;" text="Club Details" />
+
+    <HBox spacing="20">
+      <Label text="Name:" />
+      <Label fx:id="nameLabel" prefWidth="150" />
+
+      <Label text="Category:" />
+      <Label fx:id="categoryLabel" prefWidth="80" />
+
+      <Label text="Founded:" />
+      <Label fx:id="foundedDateLabel" prefWidth="80" />
+    </HBox>
+
+    <Label fx:id="descriptionLabel" prefHeight="35" prefWidth="560" wrapText="true" />
+
+    <Button fx:id="viewClubPageButton" onAction="#handleViewClubPage" text="View Club Page" />
+
+  </VBox>
+
+</AnchorPane>

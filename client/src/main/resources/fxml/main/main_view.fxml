@@ -32,10 +32,8 @@
                 </Tab>
 
                 <!-- STUDENT: CLUBS TAB -->
-                <Tab fx:id="clubsTab" closable="false" text="Clubs">
-                    <AnchorPane>
-                        <Label text="Clubs coming soon..." AnchorPane.leftAnchor="20.0" AnchorPane.topAnchor="20.0" />
-                    </AnchorPane>
+                <Tab fx:id="clubsTab" closable="false" text="Club Browser">
+                    <AnchorPane fx:id="clubsPane" />
                 </Tab>
 
                 <!-- CLUB LEADER: CREATE EVENTS -->

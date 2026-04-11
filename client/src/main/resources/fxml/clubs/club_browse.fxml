@@ -1,14 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="ser460.sundevilconnect.client.clubs.ClubBrowseView"
-            prefHeight="400.0" prefWidth="600.0">
+<VBox spacing="10"
+      xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="ser460.sundevilconnect.client.clubs.ClubBrowseView">
 
-</AnchorPane>
+  <ListView fx:id="clubListView"
+            prefWidth="350"
+            prefHeight="300"/>
+
+  <AnchorPane fx:id="detailsPane"
+              prefHeight="100"
+              prefWidth="600"/>
+
+</VBox>

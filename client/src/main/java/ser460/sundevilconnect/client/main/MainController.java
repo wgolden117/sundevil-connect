@@ -11,8 +11,11 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import ser460.sundevilconnect.client.ConnectionManager;
 import ser460.sundevilconnect.client.CurrentUser;
+import ser460.sundevilconnect.client.NavigationController;
 import ser460.sundevilconnect.client.SceneController;
+import ser460.sundevilconnect.client.clubs.ClubPageView;
 import ser460.sundevilconnect.shared.proto.AuthServiceProto;
+import ser460.sundevilconnect.shared.proto.EntitiesProto;
 import ser460.sundevilconnect.shared.proto.EntitiesProto.Event;
 import ser460.sundevilconnect.shared.proto.EntitiesProto.Role;
 
@@ -38,10 +41,12 @@ public class MainController {
     // AnchorPanes
     @FXML private AnchorPane eventsPane;
     @FXML private AnchorPane myEventsPane;
+    @FXML private AnchorPane clubsPane;
 
     // Load state
     private boolean eventsLoaded = false;
     private boolean myEventsLoaded = false;
+    private boolean clubsLoaded = false;
 
     @FXML
     private void initialize() {
@@ -58,12 +63,14 @@ public class MainController {
         });
 
         mainTabPane.getSelectionModel().selectedItemProperty().addListener((obs, oldTab, newTab) -> {
-            if (newTab == eventsTab) {
-                loadEventsView();
-            } else if (newTab == myEventsTab) {
-                loadMyEventsView();
-            }
+            if (newTab == null) return;
+            if (newTab == eventsTab) loadEventsView();
+            else if (newTab == myEventsTab) loadMyEventsView();
+            else if (newTab == clubsTab) loadClubsView();
         });
+
+        // register with Navigation Controller
+        NavigationController.getInstance().setMainController(this);
     }
 
     /**
@@ -158,6 +165,14 @@ public class MainController {
                 () -> myEventsLoaded = true);
     }
 
+    private void loadClubsView() {
+        if (clubsLoaded) return;
+        loadViewIntoPane(clubsPane,
+                "/fxml/clubs/club_browse.fxml",
+                "Loading clubs...",
+                () -> clubsLoaded = true);
+    }
+
     @FXML
     private void handleLogout() {
         CurrentUser user = CurrentUser.getInstance();
@@ -192,5 +207,42 @@ public class MainController {
         });
 
         new Thread(logoutTask).start();
+    }
+
+    // dynamically opens and creates the club view tab
+    public void openClubPageTab(EntitiesProto.Club club) {
+        // check for existing tab for club
+        for (Tab tab : mainTabPane.getTabs()) {
+            if(club.getClubId().equals(tab.getUserData())) {
+                mainTabPane.getSelectionModel().select(tab);
+                return;
+            }
+        }
+        // load club page view
+        Task<Parent> loadTask = new Task<>() {
+            @Override
+            protected Parent call() throws Exception {
+                FXMLLoader loader = new FXMLLoader(
+                        getClass().getResource("/fxml/clubs/club_page.fxml")
+                );
+                Parent root = loader.load();
+                ClubPageView controller = loader.getController();
+                controller.initWithClub(club);
+                return root;
+            }
+        };
+        loadTask.setOnSucceeded(event -> {
+            Tab clubTab = new Tab(club.getName());
+            clubTab.setUserData(club.getClubId());
+            clubTab.setContent(loadTask.getValue());
+            clubTab.setClosable(true);
+            mainTabPane.getTabs().add(clubTab);
+            mainTabPane.getSelectionModel().select(clubTab);
+        });
+        loadTask.setOnFailed(event -> {
+            System.err.println("Failed to load club page: " + club.getName());
+            loadTask.getException().printStackTrace();
+        });
+        new Thread(loadTask).start();
     }
 }
