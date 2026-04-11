@@ -3,6 +3,7 @@ package ser460.sundevilconnect.client.events;
 import javafx.fxml.FXML;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.layout.VBox;
 import ser460.sundevilconnect.client.ConnectionManager;
 import ser460.sundevilconnect.shared.proto.EntitiesProto.Event;
 import ser460.sundevilconnect.shared.proto.EventBrowsingServiceProto;
@@ -12,6 +13,7 @@ import javafx.scene.layout.AnchorPane;
 
 public class EventsListView implements FilterListener{
 
+    @FXML private VBox root;
     @FXML
     private ListView<Event> eventListView;
 
@@ -27,6 +29,8 @@ public class EventsListView implements FilterListener{
         setupListView();
         setupClickHandler();
         loadEvents();
+
+        root.setUserData(this);
 
         if (filterPanelController != null) {
             filterPanelController.setFilterListener(this);
@@ -208,4 +212,6 @@ public class EventsListView implements FilterListener{
             System.err.println("Error fetching filtered events: " + e.getMessage());
         }
     }
+
+    public void refresh() { loadEvents(); }
 }

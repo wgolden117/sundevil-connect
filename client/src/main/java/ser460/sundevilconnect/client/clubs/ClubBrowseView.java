@@ -8,6 +8,7 @@ import javafx.scene.Parent;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.VBox;
 import ser460.sundevilconnect.client.ConnectionManager;
 import ser460.sundevilconnect.shared.proto.ClubBrowsingServiceProto;
 import ser460.sundevilconnect.shared.proto.EntitiesProto;
@@ -15,12 +16,15 @@ import ser460.sundevilconnect.shared.proto.EntitiesProto;
 import java.util.List;
 
 public class ClubBrowseView {
+    @FXML private VBox root;
     @FXML private ListView<EntitiesProto.Club> clubListView;
     @FXML private AnchorPane detailsPane;
 
     @FXML
     private void initialize() {
         loadClubs();
+
+        root.setUserData(this);
 
         // set the event action for clicking on a list item
         clubListView.getSelectionModel().selectedItemProperty().addListener(
@@ -94,4 +98,6 @@ public class ClubBrowseView {
 
         new Thread(task).start();
     }
+
+    public void refresh() { loadClubs(); }
 }

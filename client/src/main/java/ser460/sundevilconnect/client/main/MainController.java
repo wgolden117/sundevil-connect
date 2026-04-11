@@ -13,7 +13,10 @@ import ser460.sundevilconnect.client.ConnectionManager;
 import ser460.sundevilconnect.client.CurrentUser;
 import ser460.sundevilconnect.client.NavigationController;
 import ser460.sundevilconnect.client.SceneController;
+import ser460.sundevilconnect.client.clubs.ClubBrowseView;
 import ser460.sundevilconnect.client.clubs.ClubPageView;
+import ser460.sundevilconnect.client.events.EventsListView;
+import ser460.sundevilconnect.client.events.MyEventsView;
 import ser460.sundevilconnect.shared.proto.AuthServiceProto;
 import ser460.sundevilconnect.shared.proto.EntitiesProto;
 import ser460.sundevilconnect.shared.proto.EntitiesProto.Event;
@@ -150,27 +153,36 @@ public class MainController {
     }
 
     private void loadEventsView() {
-        if (eventsLoaded) return;
-        loadViewIntoPane(eventsPane,
+        if (!eventsLoaded) loadViewIntoPane(eventsPane,
                 "/fxml/events/event_list.fxml",
                 "Loading events...",
                 () -> eventsLoaded = true);
+        else {
+            EventsListView controller = (EventsListView) eventsPane.getChildren().getFirst().getUserData();
+            controller.refresh();
+        }
     }
 
     private void loadMyEventsView() {
-        if (myEventsLoaded) return;
-        loadViewIntoPane(myEventsPane,
+        if (!myEventsLoaded) loadViewIntoPane(myEventsPane,
                 "/fxml/events/my_events.fxml",
                 "Loading your events...",
                 () -> myEventsLoaded = true);
+        else {
+            MyEventsView controller = (MyEventsView) myEventsPane.getChildren().getFirst().getUserData();
+            controller.refresh();
+        }
     }
 
     private void loadClubsView() {
-        if (clubsLoaded) return;
-        loadViewIntoPane(clubsPane,
+        if (!clubsLoaded) loadViewIntoPane(clubsPane,
                 "/fxml/clubs/club_browse.fxml",
                 "Loading clubs...",
                 () -> clubsLoaded = true);
+        else {
+            ClubBrowseView controller = (ClubBrowseView) clubsPane.getChildren().getFirst().getUserData();
+            controller.refresh();
+        }
     }
 
     @FXML

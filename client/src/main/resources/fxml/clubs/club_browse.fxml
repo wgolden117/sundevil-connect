@@ -6,7 +6,8 @@
 <VBox spacing="10"
       xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
-      fx:controller="ser460.sundevilconnect.client.clubs.ClubBrowseView">
+      fx:controller="ser460.sundevilconnect.client.clubs.ClubBrowseView"
+      fx:id="root">
 
   <ListView fx:id="clubListView"
             prefWidth="350"
