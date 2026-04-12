@@ -15,6 +15,7 @@ import ser460.sundevilconnect.client.NavigationController;
 import ser460.sundevilconnect.client.SceneController;
 import ser460.sundevilconnect.client.clubs.ClubBrowseView;
 import ser460.sundevilconnect.client.clubs.ClubPageView;
+import ser460.sundevilconnect.client.clubs.MyClubsView;
 import ser460.sundevilconnect.client.events.EventsListView;
 import ser460.sundevilconnect.client.events.MyEventsView;
 import ser460.sundevilconnect.shared.proto.AuthServiceProto;
@@ -33,6 +34,7 @@ public class MainController {
     // Tabs
     @FXML private Tab eventsTab;
     @FXML private Tab clubsTab;
+    @FXML private Tab myClubsTab;
     @FXML private Tab myEventsTab;
     @FXML private Tab createEventTab;
     @FXML private Tab approveMembersTab;
@@ -45,11 +47,13 @@ public class MainController {
     @FXML private AnchorPane eventsPane;
     @FXML private AnchorPane myEventsPane;
     @FXML private AnchorPane clubsPane;
+    @FXML private AnchorPane myClubsPane;
 
     // Load state
     private boolean eventsLoaded = false;
     private boolean myEventsLoaded = false;
     private boolean clubsLoaded = false;
+    private boolean myClubsLoaded = false;
 
     @FXML
     private void initialize() {
@@ -58,7 +62,7 @@ public class MainController {
 
             // Set square-ish size
             stage.setWidth(750);
-            stage.setHeight(700);
+            stage.setHeight(750);
 
             // Optional: prevent super tall resizing
             stage.setMinWidth(700);
@@ -70,6 +74,7 @@ public class MainController {
             if (newTab == eventsTab) loadEventsView();
             else if (newTab == myEventsTab) loadMyEventsView();
             else if (newTab == clubsTab) loadClubsView();
+            else if (newTab == myClubsTab) loadMyClubsView();
         });
 
         // register with Navigation Controller
@@ -91,13 +96,19 @@ public class MainController {
         switch (role) {
 
             case STUDENT -> {
-                mainTabPane.getTabs().addAll(eventsTab, myEventsTab, clubsTab);
+                mainTabPane.getTabs().addAll(
+                        eventsTab,
+                        myEventsTab,
+                        clubsTab,
+                        myClubsTab
+                );
             }
 
             case CLUB_LEADER -> {
                 mainTabPane.getTabs().addAll(
                         eventsTab,
                         clubsTab,
+                        myClubsTab,
                         createEventTab,
                         approveMembersTab,
                         postUpdatesTab
@@ -185,6 +196,17 @@ public class MainController {
         }
     }
 
+    private void loadMyClubsView() {
+        if (!myClubsLoaded) loadViewIntoPane(myClubsPane,
+                "/fxml/clubs/club_myclubs.fxml",
+                "Loading my clubs...",
+                () -> myClubsLoaded = true);
+        else {
+            MyClubsView controller = (MyClubsView) myClubsPane.getChildren().getFirst().getUserData();
+            controller.refresh();
+        }
+    }
+
     @FXML
     private void handleLogout() {
         CurrentUser user = CurrentUser.getInstance();
@@ -221,7 +243,7 @@ public class MainController {
         new Thread(logoutTask).start();
     }
 
-    // dynamically opens and creates the club view tab
+    // dynamically opens and creates the club page tab
     public void openClubPageTab(EntitiesProto.Club club) {
         // check for existing tab for club
         for (Tab tab : mainTabPane.getTabs()) {

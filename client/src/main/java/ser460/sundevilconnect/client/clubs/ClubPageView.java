@@ -2,16 +2,15 @@ package ser460.sundevilconnect.client.clubs;
 
 import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import ser460.sundevilconnect.client.ConnectionManager;
 import ser460.sundevilconnect.client.CurrentUser;
-import ser460.sundevilconnect.shared.proto.AnnouncementServiceProto;
-import ser460.sundevilconnect.shared.proto.ClubBrowsingServiceProto;
-import ser460.sundevilconnect.shared.proto.EntitiesProto;
-import ser460.sundevilconnect.shared.proto.EventBrowsingServiceProto;
+import ser460.sundevilconnect.shared.proto.*;
 
 import java.util.List;
 
@@ -21,6 +20,7 @@ public class ClubPageView {
     @FXML private Label foundedDateLabel;
     @FXML private Label leaderLabel;
     @FXML private Label descriptionLabel;
+    @FXML private Button joinButton;
     @FXML private ListView<EntitiesProto.Announcement> announcementsListView;
     @FXML private ListView<EntitiesProto.Event> eventsListView;
 
@@ -30,10 +30,11 @@ public class ClubPageView {
         this.club = club;
         // populate static fields immediately
         loadClubDetails();
-        // then fire off the 3 async RPC calls
+        // then fire off the 4 async RPC calls to populate data
         loadLeader();
         loadEvents();
         loadAnnouncements();
+        loadMembershipStatus();
     }
 
     private void loadClubDetails() {
@@ -65,7 +66,6 @@ public class ClubPageView {
             System.err.println("Failed to load leader");
             task.getException().printStackTrace();
         });
-
         new Thread(task).start();
     }
 
@@ -88,7 +88,6 @@ public class ClubPageView {
                         .getEventsList();
             }
         };
-
         task.setOnSucceeded(event -> {
             eventsListView.setItems(FXCollections.observableArrayList(task.getValue()));
             eventsListView.setCellFactory(lv -> new ListCell<>() {
@@ -99,12 +98,10 @@ public class ClubPageView {
                 }
             });
         });
-
         task.setOnFailed(event -> {
             System.err.println("Failed to load events");
             task.getException().printStackTrace();
         });
-
         new Thread(task).start();
     }
 
@@ -123,23 +120,86 @@ public class ClubPageView {
                         .getAnnouncementsList();
             }
         };
-
         task.setOnSucceeded(event -> {
             announcementsListView.setItems(FXCollections.observableArrayList(task.getValue()));
             announcementsListView.setCellFactory(lv -> new ListCell<>() {
                 @Override
                 protected void updateItem(EntitiesProto.Announcement a, boolean empty) {
                     super.updateItem(a, empty);
-                    setText(empty || a == null ? null : a.getTitle() + " — " + a.getPostedDate());
+                    setText(empty || a == null ? null : a.getTitle() + " - " + a.getPostedDate());
                 }
             });
         });
-
         task.setOnFailed(event -> {
             System.err.println("Failed to load announcements");
             task.getException().printStackTrace();
         });
+        new Thread(task).start();
+    }
 
+    private void loadMembershipStatus() {
+        Task<String> task = new Task<>() {
+            @Override
+            protected String call() {
+                return ConnectionManager.getInstance().getClubMembershipStub()
+                        .getClubMembershipStatus(
+                                ClubMembershipServiceProto.GetClubMembershipStatusRequest.newBuilder()
+                                        .setUserId(CurrentUser.getInstance().getUserId())
+                                        .setClubId(club.getClubId())
+                                        .build()
+                        ).getStatus();
+            }
+        };
+        task.setOnSucceeded(event -> {
+            String status = task.getValue();
+            switch (status) {
+                case "ACTIVE" -> {
+                    joinButton.setText("Member");
+                    joinButton.setDisable(true);
+                }
+                case "PENDING" -> {
+                    joinButton.setText("Pending");
+                    joinButton.setDisable(true);
+                }
+                default -> {
+                    joinButton.setText("Join");
+                    joinButton.setDisable(false);
+                }
+            }
+        });
+        task.setOnFailed(event -> {
+            System.err.println("Failed to load membership status");
+            task.getException().printStackTrace();
+        });
+        new Thread(task).start();
+    }
+
+    @FXML
+    private void handleJoinClub() {
+        Task<Boolean> task = new Task<>() {
+            @Override
+            protected Boolean call() {
+                ClubMembershipServiceProto.RequestMembershipResponse response =
+                        ConnectionManager.getInstance().getClubMembershipStub()
+                                .requestMembership(
+                                        ClubMembershipServiceProto.RequestMembershipRequest.newBuilder()
+                                                .setStudentId(CurrentUser.getInstance().getUserId())
+                                                .setClubId(club.getClubId())
+                                                .build()
+                                );
+                return response.getSuccess();
+            }
+        };
+        task.setOnSucceeded(event -> {
+            if (task.getValue()) {
+                joinButton.setText("Pending");
+                joinButton.setDisable(true);
+            }
+        });
+        task.setOnFailed(event -> {
+            System.err.println("Failed to request membership");
+            task.getException().printStackTrace();
+        });
         new Thread(task).start();
     }
 }

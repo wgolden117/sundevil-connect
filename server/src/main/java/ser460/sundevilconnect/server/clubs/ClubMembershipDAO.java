@@ -22,7 +22,7 @@ public class ClubMembershipDAO {
         String sql = """
                 SELECT cm.*,
                    u.id as userId, u.firstName, u.lastName,
-                   c.clubId, c.name
+                   c.clubId, c.name, c.description, c.category, c.foundedDate, c.status
                 FROM clubMemberships cm
                 JOIN users u ON cm.studentId = u.id
                 JOIN clubs c ON cm.clubId = c.clubId
@@ -43,13 +43,13 @@ public class ClubMembershipDAO {
     public List<ClubMembership> getMembershipForStudent(int userId) throws SQLException {
         List<ClubMembership> memberships = new ArrayList<>();
         String sql = """
-                SELECT cm.*,
-                    u.id as userId, u.firstName, u.lastName,
-                    c.clubId, c.name
-                FROM clubMemberships cm
-                JOIN users u ON cm.studentId = u.id
-                JOIN clubs c ON cm.clubId = c.clubId
-                WHERE cm.studentId = ? AND cm.status = 'ACTIVE'
+                    SELECT cm.*,
+                        u.id as userId, u.firstName, u.lastName,
+                        c.clubId, c.name, c.description, c.category, c.foundedDate, c.status
+                    FROM clubMemberships cm
+                    JOIN users u ON cm.studentId = u.id
+                    JOIN clubs c ON cm.clubId = c.clubId
+                    WHERE cm.studentId = ? AND cm.status = 'ACTIVE'
                 """;
 
         try (Connection conn = db.getConnection();
@@ -89,6 +89,17 @@ public class ClubMembershipDAO {
         }
     }
 
+    public String getMembershipStatus(int studentId, int clubId) throws SQLException {
+        String sql = "SELECT status FROM clubMemberships WHERE studentId = ? AND clubId = ?";
+        try (Connection conn = db.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, studentId);
+            ps.setInt(2, clubId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) return rs.getString("status");
+        }
+        return null;
+    }
+
     private ClubMembership mapRow(ResultSet rs) throws SQLException {
         Student student = new Student(
                 String.valueOf(rs.getInt("userId")),
@@ -97,6 +108,11 @@ public class ClubMembershipDAO {
         Club club = new Club();
         club.setClubId(String.valueOf(rs.getInt("clubId")));
         club.setName(rs.getString("name"));
+        club.setDescription(rs.getString("description"));
+        club.setCategory(rs.getString("category"));
+        club.setStatus(rs.getString("status"));
+        String foundedDate = rs.getString("foundedDate");
+        if (foundedDate != null) club.setFoundedDate(LocalDate.parse(foundedDate));
 
         ClubMembership membership = new ClubMembership();
         membership.setMembershipId(String.valueOf(rs.getInt("membershipId")));

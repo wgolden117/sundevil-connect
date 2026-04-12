@@ -36,6 +36,11 @@
                     <AnchorPane fx:id="clubsPane" />
                 </Tab>
 
+                <!-- STUDENT: MY CLUBS TAB -->
+                <Tab fx:id="myClubsTab" closable="false" text="My Clubs">
+                    <AnchorPane fx:id="myClubsPane" />
+                </Tab>
+
                 <!-- CLUB LEADER: CREATE EVENTS -->
                 <Tab fx:id="createEventTab" closable="false" text="Create/Manage Events">
                     <AnchorPane>
