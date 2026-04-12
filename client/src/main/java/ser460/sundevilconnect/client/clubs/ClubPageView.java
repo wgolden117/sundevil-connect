@@ -2,7 +2,6 @@ package ser460.sundevilconnect.client.clubs;
 
 import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -10,12 +9,14 @@ import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import ser460.sundevilconnect.client.ConnectionManager;
 import ser460.sundevilconnect.client.CurrentUser;
+import ser460.sundevilconnect.client.NavigationController;
 import ser460.sundevilconnect.shared.proto.*;
 
 import java.util.List;
 
 public class ClubPageView {
     @FXML private Label clubNameLabel;
+    @FXML private Button manageClubButton;
     @FXML private Label categoryLabel;
     @FXML private Label foundedDateLabel;
     @FXML private Label leaderLabel;
@@ -45,9 +46,9 @@ public class ClubPageView {
     }
 
     private void loadLeader() {
-        Task<String> task = new Task<>() {
+        Task<EntitiesProto.ClubMembership> task = new Task<>() {
             @Override
-            protected String call() {
+            protected EntitiesProto.ClubMembership call() {
                 ClubBrowsingServiceProto.ClubMembersResponse response =
                         ConnectionManager.getInstance().getClubBrowsingStub()
                                 .getClubMembers(ClubBrowsingServiceProto.GetClubMembersRequest
@@ -55,12 +56,19 @@ public class ClubPageView {
                                         .build());
                 return response.getMembersList().stream()
                         .filter(m -> m.getRole().equals("LEADER"))
-                        .map(m -> m.getStudent().getDisplayName())
                         .findFirst()
-                        .orElse("Unknown");
+                        .orElse(null);
             }
         };
-        task.setOnSucceeded(event -> leaderLabel.setText(task.getValue()));
+        task.setOnSucceeded(event -> {
+            EntitiesProto.ClubMembership leader = task.getValue();
+            if (leader != null) {
+                leaderLabel.setText(leader.getStudent().getDisplayName());
+                manageClubButton.setVisible(leader.getStudent().getUserId().equals(CurrentUser.getInstance().getUserId()));
+            } else {
+                leaderLabel.setText("Unknown");
+            }
+        });
 
         task.setOnFailed(event -> {
             System.err.println("Failed to load leader");
@@ -201,5 +209,10 @@ public class ClubPageView {
             task.getException().printStackTrace();
         });
         new Thread(task).start();
+    }
+
+    @FXML
+    private void onManageClubClicked() {
+        NavigationController.getInstance().openClubDashboardTab(club);
     }
 }

@@ -7,7 +7,7 @@ import java.util.HashMap;
 public class AuthenticationService {
     private static AuthenticationService instance = new AuthenticationService();
 
-    private HashMap<String, User> loggedInUsers = new HashMap<String, User>();
+    private HashMap<String, User> loggedInUsers = new HashMap<>();
 
     private AuthenticationService() {}
 
