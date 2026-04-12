@@ -2,23 +2,32 @@ package ser460.sundevilconnect.client.clubs;
 
 import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import ser460.sundevilconnect.client.ConnectionManager;
 import ser460.sundevilconnect.shared.proto.ClubBrowsingServiceProto;
 import ser460.sundevilconnect.shared.proto.EntitiesProto;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ClubBrowseView {
+    @FXML private TextField searchField;
+    @FXML private ComboBox<String> categoryDropdown;
     @FXML private VBox root;
     @FXML private ListView<EntitiesProto.Club> clubListView;
     @FXML private AnchorPane detailsPane;
+
+    private List<EntitiesProto.Club> allClubs =  new ArrayList<>();
 
     @FXML
     private void initialize() {
@@ -30,7 +39,7 @@ public class ClubBrowseView {
         clubListView.getSelectionModel().selectedItemProperty().addListener(
                 (observable, oldClub, newClub) -> {
                     if (newClub != null) {
-                        loadDetailsPane(newClub);
+                        ClubDetailsView.loadInto(detailsPane, newClub);
                     }
                 }
         );
@@ -57,7 +66,9 @@ public class ClubBrowseView {
         };
 
         task.setOnSucceeded(event -> {
-            clubListView.setItems(FXCollections.observableArrayList(task.getValue()));
+            allClubs = task.getValue();
+            clubListView.setItems(FXCollections.observableArrayList(allClubs));
+            populateCategoryDropdown();
         });
 
         task.setOnFailed(event -> {
@@ -68,36 +79,40 @@ public class ClubBrowseView {
         new Thread(task).start();
     }
 
-    private void loadDetailsPane(EntitiesProto.Club club) {
-        Task<Parent> task = new Task<>() {
-            @Override
-            protected Parent call() throws Exception {
-                FXMLLoader loader = new FXMLLoader(
-                        getClass().getResource("/fxml/clubs/club_details.fxml")
-                );
-                Parent root = loader.load();
-                ClubDetailsView controller = loader.getController();
-                controller.initWithClub(club);
-                return root;
-            }
-        };
+    public void refresh() { loadClubs(); }
 
-        task.setOnSucceeded(event -> {
-            Parent view = task.getValue();
-            detailsPane.getChildren().setAll(view);
-            AnchorPane.setTopAnchor(view, 0.0);
-            AnchorPane.setBottomAnchor(view, 0.0);
-            AnchorPane.setLeftAnchor(view, 0.0);
-            AnchorPane.setRightAnchor(view, 0.0);
-        });
-
-        task.setOnFailed(event -> {
-            System.err.println("Failed to load club details");
-            task.getException().printStackTrace();
-        });
-
-        new Thread(task).start();
+    private void populateCategoryDropdown() {
+        List<String> categories = allClubs.stream()
+                .map(EntitiesProto.Club::getCategory)
+                .distinct()
+                .sorted()
+                .collect(Collectors.toCollection(ArrayList::new));
+        categories.addFirst("All Categories");
+        categoryDropdown.setItems(FXCollections.observableList(categories));
+        categoryDropdown.getSelectionModel().selectFirst();
     }
 
-    public void refresh() { loadClubs(); }
+    @FXML
+    private void handleSearch() {
+        String keyword = searchField.getText().toLowerCase().trim();
+        String category = categoryDropdown.getValue();
+
+        List<EntitiesProto.Club> filtered = allClubs.stream()
+                .filter(club -> keyword.isEmpty() ||
+                        club.getName().toLowerCase().contains(keyword) ||
+                        club.getDescription().toLowerCase().contains(keyword))
+                .filter(club -> category == null ||
+                        category.equals("All Categories") ||
+                        club.getCategory().equals(category))
+                .toList();
+
+        clubListView.setItems(FXCollections.observableArrayList(filtered));
+    }
+
+    @FXML
+    private void handleClear() {
+        searchField.clear();
+        categoryDropdown.getSelectionModel().selectFirst();
+        clubListView.setItems(FXCollections.observableArrayList(allClubs));
+    }
 }

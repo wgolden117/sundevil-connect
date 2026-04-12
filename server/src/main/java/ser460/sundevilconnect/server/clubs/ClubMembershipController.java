@@ -147,4 +147,49 @@ public class ClubMembershipController extends ClubMembershipServiceImplBase {
                     .withDescription(e.getMessage()).asException());
         }
     }
+
+    @Override
+    public void getClubMembershipStatus(GetClubMembershipStatusRequest request,
+                                        StreamObserver<GetClubMembershipStatusResponse> responseObserver) {
+        try {
+            int studentId = Integer.parseInt(request.getUserId());
+            int clubId = Integer.parseInt(request.getClubId());
+            String status = clubMembershipDAO.getMembershipStatus(studentId, clubId);
+
+            if (status == null) {
+                status = membershipRequestDAO.getRequestStatus(studentId, clubId);
+            }
+
+            if (status == null) {
+                status = "NONE";
+            }
+
+            responseObserver.onNext(GetClubMembershipStatusResponse.newBuilder()
+                    .setStatus(status)
+                    .build());
+            responseObserver.onCompleted();
+        } catch (SQLException e) {
+            responseObserver.onError(Status.INTERNAL
+                    .withDescription(e.getMessage()).asException());
+        }
+    }
+
+    @Override
+    public void getRequestsForStudent(GetMembershipsForStudentRequest request,
+                                      StreamObserver<GetRequestsForStudentResponse> responseObserver) {
+        try {
+            GetRequestsForStudentResponse response = GetRequestsForStudentResponse.newBuilder()
+                    .addAllRequests(membershipRequestDAO.getRequestsForStudent(
+                                    Integer.parseInt(request.getUserId()))
+                            .stream()
+                            .map(MembershipRequestDAO::toProto)
+                            .toList())
+                    .build();
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
+        } catch (SQLException e) {
+            responseObserver.onError(Status.INTERNAL
+                    .withDescription(e.getMessage()).asException());
+        }
+    }
 }
