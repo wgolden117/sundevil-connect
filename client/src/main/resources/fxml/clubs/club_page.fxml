@@ -1,14 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="ser460.sundevilconnect.client.clubs.ClubPageView"
-            prefHeight="400.0" prefWidth="600.0">
+<VBox spacing="10" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ser460.sundevilconnect.client.clubs.ClubPageView">
+  <padding>
+    <Insets bottom="10" left="10" right="10" top="10" />
+  </padding>
 
-</AnchorPane>
+  <!-- Club Name Header -->
+  <Label fx:id="clubNameLabel" style="-fx-font-size: 24px; -fx-font-weight: bold;" />
+
+  <!-- Main Info -->
+  <VBox spacing="6">
+    <HBox spacing="10">
+      <Label text="Category:" />
+      <Label fx:id="categoryLabel" prefWidth="100" />
+      <Label text="Founded:" />
+      <Label fx:id="foundedDateLabel" prefWidth="80" />
+      <Label text="Leader:" />
+      <Label fx:id="leaderLabel" prefWidth="150" />
+    </HBox>
+    <Label fx:id="descriptionLabel" prefHeight="35.0" wrapText="true" />
+  </VBox>
+
+  <!-- Two Column Section -->
+  <HBox spacing="10" VBox.vgrow="ALWAYS">
+
+    <!-- Announcements -->
+    <VBox spacing="6" HBox.hgrow="ALWAYS">
+      <Label style="-fx-font-size: 14px; -fx-font-weight: bold;" text="Announcements" />
+      <ListView fx:id="announcementsListView" VBox.vgrow="ALWAYS" />
+    </VBox>
+
+    <!-- Events -->
+    <VBox prefWidth="200" spacing="6">
+      <Label style="-fx-font-size: 14px; -fx-font-weight: bold;" text="Events" />
+      <ListView fx:id="eventsListView" VBox.vgrow="ALWAYS" />
+    </VBox>
+
+  </HBox>
+
+</VBox>

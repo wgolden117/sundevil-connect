@@ -6,7 +6,8 @@
 <VBox spacing="10"
       xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
-      fx:controller="ser460.sundevilconnect.client.events.MyEventsView">
+      fx:controller="ser460.sundevilconnect.client.events.MyEventsView"
+      fx:id="root">
 
     <!-- TOP: Filters + Registered Events -->
     <HBox spacing="10">

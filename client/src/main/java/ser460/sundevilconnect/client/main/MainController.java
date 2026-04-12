@@ -11,8 +11,14 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import ser460.sundevilconnect.client.ConnectionManager;
 import ser460.sundevilconnect.client.CurrentUser;
+import ser460.sundevilconnect.client.NavigationController;
 import ser460.sundevilconnect.client.SceneController;
+import ser460.sundevilconnect.client.clubs.ClubBrowseView;
+import ser460.sundevilconnect.client.clubs.ClubPageView;
+import ser460.sundevilconnect.client.events.EventsListView;
+import ser460.sundevilconnect.client.events.MyEventsView;
 import ser460.sundevilconnect.shared.proto.AuthServiceProto;
+import ser460.sundevilconnect.shared.proto.EntitiesProto;
 import ser460.sundevilconnect.shared.proto.EntitiesProto.Event;
 import ser460.sundevilconnect.shared.proto.EntitiesProto.Role;
 
@@ -20,26 +26,30 @@ import java.util.List;
 
 public class MainController {
 
-    // Tabs
+    // UI elements
+    @FXML private Label roleLabel;
     @FXML private TabPane mainTabPane;
+
+    // Tabs
     @FXML private Tab eventsTab;
     @FXML private Tab clubsTab;
     @FXML private Tab myEventsTab;
-    @FXML private AnchorPane myEventsPane;
-
-
-    // UI elements
-    @FXML private Label roleLabel;
     @FXML private Tab createEventTab;
     @FXML private Tab approveMembersTab;
     @FXML private Tab postUpdatesTab;
-
     @FXML private Tab manageClubsTab;
     @FXML private Tab approveClubsTab;
     @FXML private Tab flaggedContentTab;
+
+    // AnchorPanes
     @FXML private AnchorPane eventsPane;
+    @FXML private AnchorPane myEventsPane;
+    @FXML private AnchorPane clubsPane;
+
+    // Load state
     private boolean eventsLoaded = false;
     private boolean myEventsLoaded = false;
+    private boolean clubsLoaded = false;
 
     @FXML
     private void initialize() {
@@ -56,13 +66,14 @@ public class MainController {
         });
 
         mainTabPane.getSelectionModel().selectedItemProperty().addListener((obs, oldTab, newTab) -> {
-            if (newTab == eventsTab) {
-                loadEventsView();
-            } else if (newTab == myEventsTab) {
-                myEventsLoaded = false; // force reload
-                loadMyEventsView();
-            }
+            if (newTab == null) return;
+            if (newTab == eventsTab) loadEventsView();
+            else if (newTab == myEventsTab) loadMyEventsView();
+            else if (newTab == clubsTab) loadClubsView();
         });
+
+        // register with Navigation Controller
+        NavigationController.getInstance().setMainController(this);
     }
 
     /**
@@ -104,92 +115,74 @@ public class MainController {
         }
     }
 
-    private void loadEventsView() {
-        if (eventsLoaded) return;
-
-        // Step 1: Show loading spinner + text
+    private void loadViewIntoPane(AnchorPane pane, String fxmlPath, String loadingMessage, Runnable onLoaded) {
+        // show spinner
         ProgressIndicator spinner = new ProgressIndicator();
-        spinner.setMaxSize(50, 50);
-
-        Label loadingText = new Label("Loading events...");
-
+        spinner.setMaxSize(50,50);
+        Label loadingText = new Label(loadingMessage);
         VBox box = new VBox(10, spinner, loadingText);
         box.setAlignment(Pos.CENTER);
-
-        eventsPane.getChildren().setAll(box);
-
-        // Anchor the box
         AnchorPane.setTopAnchor(box, 0.0);
-        AnchorPane.setBottomAnchor(box, 0.0);
         AnchorPane.setLeftAnchor(box, 0.0);
         AnchorPane.setRightAnchor(box, 0.0);
+        AnchorPane.setBottomAnchor(box, 0.0);
+        pane.getChildren().setAll(box);
 
-        // Step 2: Load view in background
+        // load fxml in background
         Task<Parent> loadTask = new Task<>() {
             @Override
             protected Parent call() throws Exception {
                 FXMLLoader loader = new FXMLLoader(
-                        getClass().getResource("/fxml/events/event_list.fxml")
+                        getClass().getResource(fxmlPath)
                 );
                 return loader.load();
             }
         };
 
-        // Step 3: Replace spinner with actual view
         loadTask.setOnSucceeded(event -> {
-            Parent view = loadTask.getValue();
-            eventsPane.getChildren().setAll(view);
-            eventsLoaded = true;
+            pane.getChildren().setAll(loadTask.getValue());
+            onLoaded.run();
         });
 
         loadTask.setOnFailed(event -> {
-            System.err.println("Failed to load events view");
+            System.err.println("Failed to load view: " + fxmlPath);
             loadTask.getException().printStackTrace();
         });
 
         new Thread(loadTask).start();
     }
 
+    private void loadEventsView() {
+        if (!eventsLoaded) loadViewIntoPane(eventsPane,
+                "/fxml/events/event_list.fxml",
+                "Loading events...",
+                () -> eventsLoaded = true);
+        else {
+            EventsListView controller = (EventsListView) eventsPane.getChildren().getFirst().getUserData();
+            controller.refresh();
+        }
+    }
+
     private void loadMyEventsView() {
-        if (myEventsLoaded) return;
+        if (!myEventsLoaded) loadViewIntoPane(myEventsPane,
+                "/fxml/events/my_events.fxml",
+                "Loading your events...",
+                () -> myEventsLoaded = true);
+        else {
+            MyEventsView controller = (MyEventsView) myEventsPane.getChildren().getFirst().getUserData();
+            controller.refresh();
+        }
+    }
 
-        ProgressIndicator spinner = new ProgressIndicator();
-        spinner.setMaxSize(50, 50);
-
-        Label loadingText = new Label("Loading your events...");
-
-        VBox box = new VBox(10, spinner, loadingText);
-        box.setAlignment(Pos.CENTER);
-
-        myEventsPane.getChildren().setAll(box);
-
-        AnchorPane.setTopAnchor(box, 0.0);
-        AnchorPane.setBottomAnchor(box, 0.0);
-        AnchorPane.setLeftAnchor(box, 0.0);
-        AnchorPane.setRightAnchor(box, 0.0);
-
-        Task<Parent> loadTask = new Task<>() {
-            @Override
-            protected Parent call() throws Exception {
-                FXMLLoader loader = new FXMLLoader(
-                        getClass().getResource("/fxml/events/my_events.fxml")
-                );
-                return loader.load();
-            }
-        };
-
-        loadTask.setOnSucceeded(event -> {
-            Parent view = loadTask.getValue();
-            myEventsPane.getChildren().setAll(view);
-            myEventsLoaded = true;
-        });
-
-        loadTask.setOnFailed(event -> {
-            System.err.println("Failed to load My Events view");
-            loadTask.getException().printStackTrace();
-        });
-
-        new Thread(loadTask).start();
+    private void loadClubsView() {
+        if (!clubsLoaded) loadViewIntoPane(clubsPane,
+                "/fxml/clubs/club_browse.fxml",
+                "Loading clubs...",
+                () -> clubsLoaded = true);
+        else {
+            ClubBrowseView controller = (ClubBrowseView) clubsPane.getChildren().getFirst().getUserData();
+            controller.refresh();
+        }
     }
 
     @FXML
@@ -226,5 +219,42 @@ public class MainController {
         });
 
         new Thread(logoutTask).start();
+    }
+
+    // dynamically opens and creates the club view tab
+    public void openClubPageTab(EntitiesProto.Club club) {
+        // check for existing tab for club
+        for (Tab tab : mainTabPane.getTabs()) {
+            if(club.getClubId().equals(tab.getUserData())) {
+                mainTabPane.getSelectionModel().select(tab);
+                return;
+            }
+        }
+        // load club page view
+        Task<Parent> loadTask = new Task<>() {
+            @Override
+            protected Parent call() throws Exception {
+                FXMLLoader loader = new FXMLLoader(
+                        getClass().getResource("/fxml/clubs/club_page.fxml")
+                );
+                Parent root = loader.load();
+                ClubPageView controller = loader.getController();
+                controller.initWithClub(club);
+                return root;
+            }
+        };
+        loadTask.setOnSucceeded(event -> {
+            Tab clubTab = new Tab(club.getName());
+            clubTab.setUserData(club.getClubId());
+            clubTab.setContent(loadTask.getValue());
+            clubTab.setClosable(true);
+            mainTabPane.getTabs().add(clubTab);
+            mainTabPane.getSelectionModel().select(clubTab);
+        });
+        loadTask.setOnFailed(event -> {
+            System.err.println("Failed to load club page: " + club.getName());
+            loadTask.getException().printStackTrace();
+        });
+        new Thread(loadTask).start();
     }
 }

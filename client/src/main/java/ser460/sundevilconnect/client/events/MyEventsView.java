@@ -4,6 +4,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.VBox;
 import ser460.sundevilconnect.client.ConnectionManager;
 import ser460.sundevilconnect.client.CurrentUser;
 import ser460.sundevilconnect.shared.proto.EventRegistrationServiceProto;
@@ -12,6 +13,7 @@ import javafx.scene.Parent;
 
 public class MyEventsView implements FilterListener{
 
+    @FXML private VBox root;
     @FXML private ListView<EventRegistrationServiceProto.EventRegistration> eventListView;
     @FXML private AnchorPane detailsPane;
     @FXML private EventFilterPanel filterPanelController;
@@ -24,6 +26,8 @@ public class MyEventsView implements FilterListener{
         setupListView();
         setupClickHandler();
         loadMyEvents();
+
+        root.setUserData(this);
 
         if (filterPanelController != null) {
             filterPanelController.setFilterListener(this);
@@ -183,4 +187,6 @@ public class MyEventsView implements FilterListener{
 
         detailsPane.getChildren().clear();
     }
+
+    public void refresh() { loadMyEvents(); }
 }
