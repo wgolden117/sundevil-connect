@@ -15,6 +15,7 @@ service ClubMembershipService {
   rpc RemoveMember(RemoveMemberRequest) returns (MembershipActionResponse);
   rpc GetMembershipsForStudent(GetMembershipsForStudentRequest) returns (GetMembershipsForStudentResponse);
   rpc GetClubMembershipStatus(GetClubMembershipStatusRequest) returns (GetClubMembershipStatusResponse);
+  rpc GetRequestsForStudent(GetMembershipsForStudentRequest) returns (GetRequestsForStudentResponse);
 }
 
 // example data payloads
@@ -65,6 +66,10 @@ message GetPendingRequestsResponse {
 
 message GetMembershipsForStudentResponse {
   repeated ClubMembership memberships = 1;
+}
+
+message GetRequestsForStudentResponse {
+  repeated MembershipRequest requests = 1;
 }
 
 message GetClubMembershipStatusResponse {

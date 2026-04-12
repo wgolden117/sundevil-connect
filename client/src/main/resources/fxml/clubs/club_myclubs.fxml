@@ -13,7 +13,23 @@
     <Insets top="10" right="10" bottom="10" left="10"/>
   </padding>
 
-  <ListView fx:id="clubListView" VBox.vgrow="ALWAYS"/>
+  <HBox spacing="10" VBox.vgrow="ALWAYS">
+
+    <!-- Active Memberships -->
+    <VBox spacing="6" HBox.hgrow="ALWAYS">
+      <Label text="My Clubs"
+             style="-fx-font-size: 14px; -fx-font-weight: bold;"/>
+      <ListView fx:id="membershipsListView" VBox.vgrow="ALWAYS"/>
+    </VBox>
+
+    <!-- Pending Requests -->
+    <VBox spacing="6" HBox.hgrow="ALWAYS">
+      <Label text="Pending Requests"
+             style="-fx-font-size: 14px; -fx-font-weight: bold;"/>
+      <ListView fx:id="requestsListView" VBox.vgrow="ALWAYS"/>
+    </VBox>
+
+  </HBox>
 
   <AnchorPane fx:id="detailsPane"
               prefHeight="150"

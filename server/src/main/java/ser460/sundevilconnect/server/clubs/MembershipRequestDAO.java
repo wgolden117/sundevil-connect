@@ -30,7 +30,7 @@ public class MembershipRequestDAO {
         String sql = """
                 SELECT mr.*,
                     s.id as userId, s.firstName, s.lastName,
-                    c.clubId, c.name,
+                    c.clubId, c.name, c.description, c.category, c.foundedDate, c.status,
                     r.id as reviewerId, r.firstName as reviewerFirstName, r.lastName as reviewerLastName
                 FROM membershipRequests mr
                 JOIN users s ON mr.studentId = s.id
@@ -55,7 +55,7 @@ public class MembershipRequestDAO {
         String sql = """
                 SELECT mr.*,
                     s.id as userId, s.firstName, s.lastName,
-                    c.clubId, c.name,
+                    c.clubId, c.name, c.description, c.category, c.foundedDate, c.status,
                     r.id as reviewerId, r.firstName as reviewerFirstName, r.lastName as reviewerLastName
                 FROM membershipRequests mr
                 JOIN users s ON mr.studentId = s.id
@@ -67,6 +67,32 @@ public class MembershipRequestDAO {
         try (Connection conn = db.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, clubId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                requests.add(mapRow(rs));
+            }
+        }
+        return requests;
+    }
+
+    public List<MembershipRequest> getRequestsForStudent(int studentId) throws SQLException {
+        List<MembershipRequest> requests = new ArrayList<>();
+
+        String sql = """
+            SELECT mr.*,
+                s.id as userId, s.firstName, s.lastName,
+                c.clubId, c.name, c.description, c.category, c.foundedDate, c.status,
+                r.id as reviewerId, r.firstName as reviewerFirstName, r.lastName as reviewerLastName
+            FROM membershipRequests mr
+            JOIN users s ON mr.studentId = s.id
+            JOIN clubs c ON mr.clubId = c.clubId
+            LEFT JOIN users r ON mr.reviewedBy = r.id
+            WHERE mr.studentId = ?
+            """;
+
+        try (Connection conn = db.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, studentId);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 requests.add(mapRow(rs));
@@ -126,6 +152,11 @@ public class MembershipRequestDAO {
         Club club = new Club();
         club.setClubId(rs.getString("clubId"));
         club.setName(rs.getString("name"));
+        club.setDescription(rs.getString("description"));
+        club.setCategory(rs.getString("category"));
+        club.setStatus(rs.getString("status"));
+        String foundedDate = rs.getString("foundedDate");
+        if (foundedDate != null) club.setFoundedDate(LocalDate.parse(foundedDate));
 
         MembershipRequest membershipRequest = new MembershipRequest();
         membershipRequest.setRequestId(String.valueOf(rs.getInt("requestId")));
