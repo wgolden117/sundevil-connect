@@ -39,7 +39,7 @@ public class ClubBrowseView {
         clubListView.getSelectionModel().selectedItemProperty().addListener(
                 (observable, oldClub, newClub) -> {
                     if (newClub != null) {
-                        loadDetailsPane(newClub);
+                        ClubDetailsView.loadInto(detailsPane, newClub);
                     }
                 }
         );
@@ -73,37 +73,6 @@ public class ClubBrowseView {
 
         task.setOnFailed(event -> {
             System.err.println("Failed to load clubs");
-            task.getException().printStackTrace();
-        });
-
-        new Thread(task).start();
-    }
-
-    private void loadDetailsPane(EntitiesProto.Club club) {
-        Task<Parent> task = new Task<>() {
-            @Override
-            protected Parent call() throws Exception {
-                FXMLLoader loader = new FXMLLoader(
-                        getClass().getResource("/fxml/clubs/club_details.fxml")
-                );
-                Parent root = loader.load();
-                ClubDetailsView controller = loader.getController();
-                controller.initWithClub(club);
-                return root;
-            }
-        };
-
-        task.setOnSucceeded(event -> {
-            Parent view = task.getValue();
-            detailsPane.getChildren().setAll(view);
-            AnchorPane.setTopAnchor(view, 0.0);
-            AnchorPane.setBottomAnchor(view, 0.0);
-            AnchorPane.setLeftAnchor(view, 0.0);
-            AnchorPane.setRightAnchor(view, 0.0);
-        });
-
-        task.setOnFailed(event -> {
-            System.err.println("Failed to load club details");
             task.getException().printStackTrace();
         });
 
