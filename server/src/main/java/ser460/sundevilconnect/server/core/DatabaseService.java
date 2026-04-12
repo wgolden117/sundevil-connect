@@ -51,75 +51,7 @@ public class DatabaseService {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    public List<Event> getAllEvents() {
-        List<Event> events = new ArrayList<>();
-
-        String sql = "SELECT * FROM events";
-
-        try (Connection conn = getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-
-            while (rs.next()) {
-                events.add(
-                    Event.newBuilder()
-                        .setEventId(String.valueOf(rs.getInt("id")))
-                        .setTitle(rs.getString("title"))
-                        .setDescription(rs.getString("description"))
-                        .setCategory(rs.getString("category"))
-                        .setLocation(rs.getString("location"))
-                        .setEventDate(rs.getString("event_date"))
-                        .setCapacity(rs.getInt("capacity"))
-                        .setIsPaid(rs.getInt("is_paid") == 1)
-                        .build()
-                );
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return events;
-    }
-
-    public List<Event> getEventsForStudent(int studentId) {
-        List<Event> events = new ArrayList<>();
-
-        String sql = """
-        SELECT e.* 
-        FROM eventRegistrations er
-        JOIN events e ON er.eventId = e.id
-        WHERE er.studentId = ?
-    """;
-
-        try (Connection conn = getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            pstmt.setInt(1, studentId);
-            ResultSet rs = pstmt.executeQuery();
-
-            while (rs.next()) {
-                events.add(
-                        Event.newBuilder()
-                                .setEventId(String.valueOf(rs.getInt("id")))
-                                .setTitle(rs.getString("title"))
-                                .setDescription(rs.getString("description"))
-                                .setCategory(rs.getString("category"))
-                                .setLocation(rs.getString("location"))
-                                .setEventDate(rs.getString("event_date"))
-                                .setCapacity(rs.getInt("capacity"))
-                                .setIsPaid(rs.getInt("is_paid") == 1)
-                                .build()
-                );
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return events;
+        System.out.println("Seed data inserted into database");
     }
 
     public User findUserByEmailAndPassword(String email, String password) {

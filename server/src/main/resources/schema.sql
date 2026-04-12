@@ -22,7 +22,9 @@ CREATE TABLE IF NOT EXISTS events (
     location TEXT,
     event_date TEXT,
     capacity INTEGER,
-    is_paid INTEGER
+    is_paid INTEGER,
+    hostedByClub INTEGER NOT NULL,
+    FOREIGN KEY (hostedByClub) REFERENCES clubs(clubId)
 );
 
 CREATE TABLE IF NOT EXISTS announcements (
