@@ -89,6 +89,17 @@ public class ClubMembershipDAO {
         }
     }
 
+    public String getMembershipStatus(int studentId, int clubId) throws SQLException {
+        String sql = "SELECT status FROM clubMemberships WHERE studentId = ? AND clubId = ?";
+        try (Connection conn = db.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, studentId);
+            ps.setInt(2, clubId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) return rs.getString("status");
+        }
+        return null;
+    }
+
     private ClubMembership mapRow(ResultSet rs) throws SQLException {
         Student student = new Student(
                 String.valueOf(rs.getInt("userId")),

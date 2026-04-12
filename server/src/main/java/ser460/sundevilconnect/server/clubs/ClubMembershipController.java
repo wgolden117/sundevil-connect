@@ -147,4 +147,30 @@ public class ClubMembershipController extends ClubMembershipServiceImplBase {
                     .withDescription(e.getMessage()).asException());
         }
     }
+
+    @Override
+    public void getClubMembershipStatus(GetClubMembershipStatusRequest request,
+                                        StreamObserver<GetClubMembershipStatusResponse> responseObserver) {
+        try {
+            int studentId = Integer.parseInt(request.getUserId());
+            int clubId = Integer.parseInt(request.getClubId());
+            String status = clubMembershipDAO.getMembershipStatus(studentId, clubId);
+
+            if (status == null) {
+                status = membershipRequestDAO.getRequestStatus(studentId, clubId);
+            }
+
+            if (status == null) {
+                status = "NONE";
+            }
+
+            responseObserver.onNext(GetClubMembershipStatusResponse.newBuilder()
+                    .setStatus(status)
+                    .build());
+            responseObserver.onCompleted();
+        } catch (SQLException e) {
+            responseObserver.onError(Status.INTERNAL
+                    .withDescription(e.getMessage()).asException());
+        }
+    }
 }

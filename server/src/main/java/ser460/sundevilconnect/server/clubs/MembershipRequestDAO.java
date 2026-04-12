@@ -75,6 +75,18 @@ public class MembershipRequestDAO {
         return requests;
     }
 
+    public String getRequestStatus(int studentId, int clubId) throws SQLException {
+        String sql = "SELECT status FROM membershipRequests WHERE studentId = ? AND clubId = ?";
+        try (Connection conn = db.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, studentId);
+            ps.setInt(2, clubId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) return rs.getString("status");
+        }
+        return null;
+    }
+
     public String createRequest(int studentId, int clubId) throws SQLException {
         String sql = "INSERT INTO membershipRequests (studentId, clubId, status, requestDate) " +
                 "VALUES (?, ?, 'PENDING', ?)";
