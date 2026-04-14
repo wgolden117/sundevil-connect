@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<DialogPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="ser460.sundevilconnect.client.events.EventDialogController">
+
+  <padding>
+    <Insets top="16.0" right="16.0" bottom="16.0" left="16.0"/>
+  </padding>
+
+  <headerText>Event Details</headerText>
+
+  <content>
+    <GridPane hgap="10.0" vgap="10.0">
+
+      <Label text="Title:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+      <TextField fx:id="titleField" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+      <Label text="Description:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+      <TextArea fx:id="descriptionField" prefRowCount="3" wrapText="true"
+                GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+      <Label text="Date:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+      <DatePicker fx:id="datePicker" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+      <Label text="Location:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+      <TextField fx:id="locationField" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+      <Label text="Category:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+      <TextField fx:id="categoryField" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+
+      <Label text="Capacity:" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+      <TextField fx:id="capacityField" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+
+      <Label text="Paid Event:" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+      <CheckBox fx:id="isPaidCheckBox" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
+
+    </GridPane>
+  </content>
+
+  <buttonTypes>
+    <ButtonType fx:constant="OK"/>
+    <ButtonType fx:constant="CANCEL"/>
+  </buttonTypes>
+
+</DialogPane>

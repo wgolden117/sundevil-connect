@@ -29,6 +29,7 @@ public class EventDAO {
                    c.category as clubCategory, c.foundedDate, c.status as clubStatus
             FROM events e
             LEFT JOIN clubs c ON e.hostedByClub = c.clubId
+            WHERE (e.status IS NULL OR e.status != 'CANCELLED')
         """;
 
         try (Connection conn = databaseService.getConnection();
@@ -54,7 +55,7 @@ public class EventDAO {
                        c.category as clubCategory, c.foundedDate, c.status as clubStatus
                 FROM events e
                 LEFT JOIN clubs c ON e.hostedByClub = c.clubId
-                WHERE e.category = ?
+                WHERE e.category = ? AND (e.status IS NULL OR e.status != 'CANCELLED')
             """;
 
         try (var conn = databaseService.getConnection();
@@ -79,6 +80,7 @@ public class EventDAO {
                     FROM events e
                     LEFT JOIN clubs c ON e.hostedByClub = c.clubId
                     WHERE LOWER(e.title) LIKE ? OR LOWER(e.description) LIKE ?
+                                       AND (e.status IS NULL OR e.status != 'CANCELLED')
                 """;
 
         try (var conn = databaseService.getConnection();
@@ -102,7 +104,7 @@ public class EventDAO {
                        c.category as clubCategory, c.foundedDate, c.status as clubStatus
                 FROM events e
                 LEFT JOIN clubs c ON e.hostedByClub = c.clubId
-                WHERE e.id = ?
+                WHERE e.id = ? AND (e.status IS NULL OR e.status != 'CANCELLED')
             """;
 
         try (var conn = databaseService.getConnection();

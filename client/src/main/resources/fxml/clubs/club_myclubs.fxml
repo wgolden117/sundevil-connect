@@ -31,8 +31,6 @@
 
   </HBox>
 
-  <AnchorPane fx:id="detailsPane"
-              prefHeight="150"
-              prefWidth="600"/>
+  <AnchorPane fx:id="detailsPane" prefHeight="150"/>
 
 </VBox>

@@ -24,6 +24,7 @@ CREATE TABLE IF NOT EXISTS events (
     capacity INTEGER,
     is_paid INTEGER,
     hostedByClub INTEGER NOT NULL,
+    status TEXT NOT NULL DEFAULT 'ACTIVE',
     FOREIGN KEY (hostedByClub) REFERENCES clubs(clubId)
 );
 

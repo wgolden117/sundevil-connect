@@ -14,21 +14,19 @@ import ser460.sundevilconnect.client.CurrentUser;
 import ser460.sundevilconnect.client.NavigationController;
 import ser460.sundevilconnect.client.SceneController;
 import ser460.sundevilconnect.client.clubs.ClubBrowseView;
+import ser460.sundevilconnect.client.clubs.ClubDashboard;
 import ser460.sundevilconnect.client.clubs.ClubPageView;
 import ser460.sundevilconnect.client.clubs.MyClubsView;
 import ser460.sundevilconnect.client.events.EventsListView;
 import ser460.sundevilconnect.client.events.MyEventsView;
 import ser460.sundevilconnect.shared.proto.AuthServiceProto;
 import ser460.sundevilconnect.shared.proto.EntitiesProto;
-import ser460.sundevilconnect.shared.proto.EntitiesProto.Event;
 import ser460.sundevilconnect.shared.proto.EntitiesProto.Role;
-
-import java.util.List;
 
 public class MainController {
 
     // UI elements
-    @FXML private Label roleLabel;
+    @FXML private Label nameLabel;
     @FXML private TabPane mainTabPane;
 
     // Tabs
@@ -61,8 +59,8 @@ public class MainController {
             javafx.stage.Stage stage = (javafx.stage.Stage) mainTabPane.getScene().getWindow();
 
             // Set square-ish size
-            stage.setWidth(750);
-            stage.setHeight(750);
+            stage.setWidth(900);
+            stage.setHeight(825);
 
             // Optional: prevent super tall resizing
             stage.setMinWidth(700);
@@ -87,7 +85,7 @@ public class MainController {
     public void setupForRole(Role role) {
 
         // Show role at top
-        roleLabel.setText("Role: " + role.name());
+        nameLabel.setText("Name: " + CurrentUser.getInstance().getDisplayName());
 
         // Clear all tabs first
         mainTabPane.getTabs().clear();
@@ -151,7 +149,12 @@ public class MainController {
         };
 
         loadTask.setOnSucceeded(event -> {
-            pane.getChildren().setAll(loadTask.getValue());
+            Parent view = loadTask.getValue();
+            AnchorPane.setTopAnchor(view, 0.0);
+            AnchorPane.setBottomAnchor(view, 0.0);
+            AnchorPane.setLeftAnchor(view, 0.0);
+            AnchorPane.setRightAnchor(view, 0.0);
+            pane.getChildren().setAll(view);
             onLoaded.run();
         });
 
@@ -277,6 +280,46 @@ public class MainController {
             System.err.println("Failed to load club page: " + club.getName());
             loadTask.getException().printStackTrace();
         });
+        new Thread(loadTask).start();
+    }
+
+    public void openClubDashboardTab(EntitiesProto.Club club) {
+        String tabId = "dashboard-" + club.getClubId();
+
+        for (Tab tab : mainTabPane.getTabs()) {
+            if(tabId.equals(tab.getUserData())) {
+                mainTabPane.getSelectionModel().select(tab);
+                return;
+            }
+        }
+
+        Task<Parent> loadTask = new Task<>() {
+            @Override
+            protected Parent call() throws Exception {
+                FXMLLoader loader = new FXMLLoader(
+                        getClass().getResource("/fxml/clubs/club_dashboard.fxml")
+                );
+                Parent root = loader.load();
+                ClubDashboard controller = loader.getController();
+                controller.setClub(club);
+                return root;
+            }
+        };
+
+        loadTask.setOnSucceeded(event -> {
+            Tab dashboardTab = new Tab(club.getName() + " - Dashboard");
+            dashboardTab.setUserData(tabId);
+            dashboardTab.setContent(loadTask.getValue());
+            dashboardTab.setClosable(true);
+            mainTabPane.getTabs().add(dashboardTab);
+            mainTabPane.getSelectionModel().select(dashboardTab);
+        });
+
+        loadTask.setOnFailed(event -> {
+            System.err.println("Failed to load dashboard for: " + club.getName());
+            loadTask.getException().printStackTrace();
+        });
+
         new Thread(loadTask).start();
     }
 }

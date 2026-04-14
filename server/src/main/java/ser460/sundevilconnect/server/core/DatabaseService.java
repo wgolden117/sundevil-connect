@@ -66,11 +66,14 @@ public class DatabaseService {
             ResultSet rs = pstmt.executeQuery();
 
             if (rs.next()) {
-                return new User(
+                User user = new User(
                         String.valueOf(rs.getInt("id")),
                         rs.getString("email"),
                         Role.valueOf(rs.getString("role").toUpperCase())
                 );
+                user.setFirstName(rs.getString("firstName"));
+                user.setLastName(rs.getString("lastName"));
+                return user;
             }
 
         } catch (Exception e) {

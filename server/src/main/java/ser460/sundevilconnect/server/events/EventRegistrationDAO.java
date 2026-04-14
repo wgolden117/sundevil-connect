@@ -11,12 +11,12 @@ import ser460.sundevilconnect.shared.proto.EventRegistrationServiceProto.EventRe
 
 public class EventRegistrationDAO {
 
-    private final DatabaseService databaseService;
+    private final DatabaseService db;
     private static final Logger logger =
             Logger.getLogger(EventRegistrationDAO.class.getName());
 
-    public EventRegistrationDAO() {
-        this.databaseService = DatabaseService.getInstance();
+    public EventRegistrationDAO(DatabaseService db) {
+        this.db = db;
     }
 
     public boolean isEventAtCapacity(int eventId) {
@@ -24,7 +24,7 @@ public class EventRegistrationDAO {
         String countSql = "SELECT COUNT(*) FROM eventRegistrations WHERE eventId = ?";
         String capacitySql = "SELECT capacity FROM events WHERE id = ?";
 
-        try (var conn = databaseService.getConnection()) {
+        try (var conn = db.getConnection()) {
 
             int count = 0;
             int capacity = 0;
@@ -53,7 +53,7 @@ public class EventRegistrationDAO {
 
         String sql = "SELECT COUNT(*) FROM eventRegistrations WHERE studentId = ? AND eventId = ?";
 
-        try (var conn = databaseService.getConnection();
+        try (var conn = db.getConnection();
              var pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, studentId);
@@ -75,7 +75,7 @@ public class EventRegistrationDAO {
 
         String insertSql = "INSERT INTO eventRegistrations (studentId, eventId, registrationDate) VALUES (?, ?, ?)";
 
-        try (var conn = databaseService.getConnection();
+        try (var conn = db.getConnection();
              var pstmt = conn.prepareStatement(insertSql)) {
 
             pstmt.setInt(1, studentId);
@@ -99,7 +99,7 @@ public class EventRegistrationDAO {
 
         String sql = "DELETE FROM eventRegistrations WHERE registrationId = ?";
 
-        try (var conn = databaseService.getConnection();
+        try (var conn = db.getConnection();
              var pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, registrationId);
@@ -128,7 +128,7 @@ public class EventRegistrationDAO {
         WHERE er.studentId = ?
     """;
 
-        try (var conn = databaseService.getConnection();
+        try (var conn = db.getConnection();
              var pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, studentId);
@@ -188,7 +188,7 @@ public class EventRegistrationDAO {
         WHERE er.eventId = ?
     """;
 
-        try (var conn = databaseService.getConnection();
+        try (var conn = db.getConnection();
              var pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, eventId);
