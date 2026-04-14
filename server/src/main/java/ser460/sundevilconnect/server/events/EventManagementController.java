@@ -8,6 +8,7 @@ import ser460.sundevilconnect.shared.proto.EventManagementServiceProto.*;
 public class EventManagementController extends EventManagementServiceImplBase {
 
     private final EventManagementDAO eventManagementDAO = new EventManagementDAO();
+    private final EventRegistrationDAO eventRegistrationDAO = new EventRegistrationDAO();
 
     @Override
     public void createEvent(CreateEventRequest request,
@@ -34,6 +35,32 @@ public class EventManagementController extends EventManagementServiceImplBase {
 
         boolean success = eventManagementDAO.updateEvent(event);
 
+        // Send notifications
+        if (success) {
+
+            int eventId = Integer.parseInt(event.getEventId());
+            String eventTitle = event.getTitle();
+
+            var registrations = eventRegistrationDAO.getRegistrationsForEvent(eventId);
+
+            java.util.List<String> userIds = new java.util.ArrayList<>();
+
+            registrations.forEach(r ->
+                    userIds.add(r.getStudent().getUserId())
+            );
+
+            var notification = ser460.sundevilconnect.shared.proto.NotificationServiceProto.NotificationMessage.newBuilder()
+                    .setNotificationId(java.util.UUID.randomUUID().toString())
+                    .setMessage("Event updated: " + eventTitle)
+                    .setType(ser460.sundevilconnect.shared.proto.NotificationServiceProto.NotificationType.EVENT_UPDATED)
+                    .setTimestamp(java.time.Instant.now().toString())
+                    .setIsRead(false)
+                    .build();
+
+            ser460.sundevilconnect.server.core.NotificationService.getInstance()
+                    .notifyObservers(userIds, notification);
+        }
+
         responseObserver.onNext(
                 EventManagementActionResponse.newBuilder()
                         .setSuccess(success)
@@ -50,6 +77,29 @@ public class EventManagementController extends EventManagementServiceImplBase {
         int eventId = Integer.parseInt(request.getEventId());
 
         boolean success = eventManagementDAO.cancelEvent(eventId);
+
+        // Send notifications
+        if (success) {
+
+            var registrations = eventRegistrationDAO.getRegistrationsForEvent(eventId);
+
+            java.util.List<String> userIds = new java.util.ArrayList<>();
+
+            registrations.forEach(r ->
+                    userIds.add(r.getStudent().getUserId())
+            );
+
+            var notification = ser460.sundevilconnect.shared.proto.NotificationServiceProto.NotificationMessage.newBuilder()
+                    .setNotificationId(java.util.UUID.randomUUID().toString())
+                    .setMessage("An event you registered for has been CANCELLED")
+                    .setType(ser460.sundevilconnect.shared.proto.NotificationServiceProto.NotificationType.EVENT_UPDATED)
+                    .setTimestamp(java.time.Instant.now().toString())
+                    .setIsRead(false)
+                    .build();
+
+            ser460.sundevilconnect.server.core.NotificationService.getInstance()
+                    .notifyObservers(userIds, notification);
+        }
 
         responseObserver.onNext(
                 EventManagementActionResponse.newBuilder()

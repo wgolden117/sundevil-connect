@@ -104,6 +104,31 @@ public class AnnouncementDAO {
         }
     }
 
+    public Announcement getAnnouncementById(int announcementId) throws SQLException {
+        String sql = """
+        SELECT a.*,
+            u.id as userId, u.firstName, u.lastName,
+            c.clubId, c.name as clubName
+        FROM announcements a
+        JOIN users u ON a.createdBy = u.id
+        JOIN clubs c ON a.postedToClub = c.clubId
+        WHERE a.id = ?
+    """;
+
+        try (Connection conn = db.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, announcementId);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return mapRow(rs);
+            }
+        }
+
+        return null;
+    }
+
     private Announcement mapRow(ResultSet rs) throws SQLException {
         Student createdBy = new Student(
                 String.valueOf(rs.getInt("userId")),

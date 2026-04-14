@@ -105,7 +105,34 @@ public class AnnouncementController extends AnnouncementServiceImplBase {
                 return;
             }
 
-            // TODO notify club members when event is published
+            // ✅ GET ANNOUNCEMENT
+            var announcement = announcementDAO.getAnnouncementById(announcementId);
+
+            if (announcement != null) {
+
+                int clubId = Integer.parseInt(announcement.getPostedToClub().getClubId());
+                String clubName = announcement.getPostedToClub().getName();
+                String title = announcement.getTitle();
+
+                // GET MEMBERS
+                List<String> memberIds = new java.util.ArrayList<>();
+
+                clubMembershipDAO.getMembersForClub(clubId)
+                        .forEach(m -> memberIds.add(m.getStudent().getUserId()));
+
+                // CREATE NOTIFICATION
+                var notification = ser460.sundevilconnect.shared.proto.NotificationServiceProto.NotificationMessage.newBuilder()
+                        .setNotificationId(java.util.UUID.randomUUID().toString())
+                        .setMessage("New announcement from " + clubName + ": " + title)
+                        .setType(ser460.sundevilconnect.shared.proto.NotificationServiceProto.NotificationType.ANNOUNCEMENT_POSTED)
+                        .setTimestamp(java.time.Instant.now().toString())
+                        .setIsRead(false)
+                        .build();
+
+                // SEND TO ALL MEMBERS
+                ser460.sundevilconnect.server.core.NotificationService.getInstance()
+                        .notifyObservers(memberIds, notification);
+            }
 
             responseObserver.onNext(AnnouncementActionResponse.newBuilder().setSuccess(true).build());
             responseObserver.onCompleted();
