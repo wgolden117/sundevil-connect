@@ -5,6 +5,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
 import ser460.sundevilconnect.client.ConnectionManager;
 import ser460.sundevilconnect.client.CurrentUser;
 import ser460.sundevilconnect.shared.proto.AuthServiceProto.*;
@@ -18,6 +19,12 @@ public class LoginPage {
     @FXML
     private void initialize() {
         errorLabel.setVisible(false);
+
+        passwordField.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.ENTER) {
+                handleLoginButton();
+            }
+        });
     }
 
     @FXML

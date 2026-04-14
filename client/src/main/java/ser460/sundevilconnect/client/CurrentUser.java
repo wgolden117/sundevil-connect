@@ -6,7 +6,7 @@ public class CurrentUser {
     private static CurrentUser instance;
 
     private String userId;
-    private String userName;
+    private String displayName;
     private EntitiesProto.Role role;
     private String sessionToken;
 
@@ -21,14 +21,14 @@ public class CurrentUser {
 
     public void login(String userId, String userName, EntitiesProto.Role role, String sessionToken) {
         this.userId = userId;
-        this.userName = userName;
+        this.displayName = userName;
         this.role = role;
         this.sessionToken = sessionToken;
     }
 
     public void logout() {
         this.userId = null;
-        this.userName = null;
+        this.displayName = null;
         this.role = null;
         this.sessionToken = null;
     }
@@ -37,8 +37,8 @@ public class CurrentUser {
         return userId;
     }
 
-    public String getUserName() {
-        return userName;
+    public String getDisplayName() {
+        return displayName;
     }
 
     public EntitiesProto.Role getRole() {

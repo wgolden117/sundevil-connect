@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<DialogPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="ser460.sundevilconnect.client.announcements.AnnouncementDialogController">
+
+  <padding>
+    <Insets top="16.0" right="16.0" bottom="16.0" left="16.0"/>
+  </padding>
+
+  <headerText>Announcement Details</headerText>
+
+  <content>
+    <GridPane hgap="10.0" vgap="10.0">
+
+      <Label text="Title:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+      <TextField fx:id="titleField" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+      <Label text="Body:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+      <TextArea fx:id="bodyField" prefRowCount="5" wrapText="true"
+                GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+      <CheckBox fx:id="publishCheckBox" text="Publish" disable="true"
+                GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+    </GridPane>
+  </content>
+
+  <buttonTypes>
+    <ButtonType fx:constant="OK"/>
+    <ButtonType fx:constant="CANCEL"/>
+  </buttonTypes>
+
+</DialogPane>

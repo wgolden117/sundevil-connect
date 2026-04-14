@@ -25,7 +25,7 @@ public class AuthenticationController extends AuthServiceImplBase {
             responseObserver.onNext(LoginResponse.newBuilder()
                     .setSuccess(true)
                     .setUser(UserSummary.newBuilder()
-                            .setDisplayName(user.getEmail())
+                            .setDisplayName(user.getFirstName() + " " + user.getLastName())
                             .setUserId(user.getUserId())
                             .build())
                     .setToken(sessionToken)

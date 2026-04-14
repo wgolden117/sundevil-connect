@@ -9,8 +9,15 @@
     <Insets bottom="10" left="10" right="10" top="10" />
   </padding>
 
-  <!-- Club Name Header -->
-  <Label fx:id="clubNameLabel" style="-fx-font-size: 24px; -fx-font-weight: bold;" />
+  <!-- Club Header -->
+  <HBox>
+    <Label fx:id="clubNameLabel" style="-fx-font-size: 24px; -fx-font-weight: bold;" />
+    <Region HBox.hgrow="ALWAYS" />
+    <Button fx:id="manageClubButton" onAction="#onManageClubClicked" text="Manage Club" visible="false">
+         <HBox.margin>
+            <Insets top="5.0" />
+         </HBox.margin></Button>
+  </HBox>
 
   <!-- Main Info -->
   <VBox spacing="6">
@@ -19,8 +26,7 @@
       <Label fx:id="categoryLabel" prefWidth="100" />
       <Label text="Founded:" />
       <Label fx:id="foundedDateLabel" prefWidth="80" />
-      <Label text="Leader:" />
-      <Label fx:id="leaderLabel" prefWidth="150" />
+      <Region HBox.hgrow="ALWAYS" />
       <Button fx:id="joinButton" disable="true" onAction="#handleJoinClub" prefWidth="90.0" text="Loading..." />
     </HBox>
     <Label fx:id="descriptionLabel" prefHeight="35.0" wrapText="true" />

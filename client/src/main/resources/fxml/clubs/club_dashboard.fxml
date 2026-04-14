@@ -1,14 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="ser460.sundevilconnect.client.clubs.ClubDashboard"
-            prefHeight="400.0" prefWidth="600.0">
+<VBox fx:id="root" VBox.vgrow="ALWAYS" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ser460.sundevilconnect.client.clubs.ClubDashboard">
 
-</AnchorPane>
+  <HBox VBox.vgrow="ALWAYS">
+
+    <!-- Sidebar -->
+    <VBox minWidth="150.0" prefWidth="160.0" spacing="8.0">
+      <padding>
+        <Insets bottom="16.0" left="12.0" right="12.0" top="16.0" />
+      </padding>
+
+      <Label fx:id="clubNameLabel" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-wrap-text: true;" text="Club Name" />
+
+      <Separator />
+
+      <Button fx:id="requestsButton" maxWidth="Infinity" onAction="#onRequestsClicked" prefHeight="50.0" text="Membership Requests" />
+      <Button fx:id="eventsButton" maxWidth="Infinity" onAction="#onEventsClicked" prefHeight="50.0" text="Events" />
+      <Button fx:id="announcementsButton" maxWidth="Infinity" onAction="#onAnnouncementsClicked" prefHeight="50.0" text="Announcements" />
+    </VBox>
+
+    <!-- Content Area -->
+    <AnchorPane fx:id="contentArea" HBox.hgrow="ALWAYS" />
+
+  </HBox>
+</VBox>

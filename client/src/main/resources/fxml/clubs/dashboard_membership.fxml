@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="ser460.sundevilconnect.client.clubs.DashboardMembersController"
+      fx:id="root"
+      spacing="12.0"
+      VBox.vgrow="ALWAYS">
+
+  <padding>
+    <Insets top="16.0" right="16.0" bottom="16.0" left="16.0"/>
+  </padding>
+
+  <Label text="Membership Management" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+
+  <HBox spacing="16.0" VBox.vgrow="ALWAYS">
+
+    <!-- Active Members -->
+    <VBox spacing="8.0" HBox.hgrow="ALWAYS" minWidth="300.0">
+      <Label text="Active Members" style="-fx-font-weight: bold;"/>
+      <ListView fx:id="membersListView" VBox.vgrow="ALWAYS"/>
+    </VBox>
+
+    <!-- Pending Requests -->
+    <VBox spacing="8.0" HBox.hgrow="ALWAYS" minWidth="300.0">
+      <Label text="Pending Requests" style="-fx-font-weight: bold;"/>
+      <ListView fx:id="requestsListView" VBox.vgrow="ALWAYS"/>
+    </VBox>
+
+  </HBox>
+</VBox>

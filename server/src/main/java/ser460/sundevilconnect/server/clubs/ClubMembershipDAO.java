@@ -125,6 +125,15 @@ public class ClubMembershipDAO {
         return null;
     }
 
+    public boolean promoteMember(int membershipId) throws SQLException {
+        String sql = "UPDATE clubMemberships SET role = 'LEADER' WHERE membershipId = ?";
+        try (Connection conn = db.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, membershipId);
+            return ps.executeUpdate() > 0;
+        }
+    }
+
     private ClubMembership mapRow(ResultSet rs) throws SQLException {
         Student student = new Student(
                 String.valueOf(rs.getInt("userId")),

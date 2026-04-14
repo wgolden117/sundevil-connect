@@ -29,4 +29,10 @@ public class NavigationController {
             mainController.openClubPageTab(club);
         }
     }
+
+    public void openClubDashboardTab(EntitiesProto.Club club) {
+        if (mainController != null) {
+            mainController.openClubDashboardTab(club);
+        }
+    }
 }

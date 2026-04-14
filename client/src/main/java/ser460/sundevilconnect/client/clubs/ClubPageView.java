@@ -2,23 +2,24 @@ package ser460.sundevilconnect.client.clubs;
 
 import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.control.*;
 import ser460.sundevilconnect.client.ConnectionManager;
 import ser460.sundevilconnect.client.CurrentUser;
+import ser460.sundevilconnect.client.NavigationController;
+import ser460.sundevilconnect.client.announcements.AnnouncementDetailsView;
+import ser460.sundevilconnect.client.events.EventDetailsView;
 import ser460.sundevilconnect.shared.proto.*;
 
 import java.util.List;
 
 public class ClubPageView {
     @FXML private Label clubNameLabel;
+    @FXML private Button manageClubButton;
     @FXML private Label categoryLabel;
     @FXML private Label foundedDateLabel;
-    @FXML private Label leaderLabel;
     @FXML private Label descriptionLabel;
     @FXML private Button joinButton;
     @FXML private ListView<EntitiesProto.Announcement> announcementsListView;
@@ -31,7 +32,7 @@ public class ClubPageView {
         // populate static fields immediately
         loadClubDetails();
         // then fire off the 4 async RPC calls to populate data
-        loadLeader();
+        checkLeaderAccess();
         loadEvents();
         loadAnnouncements();
         loadMembershipStatus();
@@ -44,29 +45,39 @@ public class ClubPageView {
         descriptionLabel.setText(club.getDescription());
     }
 
-    private void loadLeader() {
-        Task<String> task = new Task<>() {
+    private void checkLeaderAccess() {
+        Task<Boolean> task = new Task<>() {
             @Override
-            protected String call() {
+            protected Boolean call() {
                 ClubBrowsingServiceProto.ClubMembersResponse response =
                         ConnectionManager.getInstance().getClubBrowsingStub()
                                 .getClubMembers(ClubBrowsingServiceProto.GetClubMembersRequest
                                         .newBuilder().setClubId(club.getClubId())
                                         .build());
                 return response.getMembersList().stream()
-                        .filter(m -> m.getRole().equals("LEADER"))
-                        .map(m -> m.getStudent().getDisplayName())
-                        .findFirst()
-                        .orElse("Unknown");
+                        .anyMatch(m -> m.getRole().equals("LEADER") &&
+                                m.getStudent().getUserId().equals(CurrentUser.getInstance().getUserId()));
             }
         };
-        task.setOnSucceeded(event -> leaderLabel.setText(task.getValue()));
+
+        task.setOnSucceeded(event -> manageClubButton.setVisible(task.getValue()));
 
         task.setOnFailed(event -> {
-            System.err.println("Failed to load leader");
+            System.err.println("Failed to check leader access");
             task.getException().printStackTrace();
         });
+
         new Thread(task).start();
+    }
+
+    private void createPopUp(Node content, String title) {
+        DialogPane pane = new DialogPane();
+        pane.setContent(content);
+        pane.getButtonTypes().add(ButtonType.CLOSE);
+        Dialog<ButtonType> dialog = new Dialog<>();
+        dialog.setTitle(title);
+        dialog.setDialogPane(pane);
+        dialog.showAndWait();
     }
 
     private void loadEvents() {
@@ -95,6 +106,11 @@ public class ClubPageView {
                 protected void updateItem(EntitiesProto.Event e, boolean empty) {
                     super.updateItem(e, empty);
                     setText(empty || e == null ? null : e.getTitle());
+                    setOnMouseClicked(click -> {
+                        if (click.getClickCount() == 2 && e != null && !empty) {
+                            showEventPopup(e);
+                        }
+                    });
                 }
             });
         });
@@ -103,6 +119,21 @@ public class ClubPageView {
             task.getException().printStackTrace();
         });
         new Thread(task).start();
+    }
+
+    private void showEventPopup(EntitiesProto.Event event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/fxml/events/event_details.fxml"));
+            javafx.scene.Node content = loader.load();
+            EventDetailsView controller = loader.getController();
+            controller.setEvent(event);
+
+            createPopUp(content, event.getTitle());
+        } catch (Exception e) {
+            System.err.println("Failed to open event popup");
+            e.printStackTrace();
+        }
     }
 
     private void loadAnnouncements() {
@@ -127,6 +158,11 @@ public class ClubPageView {
                 protected void updateItem(EntitiesProto.Announcement a, boolean empty) {
                     super.updateItem(a, empty);
                     setText(empty || a == null ? null : a.getTitle() + " - " + a.getPostedDate());
+                    setOnMouseClicked(click -> {
+                        if (click.getClickCount() == 2 && a != null && !empty) {
+                            showAnnouncementPopup(a);
+                        }
+                    });
                 }
             });
         });
@@ -135,6 +171,21 @@ public class ClubPageView {
             task.getException().printStackTrace();
         });
         new Thread(task).start();
+    }
+
+    private void showAnnouncementPopup(EntitiesProto.Announcement announcement) {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/fxml/announcements/announcement_details.fxml"));
+            javafx.scene.Node content = loader.load();
+            AnnouncementDetailsView controller = loader.getController();
+            controller.setAnnouncement(announcement);
+
+            createPopUp(content, announcement.getTitle());
+        } catch (Exception e) {
+            System.err.println("Failed to open announcement popup");
+            e.printStackTrace();
+        }
     }
 
     private void loadMembershipStatus() {
@@ -201,5 +252,10 @@ public class ClubPageView {
             task.getException().printStackTrace();
         });
         new Thread(task).start();
+    }
+
+    @FXML
+    private void onManageClubClicked() {
+        NavigationController.getInstance().openClubDashboardTab(club);
     }
 }

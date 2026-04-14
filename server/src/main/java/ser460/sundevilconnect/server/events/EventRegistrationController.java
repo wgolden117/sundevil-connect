@@ -19,7 +19,11 @@ import java.util.UUID;
 
 public class EventRegistrationController extends EventRegistrationServiceImplBase {
 
-    private final EventRegistrationDAO eventRegistrationDAO = new EventRegistrationDAO();
+    private final EventRegistrationDAO eventRegistrationDAO;
+
+    public EventRegistrationController(EventRegistrationDAO eventRegistrationDAO) {
+        this.eventRegistrationDAO = eventRegistrationDAO;
+    }
 
     @Override
     public void registerStudentForEvent(RegisterStudentForEventRequest request,

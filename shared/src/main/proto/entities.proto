@@ -46,6 +46,7 @@ message Event {
   string location = 7;
   int32 capacity = 8;
   bool isPaid = 9;
+  string status = 10;
 }
 
 message Announcement {

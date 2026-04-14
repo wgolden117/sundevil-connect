@@ -259,4 +259,21 @@ public class ClubMembershipController extends ClubMembershipServiceImplBase {
                     .withDescription(e.getMessage()).asException());
         }
     }
+
+    @Override
+    public void promoteMember(PromoteMemberRequest request,
+                              StreamObserver<MembershipActionResponse> responseObserver) {
+        try {
+            boolean promoted = clubMembershipDAO.promoteMember(
+                    Integer.parseInt(request.getMembershipId())
+            );
+            responseObserver.onNext(MembershipActionResponse.newBuilder()
+                    .setSuccess(promoted)
+                    .build());
+            responseObserver.onCompleted();
+        } catch (SQLException e) {
+            responseObserver.onError(Status.INTERNAL
+                    .withDescription(e.getMessage()).asException());
+        }
+    }
 }
