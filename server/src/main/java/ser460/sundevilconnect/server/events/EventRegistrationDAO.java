@@ -234,6 +234,60 @@ public class EventRegistrationDAO {
         return registrations;
     }
 
+    public EventRegistration getRegistrationById(int registrationId) {
+
+        String sql = """
+        SELECT er.registrationId, er.registrationDate,
+               u.firstName, u.lastName, u.id as studentId,
+               e.*
+        FROM eventRegistrations er
+        JOIN users u ON er.studentId = u.id
+        JOIN events e ON er.eventId = e.id
+        WHERE er.registrationId = ?
+    """;
+
+        try (var conn = databaseService.getConnection();
+             var pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, registrationId);
+            var rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+
+                var event = Event.newBuilder()
+                        .setEventId(String.valueOf(rs.getInt("id")))
+                        .setTitle(rs.getString("title"))
+                        .setDescription(rs.getString("description"))
+                        .setCategory(rs.getString("category"))
+                        .setLocation(rs.getString("location"))
+                        .setEventDate(rs.getString("event_date"))
+                        .setCapacity(rs.getInt("capacity"))
+                        .setIsPaid(rs.getInt("is_paid") == 1)
+                        .build();
+
+                var student = UserSummary.newBuilder()
+                        .setUserId(String.valueOf(rs.getInt("studentId")))
+                        .setDisplayName(
+                                rs.getString("firstName") + " " + rs.getString("lastName")
+                        )
+                        .build();
+
+                return EventRegistration.newBuilder()
+                        .setRegistrationId(String.valueOf(rs.getInt("registrationId")))
+                        .setEvent(event)
+                        .setStudent(student)
+                        .setRegistrationDate(rs.getString("registrationDate"))
+                        .setStatus("ACTIVE")
+                        .build();
+            }
+
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Failed to fetch registration", e);
+        }
+
+        return null;
+    }
+
     public Event getEventById(int eventId) {
 
         String sql = "SELECT * FROM events WHERE id = ?";
