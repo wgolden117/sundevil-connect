@@ -21,6 +21,7 @@ import ser460.sundevilconnect.client.events.MyEventsView;
 import ser460.sundevilconnect.shared.proto.AuthServiceProto;
 import ser460.sundevilconnect.shared.proto.EntitiesProto;
 import ser460.sundevilconnect.shared.proto.EntitiesProto.Role;
+import ser460.sundevilconnect.shared.proto.NotificationServiceProto;
 
 public class MainController {
 
@@ -307,13 +308,15 @@ public class MainController {
         stub.subscribe(request, new io.grpc.stub.StreamObserver<>() {
 
             @Override
-            public void onNext(ser460.sundevilconnect.shared.proto.NotificationServiceProto.NotificationMessage notification) {
+            public void onNext(NotificationServiceProto.NotificationMessage notification) {
                 System.out.println("GLOBAL NOTIFICATION: " + notification.getMessage());
 
                 javafx.application.Platform.runLater(() -> {
                     ser460.sundevilconnect.client.notifications.NotificationStore
                             .getInstance()
                             .addNotification(notification.getMessage());
+
+                    updateNotificationTabIndicator();
                 });
             }
 
@@ -327,5 +330,39 @@ public class MainController {
                 System.out.println("Notification stream closed");
             }
         });
+    }
+
+    public void updateNotificationTabIndicator() {
+
+        var store = ser460.sundevilconnect.client.notifications.NotificationStore.getInstance();
+        int unreadCount = store.getUnreadCount();
+
+        if (unreadCount > 0) {
+
+            // cap at 9+
+            String displayText = unreadCount > 9 ? "9+" : String.valueOf(unreadCount);
+
+            Label badge = new Label(displayText);
+
+            badge.setStyle(
+                    "-fx-background-color: red;" +
+                            "-fx-text-fill: white;" +
+                            "-fx-font-size: 10px;" +
+                            "-fx-font-weight: bold;" +
+                            "-fx-alignment: center;" +
+                            "-fx-min-width: 18px;" +
+                            "-fx-min-height: 18px;" +
+                            "-fx-max-width: 18px;" +
+                            "-fx-max-height: 18px;" +
+                            "-fx-background-radius: 9px;"
+            );
+
+            notificationsTab.setText("Notifications");
+            notificationsTab.setGraphic(badge);
+
+        } else {
+            notificationsTab.setText("Notifications");
+            notificationsTab.setGraphic(null);
+        }
     }
 }

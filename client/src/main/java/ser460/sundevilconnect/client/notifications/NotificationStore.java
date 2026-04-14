@@ -7,7 +7,7 @@ public class NotificationStore {
 
     private static final NotificationStore instance = new NotificationStore();
 
-    private final ObservableList<String> notifications =
+    private final ObservableList<NotificationItem> notifications =
             FXCollections.observableArrayList();
 
     private NotificationStore() {}
@@ -16,11 +16,31 @@ public class NotificationStore {
         return instance;
     }
 
-    public ObservableList<String> getNotifications() {
+    public ObservableList<NotificationItem> getNotifications() {
         return notifications;
     }
 
     public void addNotification(String message) {
-        notifications.add(message);
+        notifications.add(new NotificationItem(message));
+    }
+
+    public boolean hasUnread() {
+        return notifications.stream().anyMatch(n -> !n.isRead());
+    }
+
+    public void markAllAsRead() {
+        notifications.forEach(NotificationItem::markAsRead);
+    }
+
+    public int getUnreadCount() {
+        int count = 0;
+
+        for (NotificationItem item : notifications) {
+            if (!item.isRead()) {
+                count++;
+            }
+        }
+
+        return count;
     }
 }

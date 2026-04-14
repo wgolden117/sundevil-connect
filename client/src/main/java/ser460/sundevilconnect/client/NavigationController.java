@@ -20,6 +20,10 @@ public class NavigationController {
         this.mainController = mainController;
     }
 
+    public MainController getMainController() {
+        return mainController;
+    }
+
     public void openClubPageTab(EntitiesProto.Club club) {
         if (mainController != null) {
             mainController.openClubPageTab(club);
