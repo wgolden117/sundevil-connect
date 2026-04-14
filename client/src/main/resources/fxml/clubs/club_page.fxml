@@ -26,8 +26,7 @@
       <Label fx:id="categoryLabel" prefWidth="100" />
       <Label text="Founded:" />
       <Label fx:id="foundedDateLabel" prefWidth="80" />
-      <Label text="Leader:" />
-      <Label fx:id="leaderLabel" prefWidth="150" />
+      <Region HBox.hgrow="ALWAYS" />
       <Button fx:id="joinButton" disable="true" onAction="#handleJoinClub" prefWidth="90.0" text="Loading..." />
     </HBox>
     <Label fx:id="descriptionLabel" prefHeight="35.0" wrapText="true" />

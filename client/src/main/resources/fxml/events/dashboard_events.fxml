@@ -23,4 +23,6 @@
 
   <ListView fx:id="eventsListView" VBox.vgrow="ALWAYS"/>
 
+  <fx:include fx:id="eventDetails" source="/fxml/events/event_details.fxml"/>
+
 </VBox>

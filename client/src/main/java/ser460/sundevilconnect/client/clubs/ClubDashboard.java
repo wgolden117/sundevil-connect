@@ -1,19 +1,17 @@
 package ser460.sundevilconnect.client.clubs;
 
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.VBox;
 import ser460.sundevilconnect.shared.proto.EntitiesProto;
 
 public class ClubDashboard {
+    @FXML private VBox root;
     @FXML private Label clubNameLabel;
-    @FXML private Button requestsButton;
-    @FXML private Button eventsButton;
-    @FXML private Button announcementsButton;
     @FXML private AnchorPane contentArea;
 
     private EntitiesProto.Club club;
@@ -42,6 +40,8 @@ public class ClubDashboard {
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(fxmlPath));
             Parent section = fxmlLoader.load();
+            DashboardSectionController controller = fxmlLoader.getController();
+            controller.setClub(club);
             AnchorPane.setTopAnchor(section, 0.0);
             AnchorPane.setBottomAnchor(section, 0.0);
             AnchorPane.setLeftAnchor(section, 0.0);

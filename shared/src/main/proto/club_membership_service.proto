@@ -16,6 +16,7 @@ service ClubMembershipService {
   rpc GetMembershipsForStudent(GetMembershipsForStudentRequest) returns (GetMembershipsForStudentResponse);
   rpc GetClubMembershipStatus(GetClubMembershipStatusRequest) returns (GetClubMembershipStatusResponse);
   rpc GetRequestsForStudent(GetMembershipsForStudentRequest) returns (GetRequestsForStudentResponse);
+  rpc PromoteMember(PromoteMemberRequest) returns (MembershipActionResponse);
 }
 
 // example data payloads
@@ -49,6 +50,10 @@ message GetMembershipsForStudentRequest {
 message GetClubMembershipStatusRequest {
   string userId = 1;
   string clubId = 2;
+}
+
+message PromoteMemberRequest {
+  string membershipId = 1;
 }
 
 message RequestMembershipResponse {

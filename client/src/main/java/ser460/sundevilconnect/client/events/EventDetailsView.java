@@ -3,6 +3,7 @@ package ser460.sundevilconnect.client.events;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
 import ser460.sundevilconnect.client.CurrentUser;
 import ser460.sundevilconnect.shared.proto.EntitiesProto.Event;
 import ser460.sundevilconnect.client.ConnectionManager;
@@ -12,6 +13,7 @@ public class EventDetailsView {
 
     @FXML private Label titleLabel;
     @FXML private Label categoryLabel;
+    @FXML private TextArea descriptionLabel;
     @FXML private Button registerButton;
     @FXML private Label locationLabel;
     @FXML private Label dateLabel;
@@ -42,7 +44,12 @@ public class EventDetailsView {
             categoryLabel.setText(currentEvent.getCategory());
             locationLabel.setText(currentEvent.getLocation());
             dateLabel.setText(currentEvent.getEventDate());
+            descriptionLabel.setText(currentEvent.getDescription());
         }
+    }
+
+    public void hideRegisterButton() {
+        registerButton.setVisible(false);
     }
 
     private void showAlert(String message) {

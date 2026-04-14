@@ -19,7 +19,6 @@ public class ClubPageView {
     @FXML private Button manageClubButton;
     @FXML private Label categoryLabel;
     @FXML private Label foundedDateLabel;
-    @FXML private Label leaderLabel;
     @FXML private Label descriptionLabel;
     @FXML private Button joinButton;
     @FXML private ListView<EntitiesProto.Announcement> announcementsListView;
@@ -32,7 +31,7 @@ public class ClubPageView {
         // populate static fields immediately
         loadClubDetails();
         // then fire off the 4 async RPC calls to populate data
-        loadLeader();
+        checkLeaderAccess();
         loadEvents();
         loadAnnouncements();
         loadMembershipStatus();
@@ -45,35 +44,28 @@ public class ClubPageView {
         descriptionLabel.setText(club.getDescription());
     }
 
-    private void loadLeader() {
-        Task<EntitiesProto.ClubMembership> task = new Task<>() {
+    private void checkLeaderAccess() {
+        Task<Boolean> task = new Task<>() {
             @Override
-            protected EntitiesProto.ClubMembership call() {
+            protected Boolean call() {
                 ClubBrowsingServiceProto.ClubMembersResponse response =
                         ConnectionManager.getInstance().getClubBrowsingStub()
                                 .getClubMembers(ClubBrowsingServiceProto.GetClubMembersRequest
                                         .newBuilder().setClubId(club.getClubId())
                                         .build());
                 return response.getMembersList().stream()
-                        .filter(m -> m.getRole().equals("LEADER"))
-                        .findFirst()
-                        .orElse(null);
+                        .anyMatch(m -> m.getRole().equals("LEADER") &&
+                                m.getStudent().getUserId().equals(CurrentUser.getInstance().getUserId()));
             }
         };
-        task.setOnSucceeded(event -> {
-            EntitiesProto.ClubMembership leader = task.getValue();
-            if (leader != null) {
-                leaderLabel.setText(leader.getStudent().getDisplayName());
-                manageClubButton.setVisible(leader.getStudent().getUserId().equals(CurrentUser.getInstance().getUserId()));
-            } else {
-                leaderLabel.setText("Unknown");
-            }
-        });
+
+        task.setOnSucceeded(event -> manageClubButton.setVisible(task.getValue()));
 
         task.setOnFailed(event -> {
-            System.err.println("Failed to load leader");
+            System.err.println("Failed to check leader access");
             task.getException().printStackTrace();
         });
+
         new Thread(task).start();
     }
 

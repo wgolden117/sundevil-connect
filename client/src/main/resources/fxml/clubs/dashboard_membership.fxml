@@ -20,13 +20,13 @@
   <HBox spacing="16.0" VBox.vgrow="ALWAYS">
 
     <!-- Active Members -->
-    <VBox spacing="8.0" HBox.hgrow="ALWAYS">
+    <VBox spacing="8.0" HBox.hgrow="ALWAYS" minWidth="300.0">
       <Label text="Active Members" style="-fx-font-weight: bold;"/>
       <ListView fx:id="membersListView" VBox.vgrow="ALWAYS"/>
     </VBox>
 
     <!-- Pending Requests -->
-    <VBox spacing="8.0" HBox.hgrow="ALWAYS">
+    <VBox spacing="8.0" HBox.hgrow="ALWAYS" minWidth="300.0">
       <Label text="Pending Requests" style="-fx-font-weight: bold;"/>
       <ListView fx:id="requestsListView" VBox.vgrow="ALWAYS"/>
     </VBox>

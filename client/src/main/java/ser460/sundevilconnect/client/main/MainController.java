@@ -59,8 +59,8 @@ public class MainController {
             javafx.stage.Stage stage = (javafx.stage.Stage) mainTabPane.getScene().getWindow();
 
             // Set square-ish size
-            stage.setWidth(750);
-            stage.setHeight(750);
+            stage.setWidth(900);
+            stage.setHeight(825);
 
             // Optional: prevent super tall resizing
             stage.setMinWidth(700);
