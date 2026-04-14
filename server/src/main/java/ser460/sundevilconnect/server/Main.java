@@ -29,6 +29,7 @@ public class Main {
         MembershipRequestDAO membershipRequestDAO = new MembershipRequestDAO(db);
         AnnouncementDAO announcementDAO = new AnnouncementDAO(db);
         EventManagementDAO eventManagementDAO = new EventManagementDAO(db);
+        EventRegistrationDAO eventRegistrationDAO = new EventRegistrationDAO(db);
 
         // build and start gRPC server
         Server server = ServerBuilder
@@ -42,7 +43,7 @@ public class Main {
                 .addService(new ClubMembershipController(clubMembershipDAO, membershipRequestDAO))
                 .addService(new EventBrowsingController())
                 .addService(new EventManagementController(eventManagementDAO))
-                .addService(new EventRegistrationController())
+                .addService(new EventRegistrationController(eventRegistrationDAO))
                 .build()
                 .start();
         System.out.println("SERVER_READY");

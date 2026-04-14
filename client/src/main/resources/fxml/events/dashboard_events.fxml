@@ -21,7 +21,13 @@
     <Button text="Create Event" onAction="#onCreateEventClicked"/>
   </HBox>
 
-  <ListView fx:id="eventsListView" VBox.vgrow="ALWAYS"/>
+  <HBox spacing="12.0" VBox.vgrow="ALWAYS">
+    <ListView fx:id="eventsListView" HBox.hgrow="ALWAYS"/>
+    <VBox spacing="8.0" prefWidth="220.0" minWidth="220.0" maxWidth="220.0">
+      <Label text="Registrations" style="-fx-font-weight: bold;"/>
+      <ListView fx:id="registrationsListView" VBox.vgrow="ALWAYS"/>
+    </VBox>
+  </HBox>
 
   <fx:include fx:id="eventDetails" source="/fxml/events/event_details.fxml"/>
 

@@ -17,6 +17,7 @@ public class EventDetailsView {
     @FXML private Button registerButton;
     @FXML private Label locationLabel;
     @FXML private Label dateLabel;
+    @FXML private Label capacityLabel;
 
     private Event currentEvent;
     private boolean isMyEvent = false;
@@ -45,6 +46,7 @@ public class EventDetailsView {
             locationLabel.setText(currentEvent.getLocation());
             dateLabel.setText(currentEvent.getEventDate());
             descriptionLabel.setText(currentEvent.getDescription());
+            capacityLabel.setText(String.valueOf(currentEvent.getCapacity()));
         }
     }
 

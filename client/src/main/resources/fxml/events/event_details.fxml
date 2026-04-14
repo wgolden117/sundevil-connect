@@ -11,19 +11,18 @@
         <Label style="-fx-font-size: 16px; -fx-font-weight: bold;" text="Event Details" />
 
         <HBox spacing="20">
-
-            <Label text="Title:" />
-            <Label fx:id="titleLabel" />
-
-            <Label text="Category:" />
-            <Label fx:id="categoryLabel" />
-
-            <Label text="Location:" />
-            <Label fx:id="locationLabel" />
-
-            <Label text="Date:" />
-            <Label fx:id="dateLabel" />
-
+            <Label text="Title:"/>
+            <Label fx:id="titleLabel"/>
+            <Label text="Category:"/>
+            <Label fx:id="categoryLabel"/>
+        </HBox>
+        <HBox spacing="20">
+            <Label text="Date:"/>
+            <Label fx:id="dateLabel"/>
+            <Label text="Location:"/>
+            <Label fx:id="locationLabel"/>
+            <Label text="Capacity:"/>
+            <Label fx:id="capacityLabel"/>
         </HBox>
 
         <HBox alignment="CENTER" spacing="10">

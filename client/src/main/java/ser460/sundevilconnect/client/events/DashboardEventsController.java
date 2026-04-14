@@ -14,6 +14,7 @@ import ser460.sundevilconnect.client.CurrentUser;
 import ser460.sundevilconnect.client.clubs.DashboardSectionController;
 import ser460.sundevilconnect.shared.proto.EntitiesProto;
 import ser460.sundevilconnect.shared.proto.EventManagementServiceProto;
+import ser460.sundevilconnect.shared.proto.EventRegistrationServiceProto;
 
 import java.util.Comparator;
 import java.util.List;
@@ -21,6 +22,7 @@ import java.util.List;
 public class DashboardEventsController extends DashboardSectionController {
     @FXML private VBox root;
     @FXML private ListView<EntitiesProto.Event> eventsListView;
+    @FXML private ListView<EventRegistrationServiceProto.EventRegistration> registrationsListView;
     @FXML private EventDetailsView eventDetailsController;
 
     private EntitiesProto.Club club;
@@ -34,10 +36,11 @@ public class DashboardEventsController extends DashboardSectionController {
     @FXML
     private void initialize() {
         eventsListView.getSelectionModel().selectedItemProperty().addListener(
-                (obs, oldVal, newVal) -> {
-                    if (newVal != null) {
-                        eventDetailsController.setEvent(newVal);
-                        eventDetailsController.hideRegisterButton(); // this might be redundant
+                (obs, oldEvent, newEvent) -> {
+                    if (newEvent != null) {
+                        eventDetailsController.setEvent(newEvent);
+                        //eventDetailsController.hideRegisterButton(); // this might be redundant
+                        loadRegistrations(newEvent);
                     }
                 });
         eventDetailsController.hideRegisterButton();
@@ -90,6 +93,38 @@ public class DashboardEventsController extends DashboardSectionController {
 
         task.setOnFailed(event -> {
             System.err.println("Failed to load events");
+            task.getException().printStackTrace();
+        });
+
+        new Thread(task).start();
+    }
+
+    private void loadRegistrations(EntitiesProto.Event event) {
+        Task<List<EventRegistrationServiceProto.EventRegistration>> task = new Task<>() {
+            @Override
+            protected List<EventRegistrationServiceProto.EventRegistration> call() {
+                return ConnectionManager.getInstance().getEventRegistrationStub()
+                        .getRegistrationsForEvent(EventRegistrationServiceProto.GetRegistrationsForEventRequest
+                                .newBuilder()
+                                .setEventId(event.getEventId())
+                                .build())
+                        .getRegistrationsList();
+            }
+        };
+
+        task.setOnSucceeded(e -> {
+            registrationsListView.setItems(FXCollections.observableArrayList(task.getValue()));
+            registrationsListView.setCellFactory(lv -> new ListCell<>() {
+                @Override
+                protected void updateItem(EventRegistrationServiceProto.EventRegistration reg, boolean empty) {
+                    super.updateItem(reg, empty);
+                    setText(empty || reg == null ? null : reg.getStudent().getDisplayName());
+                }
+            });
+        });
+
+        task.setOnFailed(e -> {
+            System.err.println("Failed to load registrations");
             task.getException().printStackTrace();
         });
 
