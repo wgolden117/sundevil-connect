@@ -85,7 +85,7 @@ public class MainController {
     public void setupForRole(Role role) {
 
         // Show role at top
-        nameLabel.setText("Name: " + CurrentUser.getInstance().getUserName());
+        nameLabel.setText("Name: " + CurrentUser.getInstance().getDisplayName());
 
         // Clear all tabs first
         mainTabPane.getTabs().clear();
@@ -149,7 +149,12 @@ public class MainController {
         };
 
         loadTask.setOnSucceeded(event -> {
-            pane.getChildren().setAll(loadTask.getValue());
+            Parent view = loadTask.getValue();
+            AnchorPane.setTopAnchor(view, 0.0);
+            AnchorPane.setBottomAnchor(view, 0.0);
+            AnchorPane.setLeftAnchor(view, 0.0);
+            AnchorPane.setRightAnchor(view, 0.0);
+            pane.getChildren().setAll(view);
             onLoaded.run();
         });
 

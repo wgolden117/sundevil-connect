@@ -1,37 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.geometry.Insets?>
 
-<VBox xmlns="http://javafx.com/javafx"
-      xmlns:fx="http://javafx.com/fxml"
-      fx:controller="ser460.sundevilconnect.client.clubs.ClubDashboard"
-      fx:id="root"
-      VBox.vgrow="ALWAYS">
+<VBox fx:id="root" VBox.vgrow="ALWAYS" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ser460.sundevilconnect.client.clubs.ClubDashboard">
 
   <HBox VBox.vgrow="ALWAYS">
 
     <!-- Sidebar -->
-    <VBox prefWidth="200.0" minWidth="200.0" maxWidth="200.0" spacing="8.0">
+    <VBox minWidth="150.0" prefWidth="160.0" spacing="8.0">
       <padding>
-        <Insets top="16.0" right="12.0" bottom="16.0" left="12.0"/>
+        <Insets bottom="16.0" left="12.0" right="12.0" top="16.0" />
       </padding>
 
-      <Label fx:id="clubNameLabel" text="Club Name" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-wrap-text: true;"/>
+      <Label fx:id="clubNameLabel" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-wrap-text: true;" text="Club Name" />
 
-      <Separator/>
+      <Separator />
 
-      <Button fx:id="requestsButton" text="Membership Requests" maxWidth="Infinity"
-              onAction="#onRequestsClicked"/>
-      <Button fx:id="eventsButton" text="Events" maxWidth="Infinity"
-              onAction="#onEventsClicked"/>
-      <Button fx:id="announcementsButton" text="Announcements" maxWidth="Infinity"
-              onAction="#onAnnouncementsClicked"/>
+      <Button fx:id="requestsButton" maxWidth="Infinity" onAction="#onRequestsClicked" prefHeight="50.0" text="Membership Requests" />
+      <Button fx:id="eventsButton" maxWidth="Infinity" onAction="#onEventsClicked" prefHeight="50.0" text="Events" />
+      <Button fx:id="announcementsButton" maxWidth="Infinity" onAction="#onAnnouncementsClicked" prefHeight="50.0" text="Announcements" />
     </VBox>
 
     <!-- Content Area -->
-    <AnchorPane fx:id="contentArea" HBox.hgrow="ALWAYS"/>
+    <AnchorPane fx:id="contentArea" HBox.hgrow="ALWAYS" />
 
   </HBox>
 </VBox>

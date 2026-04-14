@@ -4,7 +4,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane prefHeight="120.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ser460.sundevilconnect.client.events.EventDetailsView">
+<AnchorPane prefHeight="120.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ser460.sundevilconnect.client.events.EventDetailsView">
 
     <VBox layoutX="10" layoutY="10" prefWidth="580" spacing="10">
 

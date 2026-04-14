@@ -1,30 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox spacing="10"
-      xmlns="http://javafx.com/javafx"
-      xmlns:fx="http://javafx.com/fxml"
-      fx:controller="ser460.sundevilconnect.client.events.MyEventsView"
-      fx:id="root">
+<VBox fx:id="root" spacing="10" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ser460.sundevilconnect.client.events.MyEventsView">
 
-    <!-- TOP: Filters + Registered Events -->
-    <HBox spacing="10">
-
-        <!-- LEFT: Filters -->
-        <fx:include fx:id="filterPanel" source="event_filter.fxml"/>
-
-        <!-- RIGHT: Registered Events List -->
-        <ListView fx:id="eventListView"
-                  prefWidth="350"
-                  prefHeight="300"/>
-
+    <HBox spacing="10" VBox.vgrow="ALWAYS">
+        <fx:include fx:id="filterPanel" source="event_filter.fxml" />
+        <ListView fx:id="eventListView" HBox.hgrow="ALWAYS" />
+      <padding>
+         <Insets right="10.0" top="10.0" />
+      </padding>
     </HBox>
-
-    <!-- BOTTOM: Details -->
-    <AnchorPane fx:id="detailsPane"
-                prefHeight="100"
-                prefWidth="600"/>
+    <AnchorPane fx:id="detailsPane" prefHeight="150" />
 
 </VBox>

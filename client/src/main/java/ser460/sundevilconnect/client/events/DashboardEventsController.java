@@ -37,9 +37,10 @@ public class DashboardEventsController extends DashboardSectionController {
                 (obs, oldVal, newVal) -> {
                     if (newVal != null) {
                         eventDetailsController.setEvent(newVal);
-                        eventDetailsController.hideRegisterButton();
+                        eventDetailsController.hideRegisterButton(); // this might be redundant
                     }
                 });
+        eventDetailsController.hideRegisterButton();
     }
 
     private void loadEvents() {
