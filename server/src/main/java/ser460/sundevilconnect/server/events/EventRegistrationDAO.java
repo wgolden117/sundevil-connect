@@ -246,7 +246,7 @@ public class EventRegistrationDAO {
         WHERE er.registrationId = ?
     """;
 
-        try (var conn = databaseService.getConnection();
+        try (var conn = db.getConnection();
              var pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, registrationId);
@@ -292,7 +292,7 @@ public class EventRegistrationDAO {
 
         String sql = "SELECT * FROM events WHERE id = ?";
 
-        try (var conn = databaseService.getConnection();
+        try (var conn = db.getConnection();
              var pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, eventId);
