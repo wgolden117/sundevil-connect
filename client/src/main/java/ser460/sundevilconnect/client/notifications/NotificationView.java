@@ -1,12 +1,19 @@
 package ser460.sundevilconnect.client.notifications;
 
 import javafx.fxml.FXML;
+import javafx.scene.control.ListView;
 
 public class NotificationView {
-    // TODO: define @FXML fields once UI design is determined
+
+    @FXML
+    private ListView<String> notificationList;
 
     @FXML
     private void initialize() {
-        // TODO: called by JavaFX after FXML loads, fetch initial data from server
+        System.out.println("NotificationView initialized");
+
+        notificationList.setItems(
+                NotificationStore.getInstance().getNotifications()
+        );
     }
 }

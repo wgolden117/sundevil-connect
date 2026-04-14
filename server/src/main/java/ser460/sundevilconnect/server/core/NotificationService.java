@@ -53,9 +53,22 @@ public class NotificationService extends NotificationServiceImplBase {
     }
 
     public void notifyObservers(List<String> userIds, NotificationMessage notification) {
-        // TODO: for each userId in userIds, get their list of StreamObservers
-        // TODO: for each StreamObserver, call onNext(notification) to push down the stream
-        // TODO: if a stream is closed/cancelled, remove it from the map
-        // this is the mechanism that replaces the hand-written Observer.update() call
+        for (String userId : userIds) {
+
+            List<StreamObserver<NotificationMessage>> userObservers = observers.get(userId);
+
+            if (userObservers != null) {
+
+                for (StreamObserver<NotificationMessage> observer : userObservers) {
+                    try {
+                        observer.onNext(notification);
+                    } catch (Exception e) {
+                        // If observer is dead (client disconnected), remove it
+                        userObservers.remove(observer);
+                    }
+                }
+
+            }
+        }
     }
 }

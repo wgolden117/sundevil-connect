@@ -2,6 +2,7 @@
 <project version="4">
   <component name="SqlDialectMappings">
     <file url="file://$PROJECT_DIR$/server/src/main/java/ser460/sundevilconnect/server/core/DatabaseService.java" dialect="GenericSQL" />
+    <file url="file://$PROJECT_DIR$/server/src/main/resources/schema.sql" dialect="SQLite" />
     <file url="file://$PROJECT_DIR$/server/src/main/resources/seed.sql" dialect="SQLite" />
     <file url="PROJECT" dialect="SQLite" />
   </component>

@@ -233,4 +233,36 @@ public class EventRegistrationDAO {
 
         return registrations;
     }
+
+    public Event getEventById(int eventId) {
+
+        String sql = "SELECT * FROM events WHERE id = ?";
+
+        try (var conn = databaseService.getConnection();
+             var pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, eventId);
+
+            var rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                return Event.newBuilder()
+                        .setEventId(String.valueOf(rs.getInt("id")))
+                        .setTitle(rs.getString("title"))
+                        .setDescription(rs.getString("description"))
+                        .setCategory(rs.getString("category"))
+                        .setLocation(rs.getString("location"))
+                        .setEventDate(rs.getString("event_date"))
+                        .setCapacity(rs.getInt("capacity"))
+                        .setIsPaid(rs.getInt("is_paid") == 1)
+                        .build();
+            }
+
+        } catch (Exception e) {
+            logger.log(Level.SEVERE,
+                    "Failed to fetch event with id=" + eventId,
+                    e);
+        }
+        return null;
+    }
 }

@@ -20,10 +20,7 @@ import ser460.sundevilconnect.client.events.EventsListView;
 import ser460.sundevilconnect.client.events.MyEventsView;
 import ser460.sundevilconnect.shared.proto.AuthServiceProto;
 import ser460.sundevilconnect.shared.proto.EntitiesProto;
-import ser460.sundevilconnect.shared.proto.EntitiesProto.Event;
 import ser460.sundevilconnect.shared.proto.EntitiesProto.Role;
-
-import java.util.List;
 
 public class MainController {
 
@@ -42,18 +39,22 @@ public class MainController {
     @FXML private Tab manageClubsTab;
     @FXML private Tab approveClubsTab;
     @FXML private Tab flaggedContentTab;
+    @FXML private Tab notificationsTab;
 
     // AnchorPanes
     @FXML private AnchorPane eventsPane;
     @FXML private AnchorPane myEventsPane;
     @FXML private AnchorPane clubsPane;
     @FXML private AnchorPane myClubsPane;
+    @FXML private AnchorPane notificationsPane;
+
 
     // Load state
     private boolean eventsLoaded = false;
     private boolean myEventsLoaded = false;
     private boolean clubsLoaded = false;
     private boolean myClubsLoaded = false;
+    private boolean notificationsLoaded = false;
 
     @FXML
     private void initialize() {
@@ -75,10 +76,12 @@ public class MainController {
             else if (newTab == myEventsTab) loadMyEventsView();
             else if (newTab == clubsTab) loadClubsView();
             else if (newTab == myClubsTab) loadMyClubsView();
+            else if (newTab == notificationsTab) loadNotificationsView();
         });
 
         // register with Navigation Controller
         NavigationController.getInstance().setMainController(this);
+        startNotificationListener();
     }
 
     /**
@@ -100,7 +103,8 @@ public class MainController {
                         eventsTab,
                         myEventsTab,
                         clubsTab,
-                        myClubsTab
+                        myClubsTab,
+                        notificationsTab
                 );
             }
 
@@ -111,7 +115,8 @@ public class MainController {
                         myClubsTab,
                         createEventTab,
                         approveMembersTab,
-                        postUpdatesTab
+                        postUpdatesTab,
+                        notificationsTab
                 );
             }
 
@@ -120,7 +125,8 @@ public class MainController {
                         eventsTab,
                         manageClubsTab,
                         approveClubsTab,
-                        flaggedContentTab
+                        flaggedContentTab,
+                        notificationsTab
                 );
             }
         }
@@ -278,5 +284,48 @@ public class MainController {
             loadTask.getException().printStackTrace();
         });
         new Thread(loadTask).start();
+    }
+
+    private void loadNotificationsView() {
+        if (!notificationsLoaded) loadViewIntoPane(notificationsPane,
+                "/fxml/notifications/notification.fxml",
+                "Loading notifications...",
+                () -> notificationsLoaded = true);
+    }
+
+    private void startNotificationListener() {
+
+        String userId = CurrentUser.getInstance().getUserId();
+
+        var stub = ConnectionManager.getInstance().getNotificationStub();
+
+        var request = ser460.sundevilconnect.shared.proto.NotificationServiceProto.SubscribeRequest
+                .newBuilder()
+                .setUserId(userId)
+                .build();
+
+        stub.subscribe(request, new io.grpc.stub.StreamObserver<>() {
+
+            @Override
+            public void onNext(ser460.sundevilconnect.shared.proto.NotificationServiceProto.NotificationMessage notification) {
+                System.out.println("GLOBAL NOTIFICATION: " + notification.getMessage());
+
+                javafx.application.Platform.runLater(() -> {
+                    ser460.sundevilconnect.client.notifications.NotificationStore
+                            .getInstance()
+                            .addNotification(notification.getMessage());
+                });
+            }
+
+            @Override
+            public void onError(Throwable throwable) {
+                System.out.println("Notification error: " + throwable.getMessage());
+            }
+
+            @Override
+            public void onCompleted() {
+                System.out.println("Notification stream closed");
+            }
+        });
     }
 }

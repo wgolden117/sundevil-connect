@@ -5,10 +5,17 @@ import ser460.sundevilconnect.shared.proto.EventRegistrationServiceGrpc.*;
 import ser460.sundevilconnect.shared.proto.EventRegistrationServiceProto;
 import ser460.sundevilconnect.shared.proto.EventRegistrationServiceProto.*;
 import ser460.sundevilconnect.shared.proto.EventRegistrationServiceProto.EventRegistration;
+import ser460.sundevilconnect.shared.proto.EntitiesProto.Event;
 import ser460.sundevilconnect.shared.proto.EventRegistrationServiceProto.GetRegistrationsResponse;
 import ser460.sundevilconnect.shared.proto.EventRegistrationServiceProto.CancelRegistrationResponse;
 import ser460.sundevilconnect.shared.proto.EventRegistrationServiceProto.RegisterStudentForEventResponse;
+import ser460.sundevilconnect.server.core.NotificationService;
+import ser460.sundevilconnect.shared.proto.NotificationServiceProto.NotificationMessage;
+import ser460.sundevilconnect.shared.proto.NotificationServiceProto.NotificationType;
+
+import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 
 public class EventRegistrationController extends EventRegistrationServiceImplBase {
 
@@ -67,6 +74,25 @@ public class EventRegistrationController extends EventRegistrationServiceImplBas
             return;
         }
 
+        //  Get event title (quick lookup)
+        Event event = eventRegistrationDAO.getEventById(eventIdInt);
+        String eventTitle = (event != null) ? event.getTitle() : "this event";
+
+                // Send notification
+        NotificationMessage notification = NotificationMessage.newBuilder()
+                .setNotificationId(UUID.randomUUID().toString())
+                .setUserId(studentId)
+                .setMessage("You successfully registered for " + eventTitle + "!")
+                .setType(NotificationType.EVENT_REGISTRATION_CONFIRMED)
+                .setTimestamp(Instant.now().toString())
+                .setIsRead(false)
+                .build();
+
+        NotificationService.getInstance().notifyObservers(
+                List.of(studentId),
+                notification
+        );
+
         // 4. Build success response
         EventRegistrationServiceProto.EventRegistration registration =
                 EventRegistrationServiceProto.EventRegistration.newBuilder()
@@ -84,6 +110,7 @@ public class EventRegistrationController extends EventRegistrationServiceImplBas
         );
         responseObserver.onCompleted();
     }
+
     @Override
     public void cancelRegistration(CancelRegistrationRequest request,
                                    StreamObserver<CancelRegistrationResponse> responseObserver) {
