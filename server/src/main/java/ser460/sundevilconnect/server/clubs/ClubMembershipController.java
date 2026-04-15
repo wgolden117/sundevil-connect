@@ -50,10 +50,25 @@ public class ClubMembershipController extends ClubMembershipServiceImplBase {
                                     requestId, "APPROVED", approverId
                             );
                             if (updated) {
-                                clubMembershipDAO.createMembership(
-                                        Integer.parseInt(membershipRequest.getStudent().getUserId()),
-                                        Integer.parseInt(membershipRequest.getClub().getClubId())
-                                );
+
+                                int studentId = Integer.parseInt(membershipRequest.getStudent().getUserId());
+                                int clubId = Integer.parseInt(membershipRequest.getClub().getClubId());
+                                String clubName = membershipRequest.getClub().getName();
+
+                                clubMembershipDAO.createMembership(studentId, clubId);
+
+                                // send notification
+                                var notification = ser460.sundevilconnect.shared.proto.NotificationServiceProto.NotificationMessage.newBuilder()
+                                        .setNotificationId(java.util.UUID.randomUUID().toString())
+                                        .setUserId(String.valueOf(studentId))
+                                        .setMessage("You have been approved to join " + clubName)
+                                        .setType(ser460.sundevilconnect.shared.proto.NotificationServiceProto.NotificationType.MEMBERSHIP_APPROVED)
+                                        .setTimestamp(java.time.Instant.now().toString())
+                                        .setIsRead(false)
+                                        .build();
+
+                                ser460.sundevilconnect.server.core.NotificationService.getInstance()
+                                        .notifyObservers(java.util.List.of(String.valueOf(studentId)), notification);
                             }
                             responseObserver.onNext(MembershipActionResponse.newBuilder()
                                     .setSuccess(updated)
@@ -78,15 +93,41 @@ public class ClubMembershipController extends ClubMembershipServiceImplBase {
     public void rejectMembership(RejectMembershipRequest request,
                                  StreamObserver<MembershipActionResponse> responseObserver) {
         try {
+            int requestId = Integer.parseInt(request.getRequestId());
+            int approverId = Integer.parseInt(request.getApproverId());
+
             boolean updated = membershipRequestDAO.updateRequestStatus(
-                    Integer.parseInt(request.getRequestId()),
+                    requestId,
                     "REJECTED",
-                    Integer.parseInt(request.getApproverId())
+                    approverId
             );
+
+            // send notification
+            if (updated) {
+                membershipRequestDAO.getRequestById(requestId).ifPresent(req -> {
+
+                    String studentId = req.getStudent().getUserId();
+                    String clubName = req.getClub().getName();
+
+                    var notification = ser460.sundevilconnect.shared.proto.NotificationServiceProto.NotificationMessage.newBuilder()
+                            .setNotificationId(java.util.UUID.randomUUID().toString())
+                            .setUserId(studentId)
+                            .setMessage("Your request to join " + clubName + " was declined")
+                            .setType(ser460.sundevilconnect.shared.proto.NotificationServiceProto.NotificationType.MEMBERSHIP_REJECTED)
+                            .setTimestamp(java.time.Instant.now().toString())
+                            .setIsRead(false)
+                            .build();
+
+                    ser460.sundevilconnect.server.core.NotificationService.getInstance()
+                            .notifyObservers(java.util.List.of(studentId), notification);
+                });
+            }
+
             responseObserver.onNext(MembershipActionResponse.newBuilder()
                     .setSuccess(updated)
                     .build());
             responseObserver.onCompleted();
+
         } catch (SQLException e) {
             responseObserver.onError(Status.INTERNAL
                     .withDescription(e.getMessage()).asException());
@@ -116,13 +157,39 @@ public class ClubMembershipController extends ClubMembershipServiceImplBase {
     public void removeMember(RemoveMemberRequest request,
                              StreamObserver<MembershipActionResponse> responseObserver) {
         try {
-            boolean removed = clubMembershipDAO.removeMember(
-                    Integer.parseInt(request.getMemberId())
+            int membershipId = Integer.parseInt(request.getMemberId());
+
+            // Get membership before removing
+            var membership = clubMembershipDAO.getMembershipById(membershipId);
+
+            boolean removed = clubMembershipDAO.removeMember(membershipId);
+
+            // Send notification
+            if (removed && membership != null) {
+
+                String studentId = membership.getStudent().getUserId();
+                String clubName = membership.getClub().getName();
+
+                var notification = ser460.sundevilconnect.shared.proto.NotificationServiceProto.NotificationMessage.newBuilder()
+                        .setNotificationId(java.util.UUID.randomUUID().toString())
+                        .setUserId(studentId)
+                        .setMessage("You have been removed from " + clubName)
+                        .setType(ser460.sundevilconnect.shared.proto.NotificationServiceProto.NotificationType.MEMBERSHIP_REJECTED)
+                        .setTimestamp(java.time.Instant.now().toString())
+                        .setIsRead(false)
+                        .build();
+
+                ser460.sundevilconnect.server.core.NotificationService.getInstance()
+                        .notifyObservers(java.util.List.of(studentId), notification);
+            }
+
+            responseObserver.onNext(
+                    MembershipActionResponse.newBuilder()
+                            .setSuccess(removed)
+                            .build()
             );
-            responseObserver.onNext(MembershipActionResponse.newBuilder()
-                    .setSuccess(removed)
-                    .build());
             responseObserver.onCompleted();
+
         } catch (SQLException e) {
             responseObserver.onError(Status.INTERNAL
                     .withDescription(e.getMessage()).asException());

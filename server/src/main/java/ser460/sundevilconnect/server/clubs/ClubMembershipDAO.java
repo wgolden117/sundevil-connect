@@ -100,6 +100,31 @@ public class ClubMembershipDAO {
         return null;
     }
 
+    public ClubMembership getMembershipById(int membershipId) throws SQLException {
+        String sql = """
+        SELECT cm.*,
+               u.id as userId, u.firstName, u.lastName,
+               c.clubId, c.name, c.description, c.category, c.foundedDate, c.status
+        FROM clubMemberships cm
+        JOIN users u ON cm.studentId = u.id
+        JOIN clubs c ON cm.clubId = c.clubId
+        WHERE cm.membershipId = ?
+    """;
+
+        try (Connection conn = db.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, membershipId);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return mapRow(rs);
+            }
+        }
+
+        return null;
+    }
+
     public boolean promoteMember(int membershipId) throws SQLException {
         String sql = "UPDATE clubMemberships SET role = 'LEADER' WHERE membershipId = ?";
         try (Connection conn = db.getConnection();

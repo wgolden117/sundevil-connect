@@ -22,6 +22,8 @@ import ser460.sundevilconnect.client.events.MyEventsView;
 import ser460.sundevilconnect.shared.proto.AuthServiceProto;
 import ser460.sundevilconnect.shared.proto.EntitiesProto;
 import ser460.sundevilconnect.shared.proto.EntitiesProto.Role;
+import ser460.sundevilconnect.shared.proto.NotificationServiceProto;
+
 
 public class MainController {
 
@@ -40,18 +42,22 @@ public class MainController {
     @FXML private Tab manageClubsTab;
     @FXML private Tab approveClubsTab;
     @FXML private Tab flaggedContentTab;
+    @FXML private Tab notificationsTab;
 
     // AnchorPanes
     @FXML private AnchorPane eventsPane;
     @FXML private AnchorPane myEventsPane;
     @FXML private AnchorPane clubsPane;
     @FXML private AnchorPane myClubsPane;
+    @FXML private AnchorPane notificationsPane;
+
 
     // Load state
     private boolean eventsLoaded = false;
     private boolean myEventsLoaded = false;
     private boolean clubsLoaded = false;
     private boolean myClubsLoaded = false;
+    private boolean notificationsLoaded = false;
 
     @FXML
     private void initialize() {
@@ -73,10 +79,12 @@ public class MainController {
             else if (newTab == myEventsTab) loadMyEventsView();
             else if (newTab == clubsTab) loadClubsView();
             else if (newTab == myClubsTab) loadMyClubsView();
+            else if (newTab == notificationsTab) loadNotificationsView();
         });
 
         // register with Navigation Controller
         NavigationController.getInstance().setMainController(this);
+        startNotificationListener();
     }
 
     /**
@@ -98,7 +106,8 @@ public class MainController {
                         eventsTab,
                         myEventsTab,
                         clubsTab,
-                        myClubsTab
+                        myClubsTab,
+                        notificationsTab
                 );
             }
 
@@ -109,7 +118,8 @@ public class MainController {
                         myClubsTab,
                         createEventTab,
                         approveMembersTab,
-                        postUpdatesTab
+                        postUpdatesTab,
+                        notificationsTab
                 );
             }
 
@@ -118,7 +128,8 @@ public class MainController {
                         eventsTab,
                         manageClubsTab,
                         approveClubsTab,
-                        flaggedContentTab
+                        flaggedContentTab,
+                        notificationsTab
                 );
             }
         }
@@ -321,5 +332,84 @@ public class MainController {
         });
 
         new Thread(loadTask).start();
+    }
+
+    private void loadNotificationsView() {
+        if (!notificationsLoaded) loadViewIntoPane(notificationsPane,
+                "/fxml/notifications/notification.fxml",
+                "Loading notifications...",
+                () -> notificationsLoaded = true);
+    }
+
+    private void startNotificationListener() {
+
+        String userId = CurrentUser.getInstance().getUserId();
+
+        var stub = ConnectionManager.getInstance().getNotificationStub();
+
+        var request = ser460.sundevilconnect.shared.proto.NotificationServiceProto.SubscribeRequest
+                .newBuilder()
+                .setUserId(userId)
+                .build();
+
+        stub.subscribe(request, new io.grpc.stub.StreamObserver<>() {
+
+            @Override
+            public void onNext(NotificationServiceProto.NotificationMessage notification) {
+                System.out.println("GLOBAL NOTIFICATION: " + notification.getMessage());
+
+                javafx.application.Platform.runLater(() -> {
+                    ser460.sundevilconnect.client.notifications.NotificationStore
+                            .getInstance()
+                            .addNotification(notification.getMessage());
+
+                    updateNotificationTabIndicator();
+                });
+            }
+
+            @Override
+            public void onError(Throwable throwable) {
+                System.out.println("Notification error: " + throwable.getMessage());
+            }
+
+            @Override
+            public void onCompleted() {
+                System.out.println("Notification stream closed");
+            }
+        });
+    }
+
+    public void updateNotificationTabIndicator() {
+
+        var store = ser460.sundevilconnect.client.notifications.NotificationStore.getInstance();
+        int unreadCount = store.getUnreadCount();
+
+        if (unreadCount > 0) {
+
+            // cap at 9+
+            String displayText = unreadCount > 9 ? "9+" : String.valueOf(unreadCount);
+
+            Label badge = new Label(displayText);
+
+            badge.setStyle(
+                    "-fx-background-color: red;" +
+                            "-fx-text-fill: white;" +
+                            "-fx-font-size: 10px;" +
+                            "-fx-font-weight: bold;" +
+                            "-fx-alignment: center;" +
+                            "-fx-min-width: 18px;" +
+                            "-fx-min-height: 18px;" +
+                            "-fx-max-width: 18px;" +
+                            "-fx-max-height: 18px;" +
+                            "-fx-background-radius: 9px;"
+            );
+
+            notificationsTab.setText("Notifications");
+            notificationsTab.setGraphic(badge);
+
+        } else {
+            notificationsTab.setText("Notifications");
+            notificationsTab.setGraphic(null);
+        }
     }
 }
