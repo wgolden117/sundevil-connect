@@ -43,6 +43,9 @@ public class ClubPageView {
         categoryLabel.setText(club.getCategory());
         foundedDateLabel.setText(club.getFoundedDate());
         descriptionLabel.setText(club.getDescription());
+
+        if(CurrentUser.getInstance().getRole() == EntitiesProto.Role.ADMIN)
+            joinButton.setVisible(false);
     }
 
     private void checkLeaderAccess() {

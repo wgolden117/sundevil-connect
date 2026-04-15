@@ -1,10 +1,14 @@
 package ser460.sundevilconnect.client.events;
 
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TextInputDialog;
 import ser460.sundevilconnect.client.CurrentUser;
+import ser460.sundevilconnect.shared.proto.ContentModerationServiceProto;
+import ser460.sundevilconnect.shared.proto.EntitiesProto;
 import ser460.sundevilconnect.shared.proto.EntitiesProto.Event;
 import ser460.sundevilconnect.client.ConnectionManager;
 import ser460.sundevilconnect.shared.proto.EventRegistrationServiceProto;
@@ -18,6 +22,7 @@ public class EventDetailsView {
     @FXML private Label locationLabel;
     @FXML private Label dateLabel;
     @FXML private Label capacityLabel;
+    @FXML private Button flagButton;
 
     private Event currentEvent;
     private boolean isMyEvent = false;
@@ -27,6 +32,7 @@ public class EventDetailsView {
     public void setEvent(Event event) {
         this.currentEvent = event;
         populateUI();
+        loadFlagStatus();
     }
 
     public void setMyEvent(Event event, String registrationId, Runnable onCancelSuccess) {
@@ -40,6 +46,8 @@ public class EventDetailsView {
     }
 
     private void populateUI() {
+        if (CurrentUser.getInstance().getRole() == EntitiesProto.Role.ADMIN)
+            registerButton.setVisible(false);
         if (currentEvent != null) {
             titleLabel.setText(currentEvent.getTitle());
             categoryLabel.setText(currentEvent.getCategory());
@@ -62,6 +70,55 @@ public class EventDetailsView {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    private void loadFlagStatus() {
+        Task<Boolean> task = new Task<>() {
+            @Override
+            protected Boolean call() {
+                return ConnectionManager.getInstance().getContentModerationStub()
+                        .getContentFlagStatus(ContentModerationServiceProto.GetContentFlagStatusRequest.newBuilder()
+                                .setEventId(currentEvent.getEventId())
+                                .build())
+                        .getIsFlagged();
+            }
+        };
+        task.setOnSucceeded(e -> flagButton.setVisible(!task.getValue()));
+        task.setOnFailed(e -> {
+            System.err.println("Failed to load flag status");
+            task.getException().printStackTrace();
+        });
+        new Thread(task).start();
+    }
+
+    @FXML
+    private void handleFlag() {
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setTitle("Flag Content");
+        dialog.setHeaderText(null);
+        dialog.setContentText("Reason for flagging:");
+        dialog.showAndWait().ifPresent(reason -> {
+            if (reason.isBlank()) return;
+            Task<ContentModerationServiceProto.ContentActionResponse> task = new Task<>() {
+                @Override
+                protected ContentModerationServiceProto.ContentActionResponse call() {
+                    return ConnectionManager.getInstance().getContentModerationStub()
+                            .flagContent(ContentModerationServiceProto.FlagContentRequest.newBuilder()
+                                    .setEventId(currentEvent.getEventId())
+                                    .setReason(reason)
+                                    .setUserId(CurrentUser.getInstance().getUserId())
+                                    .build());
+                }
+            };
+            task.setOnSucceeded(e -> {
+                if (task.getValue().getSuccess()) flagButton.setVisible(false);
+            });
+            task.setOnFailed(e -> {
+                System.err.println("Failed to flag content");
+                task.getException().printStackTrace();
+            });
+            new Thread(task).start();
+        });
     }
 
     @FXML

@@ -23,10 +23,18 @@ public class ContentModerationController extends ContentModerationServiceImplBas
     public void flagContent(FlagContentRequest request,
                             StreamObserver<ContentActionResponse> responseObserver) {
         try {
-            contentDAO.flagContent(Integer.parseInt(request.getContentId()), request.getReason());
-            responseObserver.onNext(ContentActionResponse.newBuilder()
-                    .setSuccess(true)
-                    .build());
+            int contentId;
+            if (!request.getContentId().isEmpty()) {
+                contentId = Integer.parseInt(request.getContentId());
+            } else if (!request.getEventId().isEmpty()) {
+                contentId = contentDAO.getContentIdByEventId(Integer.parseInt(request.getEventId()));
+            } else if (!request.getAnnouncementId().isEmpty()) {
+                contentId = contentDAO.getContentIdByAnnouncementId(Integer.parseInt(request.getAnnouncementId()));
+            } else {
+                throw new IllegalArgumentException("FlagContentRequest must provide contentId, eventId, or announcementId");
+            }
+            contentDAO.flagContent(contentId, request.getReason());
+            responseObserver.onNext(ContentActionResponse.newBuilder().setSuccess(true).build());
             responseObserver.onCompleted();
 
         } catch (Exception e) {
@@ -74,6 +82,24 @@ public class ContentModerationController extends ContentModerationServiceImplBas
             NotificationService.getInstance()
                     .notifyObservers(List.of(content.getCreatedBy().getUserId()), notification);
 
+        } catch (Exception e) {
+            responseObserver.onError(Status.INTERNAL
+                    .withDescription(e.getMessage()).asException());
+        }
+    }
+
+    @Override
+    public void getContentFlagStatus(GetContentFlagStatusRequest request,
+                                     StreamObserver<GetContentFlagStatusResponse> responseObserver) {
+        try {
+            boolean isFlagged = contentDAO.getFlagStatus(
+                    request.getContentId(),
+                    request.getEventId(),
+                    request.getAnnouncementId());
+            responseObserver.onNext(GetContentFlagStatusResponse.newBuilder()
+                    .setIsFlagged(isFlagged)
+                    .build());
+            responseObserver.onCompleted();
         } catch (Exception e) {
             responseObserver.onError(Status.INTERNAL
                     .withDescription(e.getMessage()).asException());

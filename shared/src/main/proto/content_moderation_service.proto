@@ -11,12 +11,15 @@ service ContentModerationService {
   rpc ApproveFlaggedContent(ApproveFlaggedContentRequest) returns (ContentActionResponse);
   rpc RemoveFlaggedContent(RemoveFlaggedContentRequest) returns (ContentActionResponse);
   rpc GetFlaggedContent(GetFlaggedContentRequest) returns (GetFlaggedContentResponse);
+  rpc GetContentFlagStatus(GetContentFlagStatusRequest) returns (GetContentFlagStatusResponse);
 }
 
 message FlagContentRequest {
   string contentId = 1;
   string reason = 2;
   string userId = 3;
+  string eventId = 4;
+  string announcementId = 5;
 }
 
 message ApproveFlaggedContentRequest {
@@ -29,10 +32,21 @@ message RemoveFlaggedContentRequest {
 
 message GetFlaggedContentRequest {}
 
+message GetContentFlagStatusRequest {
+  string contentId = 1;
+  string eventId = 2;
+  string announcementId = 3;
+}
+
+
 message ContentActionResponse {
   bool success = 1;
 }
 
 message GetFlaggedContentResponse {
   repeated Content flaggedContent = 1;
+}
+
+message GetContentFlagStatusResponse {
+  bool isFlagged = 1;
 }
