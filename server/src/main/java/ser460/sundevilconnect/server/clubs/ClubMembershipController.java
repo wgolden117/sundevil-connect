@@ -55,7 +55,7 @@ public class ClubMembershipController extends ClubMembershipServiceImplBase {
                                 int clubId = Integer.parseInt(membershipRequest.getClub().getClubId());
                                 String clubName = membershipRequest.getClub().getName();
 
-                                clubMembershipDAO.createMembership(studentId, clubId);
+                                clubMembershipDAO.createMembership(studentId, clubId, false);
 
                                 // send notification
                                 var notification = ser460.sundevilconnect.shared.proto.NotificationServiceProto.NotificationMessage.newBuilder()

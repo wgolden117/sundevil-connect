@@ -74,6 +74,64 @@ public class ClubDAO {
         return Optional.empty();
     }
 
+    public List<Club> getPendingClubs() throws SQLException {
+        List<Club> clubs = new ArrayList<>();
+        String sql = "SELECT * FROM clubs WHERE status = 'PENDING'";
+        try (Connection conn = db.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                clubs.add(mapRow(rs));
+            }
+        }
+        return clubs;
+    }
+
+    public void insertClub(Club club, int submittedBy) throws SQLException {
+        String sql = """
+            INSERT INTO clubs (name, description, category, status, submittedBy)
+            VALUES (?, ?, ?, 'PENDING', ?)
+            """;
+        try (Connection conn = db.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, club.getName());
+            stmt.setString(2, club.getDescription());
+            stmt.setString(3, club.getCategory());
+            stmt.setInt(4, submittedBy);
+            stmt.executeUpdate();
+        }
+    }
+
+    public boolean approveClub(int clubId) throws SQLException {
+        String sql = "UPDATE clubs SET status = 'ACTIVE', foundedDate = ? WHERE clubId = ?";
+        try (Connection conn = db.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, LocalDate.now().toString());
+            stmt.setInt(2, clubId);
+            return stmt.executeUpdate() > 0;
+        }
+    }
+
+    public boolean rejectClub(int clubId) throws SQLException {
+        String sql = "UPDATE clubs SET status = 'REJECTED' WHERE clubId = ?";
+        try (Connection conn = db.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, clubId);
+            return stmt.executeUpdate() > 0;
+        }
+    }
+
+    public int getSubmittedByForClub(int clubId) throws SQLException {
+        String query = "SELECT submittedBy FROM clubs WHERE clubId = ?";
+        try (Connection conn = db.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, clubId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) return rs.getInt("submittedBy");
+            throw new SQLException("Club not found after approval: " + clubId);
+        }
+    }
+
     private Club mapRow(ResultSet rs) throws SQLException {
         Club club = new Club();
         club.setClubId(String.valueOf(rs.getInt("clubId")));
