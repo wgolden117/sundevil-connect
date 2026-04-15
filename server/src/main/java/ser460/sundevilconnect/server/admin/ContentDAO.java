@@ -50,7 +50,7 @@ public class ContentDAO {
     public void removeContent(int contentId) throws SQLException {
         try (Connection conn = db.getConnection()) {
             try (PreparedStatement stmt = conn.prepareStatement(
-                    "UPDATE content SET status = 'REMOVED' WHERE contentId = ?")) {
+                    "UPDATE content SET status = 'REMOVED', isFlagged = 0 WHERE contentId = ?")) {
                 stmt.setInt(1, contentId);
                 stmt.executeUpdate();
             }
