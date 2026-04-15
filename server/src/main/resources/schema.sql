@@ -73,7 +73,8 @@ CREATE TABLE IF NOT EXISTS clubs (
     description TEXT,
     category TEXT,
     foundedDate TEXT,
-    status TEXT
+    status TEXT,
+    submittedBy INTEGER REFERENCES users(id)
 );
 
 CREATE TABLE IF NOT EXISTS clubMemberships (

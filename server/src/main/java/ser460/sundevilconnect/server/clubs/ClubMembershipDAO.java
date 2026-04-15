@@ -63,14 +63,15 @@ public class ClubMembershipDAO {
         return memberships;
     }
 
-    public String createMembership(int userId, int clubId) throws SQLException {
+    public String createMembership(int userId, int clubId, boolean isLeader) throws SQLException {
         String sql = "INSERT INTO clubMemberships (studentId, clubId, role, joinDate, status) " +
-                "VALUES (?, ?, 'MEMBER', ?, 'ACTIVE')";
+                "VALUES (?, ?, ?, ?, 'ACTIVE')";
         try (Connection conn = db.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setInt(1, userId);
             ps.setInt(2, clubId);
-            ps.setString(3, LocalDate.now().toString());
+            ps.setString(3, isLeader ? "LEADER" : "MEMBER");
+            ps.setString(4, LocalDate.now().toString());
             ps.executeUpdate();
             ResultSet rs = ps.getGeneratedKeys();
             if (rs.next()) {

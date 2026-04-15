@@ -1,6 +1,5 @@
 package ser460.sundevilconnect.server.admin;
 
-import ser460.sundevilconnect.server.auth.User;
 import ser460.sundevilconnect.server.core.DatabaseService;
 import ser460.sundevilconnect.shared.proto.EntitiesProto;
 
@@ -68,6 +67,27 @@ public class ContentDAO {
                 stmt.setInt(1, contentId);
                 stmt.executeUpdate();
             }
+        }
+    }
+
+    public EntitiesProto.Content getContentById(int contentId) throws SQLException {
+        String sql = """
+                SELECT c.*, u.id as userId, u.email, u.firstName, u.lastName,
+                       e.id as eventId, e.title as eventTitle, e.description as eventDescription,
+                       e.category, e.location, e.event_date, e.capacity, e.is_paid,
+                       a.id as announcementId, a.title as announcementTitle, a.body
+                FROM content c
+                JOIN users u ON c.createdBy = u.id
+                LEFT JOIN events e ON e.contentId = c.contentId
+                LEFT JOIN announcements a ON a.contentId = c.contentId
+                WHERE c.contentId = ?
+            """;
+        try (Connection conn = db.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, contentId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) return mapRow(rs);
+            throw new SQLException("Content not found: " + contentId);
         }
     }
 

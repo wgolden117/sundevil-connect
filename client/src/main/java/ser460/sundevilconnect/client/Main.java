@@ -1,9 +1,8 @@
 package ser460.sundevilconnect.client;
 
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
 import javafx.stage.Stage;
+import ser460.sundevilconnect.shared.proto.AuthServiceProto;
 
 public class Main extends Application {
     @Override
@@ -19,7 +18,11 @@ public class Main extends Application {
 
     @Override
     public void stop() throws Exception {
-        // ensure we close the connection before exit
+        // ensure we attempt logout and close the connection before exit
+        ConnectionManager.getInstance().getAuthStub().logout(AuthServiceProto.LogoutRequest.newBuilder()
+                .setUserId(CurrentUser.getInstance().getUserId())
+                .setToken(CurrentUser.getInstance().getSessionToken())
+                .build());
         ConnectionManager.getInstance().shutdown();
     }
 

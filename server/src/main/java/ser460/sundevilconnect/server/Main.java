@@ -36,7 +36,7 @@ public class Main {
         Server server = ServerBuilder
                 .forPort(8080)
                 .addService(NotificationService.getInstance()) // add for each service implementation
-                .addService(new ClubApprovalController(clubDAO))
+                .addService(new ClubApprovalController(clubDAO, clubMembershipDAO))
                 .addService(new ContentModerationController(contentDAO))
                 .addService(new AnnouncementController(announcementDAO, clubMembershipDAO))
                 .addService(new AuthenticationController())

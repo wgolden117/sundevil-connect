@@ -87,16 +87,17 @@ public class ClubDAO {
         return clubs;
     }
 
-    public void insertClub(Club club) throws SQLException {
+    public void insertClub(Club club, int submittedBy) throws SQLException {
         String sql = """
-            INSERT INTO clubs (name, description, category, status)
-            VALUES (?, ?, ?, 'PENDING')
+            INSERT INTO clubs (name, description, category, status, submittedBy)
+            VALUES (?, ?, ?, 'PENDING', ?)
             """;
         try (Connection conn = db.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, club.getName());
             stmt.setString(2, club.getDescription());
             stmt.setString(3, club.getCategory());
+            stmt.setInt(4, submittedBy);
             stmt.executeUpdate();
         }
     }
@@ -117,6 +118,17 @@ public class ClubDAO {
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, clubId);
             return stmt.executeUpdate() > 0;
+        }
+    }
+
+    public int getSubmittedByForClub(int clubId) throws SQLException {
+        String query = "SELECT submittedBy FROM clubs WHERE clubId = ?";
+        try (Connection conn = db.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, clubId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) return rs.getInt("submittedBy");
+            throw new SQLException("Club not found after approval: " + clubId);
         }
     }
 
