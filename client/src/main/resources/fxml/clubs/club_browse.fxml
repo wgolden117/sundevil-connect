@@ -13,7 +13,9 @@
     <Button onAction="#handleClear" text="Clear" />
       <VBox.margin>
          <Insets top="10.0" />
-      </VBox.margin>
+  m    </VBox.margin>
+    <Region HBox.hgrow="ALWAYS" />
+    <Button fx:id="createClubButton" text="Create Club" onAction="#handleCreateClub" />
   </HBox>
 
   <ListView fx:id="clubListView" VBox.vgrow="ALWAYS" />

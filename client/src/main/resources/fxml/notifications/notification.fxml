@@ -1,22 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox spacing="10"
-      xmlns="http://javafx.com/javafx"
-      xmlns:fx="http://javafx.com/fxml"
-      fx:controller="ser460.sundevilconnect.client.notifications.NotificationView">
+<VBox spacing="10" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ser460.sundevilconnect.client.notifications.NotificationView">
 
     <!-- Top action buttons -->
     <HBox spacing="10">
-        <Button text="Select All" onAction="#handleSelectAll"/>
-        <Button text="Deselect All" onAction="#handleDeselectAll"/>
-        <Button text="Delete Selected" onAction="#handleDeleteSelected"/>
+        <Button onAction="#handleSelectAll" text="Select All" />
+        <Button onAction="#handleDeselectAll" text="Deselect All" />
+        <Button onAction="#handleDeleteSelected" text="Delete Selected" />
+      <padding>
+         <Insets left="10.0" right="10.0" top="10.0" />
+      </padding>
     </HBox>
 
     <!-- Notification list -->
-    <ListView fx:id="notificationList"
-              VBox.vgrow="ALWAYS"/>
+    <ListView fx:id="notificationList" VBox.vgrow="ALWAYS">
+      <VBox.margin>
+         <Insets />
+      </VBox.margin></ListView>
 
 </VBox>
