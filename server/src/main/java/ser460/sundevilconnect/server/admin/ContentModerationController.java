@@ -1,5 +1,6 @@
 package ser460.sundevilconnect.server.admin;
 
+import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import ser460.sundevilconnect.shared.proto.ContentModerationServiceGrpc.*;
 import ser460.sundevilconnect.shared.proto.ContentModerationServiceProto.*;
@@ -7,42 +8,78 @@ import ser460.sundevilconnect.shared.proto.ContentModerationServiceProto.*;
 import java.util.List;
 
 public class ContentModerationController extends ContentModerationServiceImplBase {
-    private List<Content> flaggedContent;
+    private final ContentDAO contentDAO;
+
+    public ContentModerationController(ContentDAO contentDAO) {
+        this.contentDAO = contentDAO;
+    }
 
     @Override
     public void flagContent(FlagContentRequest request,
                             StreamObserver<ContentActionResponse> responseObserver) {
-        // TODO: implement
-        responseObserver.onNext(ContentActionResponse.newBuilder().build());
-        responseObserver.onCompleted();
+        try {
+            contentDAO.flagContent(Integer.parseInt(request.getContentId()), request.getReason());
+            responseObserver.onNext(ContentActionResponse.newBuilder()
+                    .setSuccess(true)
+                    .build());
+            responseObserver.onCompleted();
+
+            // TODO send notification to flagged user
+
+        } catch (Exception e) {
+            responseObserver.onError(Status.INTERNAL
+                    .withDescription(e.getMessage()).asException());
+        }
     }
 
     @Override
     public void approveFlaggedContent(ApproveFlaggedContentRequest request,
                                       StreamObserver<ContentActionResponse> responseObserver) {
-        // TODO: implement
-        responseObserver.onNext(ContentActionResponse.newBuilder().build());
-        responseObserver.onCompleted();
+        try {
+            contentDAO.approveContent(Integer.parseInt(request.getContentId()));
+            responseObserver.onNext(ContentActionResponse.newBuilder()
+                    .setSuccess(true)
+                    .build());
+            responseObserver.onCompleted();
+
+            // TODO send notification to flagged user
+
+        } catch (Exception e) {
+            responseObserver.onError(Status.INTERNAL
+                    .withDescription(e.getMessage()).asException());
+        }
     }
 
     @Override
     public void removeFlaggedContent(RemoveFlaggedContentRequest request,
                                      StreamObserver<ContentActionResponse> responseObserver) {
-        // TODO: implement
-        responseObserver.onNext(ContentActionResponse.newBuilder().build());
-        responseObserver.onCompleted();
+        try {
+            contentDAO.removeContent(Integer.parseInt(request.getContentId()));
+            responseObserver.onNext(ContentActionResponse.newBuilder()
+                    .setSuccess(true)
+                    .build());
+            responseObserver.onCompleted();
+
+            // TODO send notification to flagged user
+
+        } catch (Exception e) {
+            responseObserver.onError(Status.INTERNAL
+                    .withDescription(e.getMessage()).asException());
+        }
     }
 
     @Override
     public void getFlaggedContent(GetFlaggedContentRequest request,
                                   StreamObserver<GetFlaggedContentResponse> responseObserver) {
-        // TODO: implement
-        responseObserver.onNext(GetFlaggedContentResponse.newBuilder().build());
-        responseObserver.onCompleted();
-    }
+        try {
+            responseObserver.onNext(GetFlaggedContentResponse.newBuilder()
+                    .addAllFlaggedContent(contentDAO.getFlaggedContent())
+                    .build());
+            responseObserver.onCompleted();
 
-    // these don't have proto service definitions yet, because I'm not sure if they
-    // make sense server-side and/or might be redundant.
-    public void reviewFlaggedContent(Content content) {}
-    public void unflagContent(Content content) {}
+        } catch (Exception e) {
+            responseObserver.onError(Status.INTERNAL
+                    .withDescription(e.getMessage()).asException());
+        }
+    }
 }

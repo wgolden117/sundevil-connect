@@ -2,6 +2,7 @@ package ser460.sundevilconnect.server.admin;
 
 import ser460.sundevilconnect.server.auth.User;
 import ser460.sundevilconnect.server.core.DatabaseService;
+import ser460.sundevilconnect.shared.proto.EntitiesProto;
 
 import java.sql.*;
 import java.time.LocalDate;
@@ -70,14 +71,19 @@ public class ContentDAO {
         }
     }
 
-    public List<Content> getFlaggedContent() throws SQLException {
-        List<Content> results = new ArrayList<>();
+    public List<EntitiesProto.Content> getFlaggedContent() throws SQLException {
+        List<EntitiesProto.Content> results = new ArrayList<>();
         String sql = """
-                    SELECT c.*, u.email, u.firstName, u.lastName\s
-                    FROM content c
-                    JOIN users u ON c.createdBy = u.id
-                    WHERE c.isFlagged = 1
-                """;
+                SELECT c.*, u.id as userId, u.email, u.firstName, u.lastName,
+                       e.id as eventId, e.title as eventTitle, e.description as eventDescription,
+                       e.category, e.location, e.event_date, e.capacity, e.is_paid,
+                       a.id as announcementId, a.title as announcementTitle, a.body
+                FROM content c
+                JOIN users u ON c.createdBy = u.id
+                LEFT JOIN events e ON e.contentId = c.contentId
+                LEFT JOIN announcements a ON a.contentId = c.contentId
+                WHERE c.isFlagged = 1
+            """;
         try (Connection conn = db.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
@@ -88,18 +94,39 @@ public class ContentDAO {
         return results;
     }
 
-    private Content mapRow(ResultSet rs) throws SQLException {
-        User user = new User(
-                rs.getString("email"),
-                rs.getString("firstName"),
-                rs.getString("lastName"));
-        Content content = new Content();
-        content.setContentId(String.valueOf(rs.getInt("contentId")));
-        content.setCreatedBy(user);
-        content.setCreatedDate(LocalDate.parse(rs.getString("createdDate")));
-        content.setStatus(rs.getString("status"));
-        content.setFlagged(rs.getInt("isFlagged") == 1);
-        content.setFlagReason(rs.getString("flagReason"));
-        return content;
+    private EntitiesProto.Content mapRow(ResultSet rs) throws SQLException {
+        EntitiesProto.UserSummary createdBy = EntitiesProto.UserSummary.newBuilder()
+                .setUserId(String.valueOf(rs.getInt("userId")))
+                .setDisplayName(rs.getString("firstName") + " " + rs.getString("lastName"))
+                .build();
+
+        EntitiesProto.Content.Builder builder = EntitiesProto.Content.newBuilder()
+                .setContentId(String.valueOf(rs.getInt("contentId")))
+                .setCreatedBy(createdBy)
+                .setStatus(rs.getString("status"))
+                .setIsFlagged(rs.getInt("isFlagged") == 1)
+                .setFlagReason(rs.getString("flagReason") != null ? rs.getString("flagReason") : "");
+
+        int eventId = rs.getInt("eventId");
+        if (!rs.wasNull()) {
+            builder.setEvent(EntitiesProto.Event.newBuilder()
+                    .setEventId(String.valueOf(eventId))
+                    .setTitle(rs.getString("eventTitle"))
+                    .setDescription(rs.getString("eventDescription") != null ? rs.getString("eventDescription") : "")
+                    .setCategory(rs.getString("category") != null ? rs.getString("category") : "")
+                    .setLocation(rs.getString("location") != null ? rs.getString("location") : "")
+                    .setEventDate(rs.getString("event_date") != null ? rs.getString("event_date") : "")
+                    .setCapacity(rs.getInt("capacity"))
+                    .setIsPaid(rs.getInt("is_paid") == 1)
+                    .build());
+        } else {
+            builder.setAnnouncement(EntitiesProto.Announcement.newBuilder()
+                    .setAnnouncementId(String.valueOf(rs.getInt("announcementId")))
+                    .setTitle(rs.getString("announcementTitle") != null ? rs.getString("announcementTitle") : "")
+                    .setBody(rs.getString("body") != null ? rs.getString("body") : "")
+                    .build());
+        }
+
+        return builder.build();
     }
 }

@@ -87,11 +87,26 @@ public class ClubDAO {
         return clubs;
     }
 
-    public boolean approveClub(int clubId) throws SQLException {
-        String sql = "UPDATE clubs SET status = 'ACTIVE' WHERE clubId = ?";
+    public void insertClub(Club club) throws SQLException {
+        String sql = """
+            INSERT INTO clubs (name, description, category, status)
+            VALUES (?, ?, ?, 'PENDING')
+            """;
         try (Connection conn = db.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, clubId);
+            stmt.setString(1, club.getName());
+            stmt.setString(2, club.getDescription());
+            stmt.setString(3, club.getCategory());
+            stmt.executeUpdate();
+        }
+    }
+
+    public boolean approveClub(int clubId) throws SQLException {
+        String sql = "UPDATE clubs SET status = 'ACTIVE', foundedDate = ? WHERE clubId = ?";
+        try (Connection conn = db.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, LocalDate.now().toString());
+            stmt.setInt(2, clubId);
             return stmt.executeUpdate() > 0;
         }
     }
