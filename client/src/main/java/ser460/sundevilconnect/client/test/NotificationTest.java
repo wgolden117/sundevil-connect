@@ -82,7 +82,7 @@ public class NotificationTest {
         );
 
         if (eventsResponse.getEventsList().isEmpty()) {
-            System.out.println("❌ No events found — cannot continue test");
+            System.out.println("!!! No events found — cannot continue test");
             return;
         }
 
