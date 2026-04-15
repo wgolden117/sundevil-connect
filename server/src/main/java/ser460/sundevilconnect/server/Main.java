@@ -24,11 +24,12 @@ public class Main {
         // get port/host information from args
 
         // build entity Data Access Objects
+        ContentDAO contentDAO = new ContentDAO(db);
         ClubDAO clubDAO = new ClubDAO(db);
         ClubMembershipDAO clubMembershipDAO = new ClubMembershipDAO(db);
         MembershipRequestDAO membershipRequestDAO = new MembershipRequestDAO(db);
-        AnnouncementDAO announcementDAO = new AnnouncementDAO(db);
-        EventManagementDAO eventManagementDAO = new EventManagementDAO(db);
+        AnnouncementDAO announcementDAO = new AnnouncementDAO(db, contentDAO);
+        EventManagementDAO eventManagementDAO = new EventManagementDAO(db, contentDAO);
         EventRegistrationDAO eventRegistrationDAO = new EventRegistrationDAO(db);
 
         // build and start gRPC server
