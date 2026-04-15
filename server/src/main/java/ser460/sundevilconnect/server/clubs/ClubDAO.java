@@ -74,6 +74,37 @@ public class ClubDAO {
         return Optional.empty();
     }
 
+    public List<Club> getPendingClubs() throws SQLException {
+        List<Club> clubs = new ArrayList<>();
+        String sql = "SELECT * FROM clubs WHERE status = 'PENDING'";
+        try (Connection conn = db.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                clubs.add(mapRow(rs));
+            }
+        }
+        return clubs;
+    }
+
+    public boolean approveClub(int clubId) throws SQLException {
+        String sql = "UPDATE clubs SET status = 'ACTIVE' WHERE clubId = ?";
+        try (Connection conn = db.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, clubId);
+            return stmt.executeUpdate() > 0;
+        }
+    }
+
+    public boolean rejectClub(int clubId) throws SQLException {
+        String sql = "UPDATE clubs SET status = 'REJECTED' WHERE clubId = ?";
+        try (Connection conn = db.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, clubId);
+            return stmt.executeUpdate() > 0;
+        }
+    }
+
     private Club mapRow(ResultSet rs) throws SQLException {
         Club club = new Club();
         club.setClubId(String.valueOf(rs.getInt("clubId")));

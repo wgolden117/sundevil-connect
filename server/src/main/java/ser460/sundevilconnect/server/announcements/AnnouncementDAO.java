@@ -1,5 +1,6 @@
 package ser460.sundevilconnect.server.announcements;
 
+import ser460.sundevilconnect.server.admin.ContentDAO;
 import ser460.sundevilconnect.server.auth.Student;
 import ser460.sundevilconnect.server.auth.UserDAO;
 import ser460.sundevilconnect.server.clubs.Club;
@@ -14,9 +15,11 @@ import java.util.List;
 
 public class AnnouncementDAO {
     private final DatabaseService db;
+    private final ContentDAO contentDAO;
 
-    public AnnouncementDAO(DatabaseService db) {
+    public AnnouncementDAO(DatabaseService db, ContentDAO contentDAO) {
         this.db = db;
+        this.contentDAO = contentDAO;
     }
 
     public List<Announcement> getAnnouncementsForClub(int clubId, boolean includeDrafts) throws SQLException {
@@ -44,8 +47,10 @@ public class AnnouncementDAO {
     }
 
     public String createAnnouncement(int clubId, int createdBy, String title, String body, String status) throws SQLException {
-        String sql = "INSERT INTO announcements (title, body, postedToClub, createdBy, status, postedDate) " +
-                "VALUES  (?, ?, ?, ?, ?, ?)";
+        int contentId = contentDAO.createContent(createdBy);
+
+        String sql = "INSERT INTO announcements (title, body, postedToClub, createdBy, status, postedDate, contentId) " +
+                "VALUES  (?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = db.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);) {
             ps.setString(1, title);
@@ -56,6 +61,7 @@ public class AnnouncementDAO {
             ps.setString(6, "PUBLISHED".equals(status)
                     ? LocalDate.now().toString()
                     : null);
+            ps.setInt(7, contentId);
             ps.executeUpdate();
             ResultSet rs = ps.getGeneratedKeys();
             if (rs.next()) {

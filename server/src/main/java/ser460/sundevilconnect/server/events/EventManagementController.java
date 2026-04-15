@@ -17,9 +17,10 @@ public class EventManagementController extends EventManagementServiceImplBase {
     @Override
     public void createEvent(CreateEventRequest request,
                             StreamObserver<EventManagementActionResponse> responseObserver) {
-
         try {
-            boolean success = eventManagementDAO.createEvent(request.getEvent());
+            boolean success = eventManagementDAO.createEvent(
+                    request.getEvent(),
+                    Integer.parseInt(request.getUserId()));
             responseObserver.onNext(
                     EventManagementActionResponse.newBuilder()
                             .setSuccess(success)

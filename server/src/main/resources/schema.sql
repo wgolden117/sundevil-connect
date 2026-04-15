@@ -14,8 +14,19 @@ CREATE TABLE IF NOT EXISTS students (
     FOREIGN KEY (userId) REFERENCES users(id)
 );
 
+CREATE TABLE IF NOT EXISTS content (
+    contentId   INTEGER PRIMARY KEY AUTOINCREMENT,
+    createdBy   INTEGER NOT NULL,
+    createdDate TEXT NOT NULL,
+    status      TEXT NOT NULL DEFAULT 'ACTIVE',  -- 'ACTIVE', 'REMOVED'
+    isFlagged   INTEGER NOT NULL DEFAULT 0,
+    flagReason  TEXT,
+    FOREIGN KEY (createdBy) REFERENCES users(id)
+);
+
 CREATE TABLE IF NOT EXISTS events (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    contentId INTEGER NOT NULL,
     title TEXT NOT NULL,
     description TEXT,
     category TEXT,
@@ -25,17 +36,20 @@ CREATE TABLE IF NOT EXISTS events (
     is_paid INTEGER,
     hostedByClub INTEGER NOT NULL,
     status TEXT NOT NULL DEFAULT 'ACTIVE',
+    FOREIGN KEY (contentId) REFERENCES  content(contentId),
     FOREIGN KEY (hostedByClub) REFERENCES clubs(clubId)
 );
 
 CREATE TABLE IF NOT EXISTS announcements (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    contentId INTEGER NOT NULL,
     title TEXT NOT NULL,
     body TEXT,
     postedDate TEXT,
     postedToClub INTEGER NOT NULL,
     createdBy INTEGER NOT NULL,
     status TEXT NOT NULL,
+    FOREIGN KEY (contentId) REFERENCES  content(contentId),
     FOREIGN KEY (createdBy) REFERENCES  users(id),
     FOREIGN KEY (postedToClub) REFERENCES clubs(clubId)
 );
