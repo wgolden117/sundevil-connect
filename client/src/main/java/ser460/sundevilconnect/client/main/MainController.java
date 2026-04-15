@@ -36,12 +36,8 @@ public class MainController {
     @FXML private Tab clubsTab;
     @FXML private Tab myClubsTab;
     @FXML private Tab myEventsTab;
-    @FXML private Tab createEventTab;
-    @FXML private Tab approveMembersTab;
-    @FXML private Tab postUpdatesTab;
     @FXML private Tab manageClubsTab;
-    @FXML private Tab approveClubsTab;
-    @FXML private Tab flaggedContentTab;
+    @FXML private Tab contentModerationTab;
     @FXML private Tab notificationsTab;
 
     // AnchorPanes
@@ -101,7 +97,7 @@ public class MainController {
         // Add only relevant tabs
         switch (role) {
 
-            case STUDENT -> {
+            case STUDENT, CLUB_LEADER -> {
                 mainTabPane.getTabs().addAll(
                         eventsTab,
                         myEventsTab,
@@ -111,24 +107,12 @@ public class MainController {
                 );
             }
 
-            case CLUB_LEADER -> {
-                mainTabPane.getTabs().addAll(
-                        eventsTab,
-                        clubsTab,
-                        myClubsTab,
-                        createEventTab,
-                        approveMembersTab,
-                        postUpdatesTab,
-                        notificationsTab
-                );
-            }
-
             case ADMIN -> {
                 mainTabPane.getTabs().addAll(
                         eventsTab,
+                        clubsTab,
                         manageClubsTab,
-                        approveClubsTab,
-                        flaggedContentTab,
+                        contentModerationTab,
                         notificationsTab
                 );
             }
