@@ -37,7 +37,7 @@ public class MyClubsView {
                 }
             };
             cell.setOnMouseClicked(event -> {
-                if (event.getClickCount() == 2) {
+                if (event.getClickCount() == 2 && !cell.isEmpty()) {
                     NavigationController.getInstance().openClubPageTab(cell.getItem());
                 }
             });
@@ -62,7 +62,7 @@ public class MyClubsView {
                 }
             };
             cell.setOnMouseClicked(event -> {
-                if (event.getClickCount() == 2) {
+                if (event.getClickCount() == 2 && !cell.isEmpty()) {
                     NavigationController.getInstance().openClubPageTab(cell.getItem().getClub());
                 }
             });
