@@ -19,6 +19,7 @@ public class ConnectionManager {
     private ClubApprovalServiceGrpc.ClubApprovalServiceBlockingStub clubApprovalStub;
     private ContentModerationServiceGrpc.ContentModerationServiceBlockingStub contentModerationStub;
     private NotificationServiceGrpc.NotificationServiceStub notificationStub;
+    private NotificationServiceGrpc.NotificationServiceBlockingStub notificationBlockingStub;
 
     private ConnectionManager() {}
 
@@ -42,6 +43,7 @@ public class ConnectionManager {
         clubApprovalStub = ClubApprovalServiceGrpc.newBlockingStub(channel);
         contentModerationStub = ContentModerationServiceGrpc.newBlockingStub(channel);
         notificationStub = NotificationServiceGrpc.newStub(channel);
+        notificationBlockingStub = NotificationServiceGrpc.newBlockingStub(channel);
     }
 
     public AuthServiceGrpc.AuthServiceBlockingStub getAuthStub() { return authStub; }
@@ -54,6 +56,9 @@ public class ConnectionManager {
     public ClubApprovalServiceGrpc.ClubApprovalServiceBlockingStub getClubApprovalStub() { return clubApprovalStub; }
     public ContentModerationServiceGrpc.ContentModerationServiceBlockingStub getContentModerationStub() { return contentModerationStub; }
     public NotificationServiceGrpc.NotificationServiceStub getNotificationStub() { return notificationStub; }
+    public NotificationServiceGrpc.NotificationServiceBlockingStub getNotificationBlockingStub() {
+        return notificationBlockingStub;
+    }
 
     public void shutdown() throws InterruptedException {
         channel.shutdown();

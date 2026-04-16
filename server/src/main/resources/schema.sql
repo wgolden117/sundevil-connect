@@ -85,3 +85,13 @@ CREATE TABLE IF NOT EXISTS membershipRequests (
     FOREIGN KEY (clubId) REFERENCES clubs(clubId),
     FOREIGN KEY (reviewedBy) REFERENCES users(id)
 );
+
+CREATE TABLE IF NOT EXISTS notifications (
+       notificationId TEXT PRIMARY KEY,
+       userId TEXT NOT NULL,
+       message TEXT NOT NULL,
+       type TEXT,
+       timestamp TEXT,
+       isRead INTEGER DEFAULT 0,
+       FOREIGN KEY (userId) REFERENCES users(id)
+);

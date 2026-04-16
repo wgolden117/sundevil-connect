@@ -16,6 +16,7 @@ enum NotificationType {
 service NotificationService {
   rpc Subscribe(SubscribeRequest) returns (stream NotificationMessage);
   rpc Unsubscribe(UnsubscribeRequest) returns (UnsubscribeResponse);
+  rpc MarkAsRead(MarkAsReadRequest) returns (MarkAsReadResponse);
 }
 
 message SubscribeRequest {
@@ -30,6 +31,14 @@ message NotificationMessage {
   NotificationType type = 4;
   string timestamp = 5;
   bool isRead = 6;
+}
+
+message MarkAsReadRequest {
+  string notificationId = 1;
+}
+
+message MarkAsReadResponse {
+  bool success = 1;
 }
 
 message UnsubscribeRequest {

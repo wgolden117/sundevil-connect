@@ -20,8 +20,8 @@ public class NotificationStore {
         return notifications;
     }
 
-    public void addNotification(String message) {
-        notifications.add(new NotificationItem(message));
+    public void addNotification(String notificationId, String message) {
+        notifications.add(new NotificationItem(notificationId, message));
     }
 
     public boolean hasUnread() {

@@ -361,7 +361,10 @@ public class MainController {
                 javafx.application.Platform.runLater(() -> {
                     ser460.sundevilconnect.client.notifications.NotificationStore
                             .getInstance()
-                            .addNotification(notification.getMessage());
+                            .addNotification(
+                                    notification.getNotificationId(),
+                                    notification.getMessage()
+                            );
 
                     updateNotificationTabIndicator();
                 });

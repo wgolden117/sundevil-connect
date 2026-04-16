@@ -70,6 +70,19 @@ public class NotificationView {
 
                 if (selected != null) {
                     selected.markAsRead();
+
+                    // CALL SERVER to persist
+                    var stub = ser460.sundevilconnect.client.ConnectionManager
+                            .getInstance()
+                            .getNotificationBlockingStub();
+
+                    stub.markAsRead(
+                            ser460.sundevilconnect.shared.proto.NotificationServiceProto.MarkAsReadRequest
+                                    .newBuilder()
+                                    .setNotificationId(selected.getNotificationId())
+                                    .build()
+                    );
+
                     notificationList.refresh();
                     updateBadge();
                 }
