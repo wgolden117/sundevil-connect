@@ -58,6 +58,12 @@ public class MainController {
 
     @FXML
     private void initialize() {
+
+        setupForRole(CurrentUser.getInstance().getRole());
+        // force load events tab at start (note, this is fine because both
+        // admin and student/leader roles have the events tab first
+        loadEventsView();
+
         javafx.application.Platform.runLater(() -> {
             javafx.stage.Stage stage = (javafx.stage.Stage) mainTabPane.getScene().getWindow();
 
@@ -68,6 +74,11 @@ public class MainController {
             // Optional: prevent super tall resizing
             stage.setMinWidth(700);
             stage.setMinHeight(650);
+
+            // Re-center after resize
+            javafx.geometry.Rectangle2D screenBounds = javafx.stage.Screen.getPrimary().getVisualBounds();
+            stage.setX((screenBounds.getWidth() - stage.getWidth()) / 2);
+            stage.setY((screenBounds.getHeight() - stage.getHeight()) / 2);
         });
 
         mainTabPane.getSelectionModel().selectedItemProperty().addListener((obs, oldTab, newTab) -> {
@@ -88,7 +99,7 @@ public class MainController {
     /**
      * Configure UI based on user role
      */
-    public void setupForRole(Role role) {
+    private void setupForRole(Role role) {
 
         // Show role at top
         nameLabel.setText("Name: " + CurrentUser.getInstance().getDisplayName());

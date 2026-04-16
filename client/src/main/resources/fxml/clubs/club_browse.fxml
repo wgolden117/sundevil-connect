@@ -13,7 +13,7 @@
     <Button onAction="#handleClear" text="Clear" />
       <VBox.margin>
          <Insets top="10.0" />
-  m    </VBox.margin>
+      </VBox.margin>
     <Region HBox.hgrow="ALWAYS" />
     <Button fx:id="createClubButton" text="Create Club" onAction="#handleCreateClub" />
   </HBox>
