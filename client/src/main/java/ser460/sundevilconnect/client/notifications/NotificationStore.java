@@ -20,10 +20,11 @@ public class NotificationStore {
         return notifications;
     }
 
-    public void addNotification(String notificationId, String message) {
-        notifications.add(new NotificationItem(notificationId, message));
+    public void addNotification(String id, String message, boolean isRead) {
+        NotificationItem item = new NotificationItem(id, message);
+        item.setRead(isRead);
+        notifications.add(item);
     }
-
     public boolean hasUnread() {
         return notifications.stream().anyMatch(n -> !n.isRead());
     }

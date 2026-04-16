@@ -366,7 +366,8 @@ public class MainController {
                             .getInstance()
                             .addNotification(
                                     notification.getNotificationId(),
-                                    notification.getMessage()
+                                    notification.getMessage(),
+                                    notification.getIsRead()
                             );
 
                     updateNotificationTabIndicator();
