@@ -2,13 +2,13 @@ package ser460.sundevilconnect.server.admin;
 
 import ser460.sundevilconnect.server.auth.User;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 public class Content {
     private String contentId;
     private User createdBy;
-    private LocalDateTime createdDate;
-    private LocalDateTime lastModified;
+    private LocalDate createdDate;
+    private LocalDate lastModified;
     private String status;
     private boolean isFlagged;
     private String flagReason;
@@ -35,19 +35,19 @@ public class Content {
         this.createdBy = createdBy;
     }
 
-    public LocalDateTime getCreatedDate() {
+    public LocalDate getCreatedDate() {
         return createdDate;
     }
 
-    public void setCreatedDate(LocalDateTime createdDate) {
+    public void setCreatedDate(LocalDate createdDate) {
         this.createdDate = createdDate;
     }
 
-    public LocalDateTime getLastModified() {
+    public LocalDate getLastModified() {
         return lastModified;
     }
 
-    public void setLastModified(LocalDateTime lastModified) {
+    public void setLastModified(LocalDate lastModified) {
         this.lastModified = lastModified;
     }
 

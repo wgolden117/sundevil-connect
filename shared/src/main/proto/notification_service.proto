@@ -11,6 +11,8 @@ enum NotificationType {
   EVENT_REGISTRATION_CONFIRMED = 3;
   EVENT_UPDATED = 4;
   CLUB_APPROVED = 5;
+  CLUB_REJECTED = 6;
+  CONTENT_REMOVED = 7;
 }
 
 service NotificationService {

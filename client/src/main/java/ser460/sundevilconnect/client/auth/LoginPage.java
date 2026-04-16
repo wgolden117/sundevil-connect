@@ -6,12 +6,15 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
+import javafx.scene.layout.AnchorPane;
 import ser460.sundevilconnect.client.ConnectionManager;
 import ser460.sundevilconnect.client.CurrentUser;
+import ser460.sundevilconnect.client.SceneController;
 import ser460.sundevilconnect.shared.proto.AuthServiceProto.*;
 import ser460.sundevilconnect.client.main.MainController;
 
 public class LoginPage {
+    @FXML private AnchorPane root;
     @FXML private TextField emailField;
     @FXML private PasswordField passwordField;
     @FXML private Label errorLabel;
@@ -19,6 +22,20 @@ public class LoginPage {
     @FXML
     private void initialize() {
         errorLabel.setVisible(false);
+
+        javafx.application.Platform.runLater(() -> {
+            javafx.stage.Stage stage = (javafx.stage.Stage) root.getScene().getWindow();
+
+            // reset window size
+            stage.setMinWidth(0);
+            stage.setMinHeight(0);
+            stage.sizeToScene();
+
+            // Re-center after resize
+            javafx.geometry.Rectangle2D screenBounds = javafx.stage.Screen.getPrimary().getVisualBounds();
+            stage.setX((screenBounds.getWidth() - stage.getWidth()) / 2);
+            stage.setY((screenBounds.getHeight() - stage.getHeight()) / 2);
+        });
 
         passwordField.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.ENTER) {
@@ -62,50 +79,13 @@ public class LoginPage {
                         response.getRole(),
                         response.getToken());
 
-                try {
-                    var loader = new javafx.fxml.FXMLLoader(
-                            getClass().getResource("/fxml/main/main_view.fxml")
-                    );
-
-                    javafx.scene.Scene scene = new javafx.scene.Scene(loader.load());
-
-                    // Get controller
-                    MainController controller = loader.getController();
-
-                    // Set role
-                    controller.setupForRole(response.getRole());
-
-                    // Fetch events (background thread)
-                    Task<Void> eventTask = new Task<>() {
-                        @Override
-                        protected Void call() {
-
-                            var eventStub = ConnectionManager.getInstance().getEventBrowsingStub();
-
-                            var eventResponse = eventStub.getAllEvents(
-                                    ser460.sundevilconnect.shared.proto.EventBrowsingServiceProto
-                                            .GetAllEventsRequest.newBuilder()
-                                            .build()
-                            );
-
-                            return null;
-                        }
-                    };
-
-                    new Thread(eventTask).start();
-
-                    // Switch screen
-                    javafx.stage.Stage stage = (javafx.stage.Stage) emailField.getScene().getWindow();
-                    stage.setScene(scene);
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                SceneController.getInstance().changeSceneToMain();
 
             } else {
                 System.out.println("LOGIN REJECTED");
                 errorLabel.setText("Invalid login");
                 errorLabel.setVisible(true);
+                passwordField.clear();
             }
         });
 

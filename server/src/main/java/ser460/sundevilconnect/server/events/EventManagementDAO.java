@@ -1,5 +1,6 @@
 package ser460.sundevilconnect.server.events;
 
+import ser460.sundevilconnect.server.admin.ContentDAO;
 import ser460.sundevilconnect.server.core.DatabaseService;
 import ser460.sundevilconnect.shared.proto.EntitiesProto;
 import ser460.sundevilconnect.shared.proto.EntitiesProto.Event;
@@ -14,18 +15,21 @@ import java.util.logging.Logger;
 public class EventManagementDAO {
 
     private final DatabaseService db;
+    private final ContentDAO contentDAO;
+
     private static final Logger logger =
             Logger.getLogger(EventManagementDAO.class.getName());
 
-    public EventManagementDAO(DatabaseService db) {
+    public EventManagementDAO(DatabaseService db, ContentDAO contentDAO) {
         this.db = db;
+        this.contentDAO = contentDAO;
     }
 
-    public boolean createEvent(Event event) {
-
+    public boolean createEvent(Event event, int userId) throws SQLException {
+        int contentId = contentDAO.createContent(userId);
         String sql = """
-            INSERT INTO events (title, description, category, location, event_date, capacity, is_paid, hostedByClub)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO events (title, description, category, location, event_date, capacity, is_paid, hostedByClub, contentId)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         """;
 
         try (var conn = db.getConnection();
@@ -33,6 +37,7 @@ public class EventManagementDAO {
 
             setEventFields(pstmt, event);
             pstmt.setInt(8, Integer.parseInt(event.getHostedBy().getClubId()));
+            pstmt.setInt(9, contentId);
 
             pstmt.executeUpdate();
             return true;

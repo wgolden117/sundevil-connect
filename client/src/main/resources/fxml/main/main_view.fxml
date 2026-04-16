@@ -46,47 +46,10 @@
                     <AnchorPane fx:id="notificationsPane" />
                 </Tab>
 
-                <!-- CLUB LEADER: CREATE EVENTS -->
-                <Tab fx:id="createEventTab" closable="false" text="Create/Manage Events">
-                    <AnchorPane>
-                        <Label text="Create/Manage Events coming soon..." AnchorPane.leftAnchor="20.0" AnchorPane.topAnchor="20.0" />
-                    </AnchorPane>
-                </Tab>
-
-                <!-- CLUB LEADER: APPROVE MEMBERS -->
-                <Tab fx:id="approveMembersTab" closable="false" text="Approve Members">
-                    <AnchorPane>
-                        <Label text="Approve Members coming soon..." AnchorPane.leftAnchor="20.0" AnchorPane.topAnchor="20.0" />
-                    </AnchorPane>
-                </Tab>
-
-                <!-- CLUB LEADER: POST UPDATES -->
-                <Tab fx:id="postUpdatesTab" closable="false" text="Post Updates">
-                    <AnchorPane>
-                        <Label text="Post Updates coming soon..." AnchorPane.leftAnchor="20.0" AnchorPane.topAnchor="20.0" />
-                    </AnchorPane>
-                </Tab>
-
-                <!-- ADMIN: MANAGE CLUBS -->
-                <Tab fx:id="manageClubsTab" closable="false" text="Manage Clubs">
-                    <AnchorPane>
-                        <Label text="Manage Clubs coming soon..." AnchorPane.leftAnchor="20.0" AnchorPane.topAnchor="20.0" />
-                    </AnchorPane>
-                </Tab>
-
-                <!-- ADMIN: APPROVE CLUBS -->
-                <Tab fx:id="approveClubsTab" closable="false" text="Approve Clubs">
-                    <AnchorPane>
-                        <Label text="Approve Clubs coming soon..." AnchorPane.leftAnchor="20.0" AnchorPane.topAnchor="20.0" />
-                    </AnchorPane>
-                </Tab>
-
-                <!-- ADMIN: FLAGGED CONTENT -->
-                <Tab fx:id="flaggedContentTab" closable="false" text="Flagged Content">
-                    <AnchorPane>
-                        <Label text="Flagged content management coming soon..." AnchorPane.leftAnchor="20.0" AnchorPane.topAnchor="20.0" />
-                    </AnchorPane>
-                </Tab>
+              <!-- ADMIN -->
+              <Tab fx:id="adminTab" closable="false" text="Admin">
+                <AnchorPane fx:id="adminPane" />
+              </Tab>
 
             </tabs>
 

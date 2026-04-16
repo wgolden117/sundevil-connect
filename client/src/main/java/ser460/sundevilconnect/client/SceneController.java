@@ -38,13 +38,6 @@ public class SceneController {
     private void changeScene(FXMLLoader loader) {
         try {
             stage.setScene(new Scene(loader.load()));
-
-            Platform.runLater(() -> {
-                // reset window size
-                stage.setMinWidth(0);
-                stage.setMinHeight(0);
-                stage.sizeToScene();
-            });
         } catch (IOException e) {
             e.printStackTrace();
         }

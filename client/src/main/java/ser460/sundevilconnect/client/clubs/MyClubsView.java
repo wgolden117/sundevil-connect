@@ -9,6 +9,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.layout.*;
 import ser460.sundevilconnect.client.ConnectionManager;
 import ser460.sundevilconnect.client.CurrentUser;
+import ser460.sundevilconnect.client.NavigationController;
 import ser460.sundevilconnect.shared.proto.ClubMembershipServiceProto;
 import ser460.sundevilconnect.shared.proto.EntitiesProto;
 
@@ -27,29 +28,45 @@ public class MyClubsView {
         loadClubs();
         loadRequests();
 
-        membershipsListView.setCellFactory(lv -> new ListCell<>() {
-            @Override
-            protected void updateItem(EntitiesProto.Club club, boolean empty) {
-                super.updateItem(club, empty);
-                setText(empty || club == null ? null : club.getName());
-            }
+        membershipsListView.setCellFactory(lv -> {
+            ListCell<EntitiesProto.Club> cell = new ListCell<>() {
+                @Override
+                protected void updateItem(EntitiesProto.Club club, boolean empty) {
+                    super.updateItem(club, empty);
+                    setText(empty || club == null ? null : club.getName());
+                }
+            };
+            cell.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2 && !cell.isEmpty()) {
+                    NavigationController.getInstance().openClubPageTab(cell.getItem());
+                }
+            });
+            return cell;
         });
 
-        requestsListView.setCellFactory(lv -> new ListCell<>() {
-            @Override
-            protected void updateItem(ClubMembershipServiceProto.MembershipRequest request, boolean empty) {
-                super.updateItem(request, empty);
-                if (empty || request == null) {
-                    setGraphic(null);
-                } else {
-                    Label nameLabel = new Label(request.getClub().getName());
-                    Label statusLabel = new Label(request.getStatus() + " : " + request.getRequestDate());
-                    Region spacer = new Region();
-                    HBox.setHgrow(spacer, Priority.ALWAYS);
-                    HBox cell = new HBox(nameLabel, spacer, statusLabel);
-                    setGraphic(cell);
+        requestsListView.setCellFactory(lv -> {
+            ListCell<ClubMembershipServiceProto.MembershipRequest> cell = new ListCell<>() {
+                @Override
+                protected void updateItem(ClubMembershipServiceProto.MembershipRequest request, boolean empty) {
+                    super.updateItem(request, empty);
+                    if (empty || request == null) {
+                        setGraphic(null);
+                    } else {
+                        Label nameLabel = new Label(request.getClub().getName());
+                        Label statusLabel = new Label(request.getStatus() + " : " + request.getRequestDate());
+                        Region spacer = new Region();
+                        HBox.setHgrow(spacer, Priority.ALWAYS);
+                        HBox cell = new HBox(nameLabel, spacer, statusLabel);
+                        setGraphic(cell);
+                    }
                 }
-            }
+            };
+            cell.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2 && !cell.isEmpty()) {
+                    NavigationController.getInstance().openClubPageTab(cell.getItem().getClub());
+                }
+            });
+            return cell;
         });
 
         membershipsListView.setOnMouseClicked(event -> {

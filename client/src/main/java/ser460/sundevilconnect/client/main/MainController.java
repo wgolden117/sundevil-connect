@@ -36,13 +36,8 @@ public class MainController {
     @FXML private Tab clubsTab;
     @FXML private Tab myClubsTab;
     @FXML private Tab myEventsTab;
-    @FXML private Tab createEventTab;
-    @FXML private Tab approveMembersTab;
-    @FXML private Tab postUpdatesTab;
-    @FXML private Tab manageClubsTab;
-    @FXML private Tab approveClubsTab;
-    @FXML private Tab flaggedContentTab;
     @FXML private Tab notificationsTab;
+    @FXML private Tab adminTab;
 
     // AnchorPanes
     @FXML private AnchorPane eventsPane;
@@ -50,6 +45,7 @@ public class MainController {
     @FXML private AnchorPane clubsPane;
     @FXML private AnchorPane myClubsPane;
     @FXML private AnchorPane notificationsPane;
+    @FXML private AnchorPane adminPane;
 
 
     // Load state
@@ -58,9 +54,16 @@ public class MainController {
     private boolean clubsLoaded = false;
     private boolean myClubsLoaded = false;
     private boolean notificationsLoaded = false;
+    private boolean adminLoaded = false;
 
     @FXML
     private void initialize() {
+
+        setupForRole(CurrentUser.getInstance().getRole());
+        // force load events tab at start (note, this is fine because both
+        // admin and student/leader roles have the events tab first
+        loadEventsView();
+
         javafx.application.Platform.runLater(() -> {
             javafx.stage.Stage stage = (javafx.stage.Stage) mainTabPane.getScene().getWindow();
 
@@ -71,6 +74,11 @@ public class MainController {
             // Optional: prevent super tall resizing
             stage.setMinWidth(700);
             stage.setMinHeight(650);
+
+            // Re-center after resize
+            javafx.geometry.Rectangle2D screenBounds = javafx.stage.Screen.getPrimary().getVisualBounds();
+            stage.setX((screenBounds.getWidth() - stage.getWidth()) / 2);
+            stage.setY((screenBounds.getHeight() - stage.getHeight()) / 2);
         });
 
         mainTabPane.getSelectionModel().selectedItemProperty().addListener((obs, oldTab, newTab) -> {
@@ -80,6 +88,7 @@ public class MainController {
             else if (newTab == clubsTab) loadClubsView();
             else if (newTab == myClubsTab) loadMyClubsView();
             else if (newTab == notificationsTab) loadNotificationsView();
+            else if (newTab == adminTab) loadAdminView();
         });
 
         // register with Navigation Controller
@@ -90,7 +99,7 @@ public class MainController {
     /**
      * Configure UI based on user role
      */
-    public void setupForRole(Role role) {
+    private void setupForRole(Role role) {
 
         // Show role at top
         nameLabel.setText("Name: " + CurrentUser.getInstance().getDisplayName());
@@ -101,7 +110,7 @@ public class MainController {
         // Add only relevant tabs
         switch (role) {
 
-            case STUDENT -> {
+            case STUDENT, CLUB_LEADER -> {
                 mainTabPane.getTabs().addAll(
                         eventsTab,
                         myEventsTab,
@@ -111,24 +120,11 @@ public class MainController {
                 );
             }
 
-            case CLUB_LEADER -> {
-                mainTabPane.getTabs().addAll(
-                        eventsTab,
-                        clubsTab,
-                        myClubsTab,
-                        createEventTab,
-                        approveMembersTab,
-                        postUpdatesTab,
-                        notificationsTab
-                );
-            }
-
             case ADMIN -> {
                 mainTabPane.getTabs().addAll(
                         eventsTab,
-                        manageClubsTab,
-                        approveClubsTab,
-                        flaggedContentTab,
+                        clubsTab,
+                        adminTab,
                         notificationsTab
                 );
             }
@@ -219,6 +215,13 @@ public class MainController {
             MyClubsView controller = (MyClubsView) myClubsPane.getChildren().getFirst().getUserData();
             controller.refresh();
         }
+    }
+
+    private void loadAdminView() {
+        if (!adminLoaded) loadViewIntoPane(adminPane,
+                "/fxml/admin/admin_panel.fxml",
+                "Loading admin panel...",
+                () -> adminLoaded = true);
     }
 
     @FXML
