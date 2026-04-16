@@ -32,6 +32,22 @@ public class ClubApprovalController extends ClubApprovalServiceImplBase {
             club.setDescription(request.getNewClub().getDescription());
             club.setCategory(request.getNewClub().getCategory());
             clubDAO.insertClub(club, Integer.parseInt(request.getSubmitter().getUserId()));
+
+            List<String> adminIds = clubDAO.getAdminIds();
+
+            for (String adminId : adminIds) {
+                var notification = NotificationServiceProto.NotificationMessage.newBuilder()
+                        .setNotificationId(UUID.randomUUID().toString())
+                        .setUserId(adminId)
+                        .setMessage("New club request pending approval: " + club.getName())
+                        .setType(NotificationServiceProto.NotificationType.ADMIN_ALERT)
+                        .setTimestamp(Instant.now().toString())
+                        .setIsRead(false)
+                        .build();
+
+                NotificationService.getInstance()
+                        .notifyObservers(List.of(adminId), notification);
+            }
             responseObserver.onNext(ClubApprovalActionResponse.newBuilder()
                     .setSuccess(true)
                     .build());
@@ -47,20 +63,31 @@ public class ClubApprovalController extends ClubApprovalServiceImplBase {
                             StreamObserver<ClubApprovalActionResponse> responseObserver) {
         try {
             boolean success = clubDAO.approveClub(Integer.parseInt(request.getClubId()));
-            int submittedId = clubDAO.getSubmittedByForClub(Integer.parseInt(request.getClubId()));
+            int clubId = Integer.parseInt(request.getClubId());
+
+            int submittedId = clubDAO.getSubmittedByForClub(clubId);
+
+            // GET CLUB NAME
+            String clubName = clubDAO.getClubById(clubId)
+                    .map(Club::getName)
+                    .orElse("Your club");
+
             clubMembershipDAO.createMembership(
                     submittedId,
-                    Integer.parseInt(request.getClubId()),
-                    true);
+                    clubId,
+                    true
+            );
+
             responseObserver.onNext(ClubApprovalActionResponse.newBuilder()
                     .setSuccess(success)
                     .build());
             responseObserver.onCompleted();
 
+            // UPDATED MESSAGE
             var notification = NotificationServiceProto.NotificationMessage.newBuilder()
                     .setNotificationId(UUID.randomUUID().toString())
                     .setUserId(String.valueOf(submittedId))
-                    .setMessage("Your club has been approved!")
+                    .setMessage("Your club \"" + clubName + "\" has been approved!")
                     .setType(NotificationServiceProto.NotificationType.CLUB_APPROVED)
                     .setTimestamp(Instant.now().toString())
                     .setIsRead(false)

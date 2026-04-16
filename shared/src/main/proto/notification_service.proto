@@ -13,6 +13,7 @@ enum NotificationType {
   CLUB_APPROVED = 5;
   CLUB_REJECTED = 6;
   CONTENT_REMOVED = 7;
+  ADMIN_ALERT = 8;
 }
 
 service NotificationService {

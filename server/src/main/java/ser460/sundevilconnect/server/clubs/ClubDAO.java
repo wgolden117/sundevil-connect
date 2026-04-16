@@ -45,6 +45,25 @@ public class ClubDAO {
         return clubs;
     }
 
+    public List<String> getAdminIds() {
+        List<String> adminIds = new ArrayList<>();
+        String sql = "SELECT id FROM users WHERE role = 'ADMIN'";
+
+        try (Connection conn = db.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                adminIds.add(String.valueOf(rs.getInt("id")));
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return adminIds;
+    }
+
     public List<Club> searchClubs(String keyword) throws SQLException {
         List<Club> clubs = new ArrayList<>();
         String sql = "SELECT * FROM clubs WHERE name LIKE ? OR description LIKE ?";
