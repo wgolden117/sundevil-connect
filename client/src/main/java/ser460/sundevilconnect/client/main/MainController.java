@@ -36,9 +36,8 @@ public class MainController {
     @FXML private Tab clubsTab;
     @FXML private Tab myClubsTab;
     @FXML private Tab myEventsTab;
-    @FXML private Tab manageClubsTab;
-    @FXML private Tab contentModerationTab;
     @FXML private Tab notificationsTab;
+    @FXML private Tab adminTab;
 
     // AnchorPanes
     @FXML private AnchorPane eventsPane;
@@ -46,6 +45,7 @@ public class MainController {
     @FXML private AnchorPane clubsPane;
     @FXML private AnchorPane myClubsPane;
     @FXML private AnchorPane notificationsPane;
+    @FXML private AnchorPane adminPane;
 
 
     // Load state
@@ -54,6 +54,7 @@ public class MainController {
     private boolean clubsLoaded = false;
     private boolean myClubsLoaded = false;
     private boolean notificationsLoaded = false;
+    private boolean adminLoaded = false;
 
     @FXML
     private void initialize() {
@@ -76,6 +77,7 @@ public class MainController {
             else if (newTab == clubsTab) loadClubsView();
             else if (newTab == myClubsTab) loadMyClubsView();
             else if (newTab == notificationsTab) loadNotificationsView();
+            else if (newTab == adminTab) loadAdminView();
         });
 
         // register with Navigation Controller
@@ -111,8 +113,7 @@ public class MainController {
                 mainTabPane.getTabs().addAll(
                         eventsTab,
                         clubsTab,
-                        manageClubsTab,
-                        contentModerationTab,
+                        adminTab,
                         notificationsTab
                 );
             }
@@ -203,6 +204,13 @@ public class MainController {
             MyClubsView controller = (MyClubsView) myClubsPane.getChildren().getFirst().getUserData();
             controller.refresh();
         }
+    }
+
+    private void loadAdminView() {
+        if (!adminLoaded) loadViewIntoPane(adminPane,
+                "/fxml/admin/admin_panel.fxml",
+                "Loading admin panel...",
+                () -> adminLoaded = true);
     }
 
     @FXML

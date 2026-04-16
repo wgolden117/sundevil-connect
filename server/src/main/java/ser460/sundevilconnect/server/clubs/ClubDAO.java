@@ -18,7 +18,7 @@ public class ClubDAO {
 
     public List<Club> getAllClubs() throws SQLException {
         List<Club> clubs = new ArrayList<>();
-        String sql = "SELECT * FROM clubs";
+        String sql = "SELECT * FROM clubs WHERE status = 'ACTIVE'";
 
         try (Connection conn = db.getConnection();
              Statement stmt = conn.createStatement();
@@ -139,7 +139,8 @@ public class ClubDAO {
         club.setDescription(rs.getString("description"));
         club.setCategory(rs.getString("category"));
         club.setStatus(rs.getString("status"));
-        club.setFoundedDate(LocalDate.parse(rs.getString("foundedDate")));
+        String date = rs.getString("foundedDate");
+        club.setFoundedDate(date != null ? LocalDate.parse(date) : null);
         return club;
     }
 

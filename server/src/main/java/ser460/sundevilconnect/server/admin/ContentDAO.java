@@ -50,7 +50,7 @@ public class ContentDAO {
     public void removeContent(int contentId) throws SQLException {
         try (Connection conn = db.getConnection()) {
             try (PreparedStatement stmt = conn.prepareStatement(
-                    "UPDATE content SET status = 'REMOVED' WHERE contentId = ?")) {
+                    "UPDATE content SET status = 'REMOVED', isFlagged = 0 WHERE contentId = ?")) {
                 stmt.setInt(1, contentId);
                 stmt.executeUpdate();
             }
@@ -88,6 +88,49 @@ public class ContentDAO {
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) return mapRow(rs);
             throw new SQLException("Content not found: " + contentId);
+        }
+    }
+
+    public int getContentIdByEventId(int eventId) throws SQLException {
+        String sql = "SELECT contentId FROM events WHERE id = ?";
+        try (Connection conn = db.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, eventId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) return rs.getInt("contentId");
+            throw new SQLException("No content found for eventId: " + eventId);
+        }
+    }
+
+    public int getContentIdByAnnouncementId(int announcementId) throws SQLException {
+        String sql = "SELECT contentId FROM announcements WHERE id = ?";
+        try (Connection conn = db.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, announcementId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) return rs.getInt("contentId");
+            throw new SQLException("No content found for announcementId: " + announcementId);
+        }
+    }
+
+    public boolean getFlagStatus(String contentId, String eventId, String announcementId) throws SQLException {
+        int resolvedContentId;
+        if (!contentId.isEmpty()) {
+            resolvedContentId = Integer.parseInt(contentId);
+        } else if (!eventId.isEmpty()) {
+            resolvedContentId = getContentIdByEventId(Integer.parseInt(eventId));
+        } else if (!announcementId.isEmpty()) {
+            resolvedContentId = getContentIdByAnnouncementId(Integer.parseInt(announcementId));
+        } else {
+            throw new IllegalArgumentException("Must provide contentId, eventId, or announcementId");
+        }
+        String sql = "SELECT isFlagged FROM content WHERE contentId = ?";
+        try (Connection conn = db.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, resolvedContentId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) return rs.getInt("isFlagged") == 1;
+            throw new SQLException("Content not found: " + resolvedContentId);
         }
     }
 
