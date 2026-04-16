@@ -11,6 +11,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import ser460.sundevilconnect.client.ConnectionManager;
 import ser460.sundevilconnect.client.CurrentUser;
+import ser460.sundevilconnect.client.NavigationController;
 import ser460.sundevilconnect.shared.proto.ClubApprovalServiceProto;
 import ser460.sundevilconnect.shared.proto.ClubBrowsingServiceProto;
 import ser460.sundevilconnect.shared.proto.EntitiesProto;
@@ -47,13 +48,23 @@ public class ClubBrowseView {
                     }
                 }
         );
+
         // set the cell styling for the list
-        clubListView.setCellFactory(lv -> new ListCell<EntitiesProto.Club>() {
-            @Override
-            protected void updateItem(EntitiesProto.Club club, boolean empty) {
-                super.updateItem(club, empty);
-                setText(empty || club == null ? null : club.getName());
-            }
+        // double-click opens club page
+        clubListView.setCellFactory(lv -> {
+            ListCell<EntitiesProto.Club> cell = new ListCell<>() {
+                @Override
+                protected void updateItem(EntitiesProto.Club club, boolean empty) {
+                    super.updateItem(club, empty);
+                    setText(empty || club == null ? null : club.getName());
+                }
+            };
+            cell.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2) {
+                    NavigationController.getInstance().openClubPageTab(cell.getItem());
+                }
+            });
+            return cell;
         });
     }
 
