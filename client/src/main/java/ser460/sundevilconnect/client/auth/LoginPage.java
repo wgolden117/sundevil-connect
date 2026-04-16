@@ -85,6 +85,7 @@ public class LoginPage {
                 System.out.println("LOGIN REJECTED");
                 errorLabel.setText("Invalid login");
                 errorLabel.setVisible(true);
+                passwordField.clear();
             }
         });
 
