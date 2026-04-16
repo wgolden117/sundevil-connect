@@ -2,13 +2,19 @@ package ser460.sundevilconnect.client.notifications;
 
 public class NotificationItem {
 
+    private final String notificationId;
     private final String message;
     private boolean isRead;
     private boolean selected = false;
 
-    public NotificationItem(String message) {
+    public NotificationItem(String notificationId, String message) {
+        this.notificationId = notificationId;
         this.message = message;
         this.isRead = false;
+    }
+
+    public String getNotificationId() {
+        return notificationId;
     }
 
     public String getMessage() {

@@ -101,6 +101,36 @@ public class EventManagementDAO {
         }
     }
 
+    public Event getEventById(int eventId) {
+
+        String sql = """
+        SELECT e.id, e.title, e.description, e.category, e.location,
+               e.event_date, e.capacity, e.is_paid,
+               c.clubId, c.name, c.description as clubDescription,
+               c.category as clubCategory, c.foundedDate, c.status as clubStatus
+        FROM events e
+        JOIN clubs c ON e.hostedByClub = c.clubId
+        WHERE e.id = ?
+    """;
+
+        try (var conn = db.getConnection();
+             var pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, eventId);
+
+            ResultSet rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                return mapRow(rs);
+            }
+
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Failed to get eventId=" + eventId, e);
+        }
+
+        return null;
+    }
+
     public List<Event> getEventsForClub(String clubId) {
         String sql = """
             SELECT e.id, e.title, e.description, e.category, e.location,

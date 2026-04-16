@@ -70,6 +70,19 @@ public class NotificationView {
 
                 if (selected != null) {
                     selected.markAsRead();
+
+                    // CALL SERVER to persist
+                    var stub = ser460.sundevilconnect.client.ConnectionManager
+                            .getInstance()
+                            .getNotificationBlockingStub();
+
+                    stub.markAsRead(
+                            ser460.sundevilconnect.shared.proto.NotificationServiceProto.MarkAsReadRequest
+                                    .newBuilder()
+                                    .setNotificationId(selected.getNotificationId())
+                                    .build()
+                    );
+
                     notificationList.refresh();
                     updateBadge();
                 }
@@ -83,6 +96,34 @@ public class NotificationView {
                 .forEach(n -> n.setSelected(true));
 
         notificationList.refresh();
+    }
+
+    @FXML
+    private void handleMarkSelectedAsRead() {
+
+        var stub = ser460.sundevilconnect.client.ConnectionManager
+                .getInstance()
+                .getNotificationBlockingStub();
+
+        for (NotificationItem item : NotificationStore.getInstance().getNotifications()) {
+
+            if (item.isSelected() && !item.isRead()) {
+
+                // mark locally (UI)
+                item.markAsRead();
+
+                // persist to server (DB)
+                stub.markAsRead(
+                        ser460.sundevilconnect.shared.proto.NotificationServiceProto.MarkAsReadRequest
+                                .newBuilder()
+                                .setNotificationId(item.getNotificationId())
+                                .build()
+                );
+            }
+        }
+
+        notificationList.refresh();
+        updateBadge();
     }
 
     @FXML

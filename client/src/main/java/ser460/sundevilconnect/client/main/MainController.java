@@ -246,6 +246,16 @@ public class MainController {
 
             if (response.getSuccess()) {
                 System.out.println("Logged out successfully");
+
+                var notificationStub = ConnectionManager.getInstance().getNotificationBlockingStub();
+
+                notificationStub.unsubscribe(
+                        ser460.sundevilconnect.shared.proto.NotificationServiceProto.UnsubscribeRequest
+                                .newBuilder()
+                                .setUserId(CurrentUser.getInstance().getUserId())
+                                .build()
+                );
+
                 CurrentUser.getInstance().logout();
                 SceneController.getInstance().changeSceneToLogin();
             } else {
@@ -348,14 +358,28 @@ public class MainController {
 
         String userId = CurrentUser.getInstance().getUserId();
 
-        var stub = ConnectionManager.getInstance().getNotificationStub();
+        var blockingStub = ConnectionManager.getInstance().getNotificationBlockingStub();
+        var asyncStub = ConnectionManager.getInstance().getNotificationStub();
+
+        // Ensure no stale subscription exists for this user
+        try {
+            blockingStub.unsubscribe(
+                    ser460.sundevilconnect.shared.proto.NotificationServiceProto.UnsubscribeRequest
+                            .newBuilder()
+                            .setUserId(userId)
+                            .build()
+            );
+        } catch (Exception e) {
+            // Safe to ignore if no prior subscription existed
+            System.out.println("No previous subscription to clean up");
+        }
 
         var request = ser460.sundevilconnect.shared.proto.NotificationServiceProto.SubscribeRequest
                 .newBuilder()
                 .setUserId(userId)
                 .build();
 
-        stub.subscribe(request, new io.grpc.stub.StreamObserver<>() {
+        asyncStub.subscribe(request, new io.grpc.stub.StreamObserver<>() {
 
             @Override
             public void onNext(NotificationServiceProto.NotificationMessage notification) {
@@ -364,7 +388,11 @@ public class MainController {
                 javafx.application.Platform.runLater(() -> {
                     ser460.sundevilconnect.client.notifications.NotificationStore
                             .getInstance()
-                            .addNotification(notification.getMessage());
+                            .addNotification(
+                                    notification.getNotificationId(),
+                                    notification.getMessage(),
+                                    notification.getIsRead()
+                            );
 
                     updateNotificationTabIndicator();
                 });

@@ -20,12 +20,17 @@ public class NotificationStore {
         return notifications;
     }
 
-    public void addNotification(String message) {
-        notifications.add(new NotificationItem(message));
+    public void addNotification(String id, String message, boolean isRead) {
+        NotificationItem item = new NotificationItem(id, message);
+        item.setRead(isRead);
+        notifications.add(item);
     }
-
     public boolean hasUnread() {
         return notifications.stream().anyMatch(n -> !n.isRead());
+    }
+
+    public void clear() {
+        notifications.clear();
     }
 
     public void markAllAsRead() {

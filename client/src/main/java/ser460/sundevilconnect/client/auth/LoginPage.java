@@ -10,6 +10,7 @@ import javafx.scene.layout.AnchorPane;
 import ser460.sundevilconnect.client.ConnectionManager;
 import ser460.sundevilconnect.client.CurrentUser;
 import ser460.sundevilconnect.client.SceneController;
+import ser460.sundevilconnect.client.notifications.NotificationStore;
 import ser460.sundevilconnect.shared.proto.AuthServiceProto.*;
 import ser460.sundevilconnect.client.main.MainController;
 
@@ -71,6 +72,7 @@ public class LoginPage {
 
             if (response.getSuccess()) {
                 System.out.println("LOGIN SUCCESS");
+                NotificationStore.getInstance().clear();
 
                 // store current user data
                 CurrentUser.getInstance().login(
