@@ -121,9 +121,13 @@ public class EventRegistrationDAO {
 
         String sql = """
         SELECT er.registrationId, er.registrationDate,
-               e.*, u.firstName, u.lastName
+               e.*,\s
+               c.clubId, c.name, c.description as clubDescription,
+               c.category as clubCategory, c.foundedDate, c.status as clubStatus,
+               u.firstName, u.lastName
         FROM eventRegistrations er
         JOIN events e ON er.eventId = e.id
+        JOIN clubs c ON e.hostedByClub = c.clubId    
         JOIN users u ON er.studentId = u.id
         WHERE er.studentId = ?
     """;
@@ -136,6 +140,15 @@ public class EventRegistrationDAO {
 
             while (rs.next()) {
 
+                var club = ser460.sundevilconnect.shared.proto.EntitiesProto.Club.newBuilder()
+                        .setClubId(String.valueOf(rs.getInt("clubId")))
+                        .setName(rs.getString("name"))
+                        .setDescription(rs.getString("clubDescription"))
+                        .setCategory(rs.getString("clubCategory"))
+                        .setFoundedDate(rs.getString("foundedDate") != null ? rs.getString("foundedDate") : "")
+                        .setStatus(rs.getString("clubStatus"))
+                        .build();
+
                 var event = Event.newBuilder()
                         .setEventId(String.valueOf(rs.getInt("id")))
                         .setTitle(rs.getString("title"))
@@ -145,6 +158,7 @@ public class EventRegistrationDAO {
                         .setEventDate(rs.getString("event_date"))
                         .setCapacity(rs.getInt("capacity"))
                         .setIsPaid(rs.getInt("is_paid") == 1)
+                        .setHostedBy(club)
                         .build();
 
                 var student = UserSummary.newBuilder()

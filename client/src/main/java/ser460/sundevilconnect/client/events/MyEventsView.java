@@ -151,11 +151,12 @@ public class MyEventsView implements FilterListener{
                             return false;
                         }
                     }
-
                     // CLUB
                     if (club != null && !club.isEmpty()) {
-                        return event.hasHostedBy() &&
-                                event.getHostedBy().getClubId().equals(club);
+                        if (!(event.hasHostedBy() &&
+                                event.getHostedBy().getClubId().equals(club))) {
+                            return false;
+                        }
                     }
 
                     return true;
