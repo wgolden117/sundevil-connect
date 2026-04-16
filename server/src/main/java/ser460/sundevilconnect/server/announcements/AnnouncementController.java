@@ -28,10 +28,15 @@ public class AnnouncementController extends AnnouncementServiceImplBase {
             String body = request.getAnnouncement().getBody();
             String status = request.getAnnouncement().getStatus();
 
-            announcementDAO.createAnnouncement(postedToId, createdById, title, body, status);
+            String announcementId = announcementDAO.createAnnouncement(
+                    postedToId, createdById, title, body, status
+            );
 
             // If already published at creation → send notification
             if ("PUBLISHED".equalsIgnoreCase(status)) {
+
+                var announcement = announcementDAO.getAnnouncementById(Integer.parseInt(announcementId));
+                String clubName = announcement.getPostedToClub().getName();
 
                 List<String> memberIds = new java.util.ArrayList<>();
 
@@ -43,7 +48,7 @@ public class AnnouncementController extends AnnouncementServiceImplBase {
                     var notification = ser460.sundevilconnect.shared.proto.NotificationServiceProto.NotificationMessage.newBuilder()
                             .setNotificationId(java.util.UUID.randomUUID().toString())
                             .setUserId(memberId)
-                            .setMessage("New announcement from club: " + title)
+                            .setMessage("New announcement from " + clubName + ": " + title)
                             .setType(ser460.sundevilconnect.shared.proto.NotificationServiceProto.NotificationType.ANNOUNCEMENT_POSTED)
                             .setTimestamp(java.time.Instant.now().toString())
                             .setIsRead(false)

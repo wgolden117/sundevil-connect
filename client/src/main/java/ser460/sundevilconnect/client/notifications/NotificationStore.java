@@ -29,6 +29,10 @@ public class NotificationStore {
         return notifications.stream().anyMatch(n -> !n.isRead());
     }
 
+    public void clear() {
+        notifications.clear();
+    }
+
     public void markAllAsRead() {
         notifications.forEach(NotificationItem::markAsRead);
     }

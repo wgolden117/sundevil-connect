@@ -70,23 +70,32 @@ public class NotificationService extends NotificationServiceImplBase {
 
     public void notifyObservers(List<String> userIds, NotificationMessage notification) {
 
-        // SAVE notification to DB
-        notificationDAO.saveNotification(notification);
-
         for (String userId : userIds) {
 
+            // 🔥 Create a NEW notification per user
+            NotificationMessage userNotification = NotificationMessage.newBuilder()
+                    .setNotificationId(java.util.UUID.randomUUID().toString())
+                    .setUserId(userId)
+                    .setMessage(notification.getMessage())
+                    .setType(notification.getType())
+                    .setTimestamp(notification.getTimestamp())
+                    .setIsRead(false)
+                    .build();
+
+            // Save per-user notification
+            notificationDAO.saveNotification(userNotification);
+
+            // Send to live observers
             List<StreamObserver<NotificationMessage>> userObservers = observers.get(userId);
 
             if (userObservers != null) {
-
                 for (StreamObserver<NotificationMessage> observer : userObservers) {
                     try {
-                        observer.onNext(notification);
+                        observer.onNext(userNotification);
                     } catch (Exception e) {
                         userObservers.remove(observer);
                     }
                 }
-
             }
         }
     }

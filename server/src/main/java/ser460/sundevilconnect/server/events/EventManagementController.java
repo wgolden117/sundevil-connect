@@ -2,6 +2,7 @@ package ser460.sundevilconnect.server.events;
 
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
+import ser460.sundevilconnect.server.clubs.ClubMembershipDAO;
 import ser460.sundevilconnect.shared.proto.EventManagementServiceGrpc.*;
 import ser460.sundevilconnect.shared.proto.EventManagementServiceProto.*;
 
@@ -16,19 +17,53 @@ public class EventManagementController extends EventManagementServiceImplBase {
         this.eventManagementDAO = eventManagementDAO;
     }
 
+    private final ClubMembershipDAO clubMembershipDAO =
+            new ClubMembershipDAO(ser460.sundevilconnect.server.core.DatabaseService.getInstance());
+
     @Override
     public void createEvent(CreateEventRequest request,
                             StreamObserver<EventManagementActionResponse> responseObserver) {
         try {
+            var event = request.getEvent();
+
             boolean success = eventManagementDAO.createEvent(
-                    request.getEvent(),
+                    event,
                     Integer.parseInt(request.getUserId()));
+
+            if (success) {
+
+                int clubId = Integer.parseInt(event.getHostedBy().getClubId());
+                String eventTitle = event.getTitle();
+
+                // Get all club members
+                var members = clubMembershipDAO.getMembersForClub(clubId);
+
+                for (var member : members) {
+
+                    String userId = member.getStudent().getUserId();
+
+                    var notification =
+                            ser460.sundevilconnect.shared.proto.NotificationServiceProto.NotificationMessage.newBuilder()
+                                    .setNotificationId(java.util.UUID.randomUUID().toString())
+                                    .setUserId(userId)
+                                    .setMessage("New event created: " + eventTitle)
+                                    .setType(ser460.sundevilconnect.shared.proto.NotificationServiceProto.NotificationType.EVENT_UPDATED)
+                                    .setTimestamp(java.time.Instant.now().toString())
+                                    .setIsRead(false)
+                                    .build();
+
+                    ser460.sundevilconnect.server.core.NotificationService.getInstance()
+                            .notifyObservers(java.util.List.of(userId), notification);
+                }
+            }
+
             responseObserver.onNext(
                     EventManagementActionResponse.newBuilder()
                             .setSuccess(success)
                             .build()
             );
             responseObserver.onCompleted();
+
         } catch (Exception e) {
             responseObserver.onError(Status.INTERNAL
                     .withDescription(e.getMessage()).asException());
@@ -55,16 +90,20 @@ public class EventManagementController extends EventManagementServiceImplBase {
                         userIds.add(r.getStudent().getUserId())
                 );
 
-                var notification = ser460.sundevilconnect.shared.proto.NotificationServiceProto.NotificationMessage.newBuilder()
-                        .setNotificationId(java.util.UUID.randomUUID().toString())
-                        .setMessage("Event updated: " + eventTitle)
-                        .setType(ser460.sundevilconnect.shared.proto.NotificationServiceProto.NotificationType.EVENT_UPDATED)
-                        .setTimestamp(java.time.Instant.now().toString())
-                        .setIsRead(false)
-                        .build();
+                for (String userId : userIds) {
 
-                ser460.sundevilconnect.server.core.NotificationService.getInstance()
-                        .notifyObservers(userIds, notification);
+                    var notification = ser460.sundevilconnect.shared.proto.NotificationServiceProto.NotificationMessage.newBuilder()
+                            .setNotificationId(java.util.UUID.randomUUID().toString())
+                            .setUserId(userId)
+                            .setMessage("Event updated: " + eventTitle)
+                            .setType(ser460.sundevilconnect.shared.proto.NotificationServiceProto.NotificationType.EVENT_UPDATED)
+                            .setTimestamp(java.time.Instant.now().toString())
+                            .setIsRead(false)
+                            .build();
+
+                    ser460.sundevilconnect.server.core.NotificationService.getInstance()
+                            .notifyObservers(java.util.List.of(userId), notification);
+                }
             }
 
             responseObserver.onNext(
@@ -97,16 +136,23 @@ public class EventManagementController extends EventManagementServiceImplBase {
                         userIds.add(r.getStudent().getUserId())
                 );
 
-                var notification = ser460.sundevilconnect.shared.proto.NotificationServiceProto.NotificationMessage.newBuilder()
-                        .setNotificationId(java.util.UUID.randomUUID().toString())
-                        .setMessage("An event you registered for has been CANCELLED")
-                        .setType(ser460.sundevilconnect.shared.proto.NotificationServiceProto.NotificationType.EVENT_UPDATED)
-                        .setTimestamp(java.time.Instant.now().toString())
-                        .setIsRead(false)
-                        .build();
+                for (String userId : userIds) {
 
-                ser460.sundevilconnect.server.core.NotificationService.getInstance()
-                        .notifyObservers(userIds, notification);
+                    var event = eventManagementDAO.getEventById(eventId);
+                    String eventTitle = event != null ? event.getTitle() : "Event";
+
+                    var notification = ser460.sundevilconnect.shared.proto.NotificationServiceProto.NotificationMessage.newBuilder()
+                            .setNotificationId(java.util.UUID.randomUUID().toString())
+                            .setUserId(userId)
+                            .setMessage("Event cancelled: " + eventTitle)
+                            .setType(ser460.sundevilconnect.shared.proto.NotificationServiceProto.NotificationType.EVENT_UPDATED)
+                            .setTimestamp(java.time.Instant.now().toString())
+                            .setIsRead(false)
+                            .build();
+
+                    ser460.sundevilconnect.server.core.NotificationService.getInstance()
+                            .notifyObservers(java.util.List.of(userId), notification);
+                }
             }
 
             responseObserver.onNext(
@@ -136,4 +182,6 @@ public class EventManagementController extends EventManagementServiceImplBase {
                     .withDescription(e.getMessage()).asException());
         }
     }
+
+
 }
