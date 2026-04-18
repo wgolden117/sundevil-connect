@@ -2,12 +2,30 @@
 
 ### ASU CSE 460 - Group Project
 
-A campus club and event management platform for ASU students.
+SunDevil Connect is a client-server campus platform designed to help ASU students discover, create, and
+manage clubs and events. The system enables users to browse events, register for activities, and manage 
+club participation through an interactive desktop interface.
+
+This project was developed collaboratively with **Hank Atherton**, with both contributors working together across 
+the full stack, including frontend development, backend services, and system design.
+
+---
+
+## Features
+- Club creation and management
+- Event creation and registration
+- Capacity tracking and enforcement
+- Client-server communication using gRPC
+- Interactive desktop UI built with JavaFX
+
+---
 
 ## Prerequisites
 - JDK 21 (Eclipse Temurin recommended)
 - Any Java IDE or text editor
 - Git
+
+---
 
 ## Getting Started
 
@@ -52,3 +70,14 @@ Always start the server before the client.
 - JavaFX 21
 - gRPC / Protobuf
 - SQLite via JDBC
+
+## Design Documentation
+
+Detailed system design artifacts are available in the `/docs` directory, including:
+
+- Requirements and use case modeling
+- UML diagrams (CRC, class, and use case diagrams)
+- System architecture and design patterns
+- Deployment and component diagrams
+
+These documents outline the full software design process from requirements to system architecture.
