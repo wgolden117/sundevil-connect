@@ -8,16 +8,25 @@ import java.sql.DriverManager;
 import java.sql.*;
 import java.util.List;
 import java.util.ArrayList;
+import java.io.File;
 import ser460.sundevilconnect.server.auth.User;
 import ser460.sundevilconnect.shared.proto.EntitiesProto.*;
 
 public class DatabaseService {
     private static DatabaseService instance = new DatabaseService();
 
+    private static final String DB_PATH;
+
+    static {
+        String appData = System.getProperty("user.home") + "\\AppData\\Local\\SunDevilConnect";
+        new File(appData).mkdirs(); // create folder if it doesn't exist
+        DB_PATH = "jdbc:sqlite:" + appData + "\\sundevil.db";
+    }
+
     private DatabaseService() {
         try {
             Class.forName("org.sqlite.JDBC");
-            Connection conn = DriverManager.getConnection("jdbc:sqlite:sundevil.db");
+            Connection conn = DriverManager.getConnection(DB_PATH);
             conn.close();
             System.out.println("SQLite connection successful");
         } catch (Exception e) {
@@ -33,7 +42,7 @@ public class DatabaseService {
     }
 
     public Connection getConnection() throws SQLException {
-        return DriverManager.getConnection("jdbc:sqlite:sundevil.db");
+        return DriverManager.getConnection(DB_PATH);
     }
 
     public void initializeDatabase() {
@@ -82,8 +91,6 @@ public class DatabaseService {
 
         return null;
     }
-
-    // TODO make sure we're accounting for multi-threaded access!!
 
     public void save(Object entity) {}
     public Object findBy(String id, Class type) { return null; }
